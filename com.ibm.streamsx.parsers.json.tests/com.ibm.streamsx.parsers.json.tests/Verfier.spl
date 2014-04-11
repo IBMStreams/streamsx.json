@@ -1,0 +1,66 @@
+//
+// *******************************************************************************
+// * Copyright (C)2014, International Business Machines Corporation and *
+// * others. All Rights Reserved. *
+// *******************************************************************************
+//
+namespace com.ibm.streamsx.parsers.json.tests;
+
+//utility class
+composite Verifier(input InputS) {
+
+
+	type
+		MyType = InputS;
+
+	graph
+		
+		stream<rstring jsonString> JsonS = 
+			com.ibm.streamsx.parsers.json::TupleToJSON(InputS)
+		{}
+		stream<MyType> OutputS = 
+			com.ibm.streamsx.parsers.json::JSONToTuple(JsonS)
+		{}
+
+		() as SinkOp = Custom(InputS; OutputS) {
+		logic 
+			state : {
+			mutable list<MyType> inputs ;
+			mutable list<MyType> outputs ;
+			}
+			onTuple InputS : {
+				if(size(outputs) > 0) {	
+				log(Sys.info,(rstring)InputS);
+					MyType val = outputs[0];
+					remove(outputs, 0);
+					
+					if(val != InputS) {
+						log(Sys.error,"ERROR Does not match: " + (rstring)InputS + " and " + (rstring)val);
+						shutdownPE();
+					}
+				}
+				else {
+					log(Sys.info,"Appending: "+ (rstring)InputS);
+					appendM(inputs, InputS);
+				}
+			}
+			onTuple OutputS : {
+				if(size(inputs) > 0) {					
+				log(Sys.info,(rstring)OutputS);
+					MyType val = inputs[0];
+					remove(inputs, 0);
+					
+					if(val != OutputS) {
+						log(Sys.error,"ERROR Does not match: " + (rstring)(rstring)OutputS + " and " + (rstring)val);
+						shutdownPE();
+					}
+				}
+				else {
+					log(Sys.info,"Appending: "+ (rstring)OutputS);
+					appendM(outputs, OutputS);
+				}
+			}
+			
+		}
+	
+}

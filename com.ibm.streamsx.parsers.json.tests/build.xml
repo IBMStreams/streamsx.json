@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+//
+// *******************************************************************************
+// * Copyright (C)2014, International Business Machines Corporation and *
+// * others. All Rights Reserved. *
+// *******************************************************************************
+//
+-->
+<project name="com.ibm.streamsx.parsers.json.tests" basedir="." default="all">
+
+	<property environment="env" />
+	<property name="streams.install" value="${env.STREAMS_INSTALL}" />
+
+
+	<target name="all" depends="test">
+	</target>
+
+	<target name="test">
+		<exec executable="make" failonerror="true">
+	  </exec>
+	</target>
+
+	<target name="clean">
+		<exec executable="make" failonerror="true">
+			<arg value="clean"/>
+	  </exec>
+	</target>
+
+</project>
+
