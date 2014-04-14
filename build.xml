@@ -80,7 +80,7 @@
   </target>
   
   <!-- Test targets -->
-  <target name="tests">
+  <target name="tests" depends="toolkit">
      <ant dir="${toolkit.test}" target="test"/>
   </target>
   <target name="tests-clean">
