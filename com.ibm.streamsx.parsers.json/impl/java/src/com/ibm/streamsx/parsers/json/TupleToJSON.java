@@ -22,6 +22,7 @@ import com.ibm.streams.operator.StreamingInput;
 import com.ibm.streams.operator.StreamingOutput;
 import com.ibm.streams.operator.Tuple;
 import com.ibm.streams.operator.Type;
+import com.ibm.streams.operator.StreamingData.Punctuation;
 import com.ibm.streams.operator.Type.MetaType;
 import com.ibm.streams.operator.encoding.EncodingFactory;
 import com.ibm.streams.operator.encoding.JSONEncoding;
@@ -52,11 +53,11 @@ public class TupleToJSON extends AbstractOperator {
 	public void setJsonStringAttribute(String value) {
 		this.dataParamName = value;
 	}
-	@Parameter(optional=true, description="Name of the input stream attribute to be used as the root of the JSON object. Default is the entire tuple.")
+	@Parameter(optional=true, description="Name of the input stream attribute to be used as the root of the JSON object. Default is the input tuple.")
 	public void setRootAttribute(String value) {
 		this.sourceAttr = value;
 	}
-	@Parameter(optional=true, cardinality=-1, description="Name of the input stream attributes to copy over to the output stream")
+	@Parameter(optional=true, cardinality=-1, description="Name of the input stream attributes to copy over to the output stream. ")
 	public void setCopyAttribute(List<String> value) {
 		copyFields.addAll(value);
 	}
@@ -137,7 +138,12 @@ public class TupleToJSON extends AbstractOperator {
 		return je.encodeAsString(tuple);
 	}
 
+	@Override
+	public synchronized void processPunctuation(StreamingInput<Tuple> stream,
+			Punctuation mark) throws Exception {
+		getOperatorContext().getStreamingOutputs().get(0).punctuate(mark);
+	}
+	
 	static final String DESC = 
-			"This operator converts incoming tuples to JSON String. The ";
-
+			"This operator converts incoming tuples to JSON String." ;
 }

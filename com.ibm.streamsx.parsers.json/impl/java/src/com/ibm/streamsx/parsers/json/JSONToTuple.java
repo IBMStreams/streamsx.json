@@ -29,6 +29,7 @@ import com.ibm.streams.operator.StreamingInput;
 import com.ibm.streams.operator.StreamingOutput;
 import com.ibm.streams.operator.Tuple;
 import com.ibm.streams.operator.Type;
+import com.ibm.streams.operator.StreamingData.Punctuation;
 import com.ibm.streams.operator.Type.MetaType;
 import com.ibm.streams.operator.logging.TraceLevel;
 import com.ibm.streams.operator.meta.CollectionType;
@@ -281,7 +282,6 @@ public class JSONToTuple extends AbstractOperator
 			case LIST:
 			case BLIST:
 			{
-				//if(type.getAsCompositeElementType().isArray()) {
 				if(!(((CollectionType)type).getElementType()).getMetaType().isCollectionType() &&
 					(parentType == null || !parentType.getMetaType().isCollectionType())) {
 					return arrayToCollection(name, (JSONArray) obj, type);
@@ -546,6 +546,19 @@ public class JSONToTuple extends AbstractOperator
 		}
 		return schema.getTuple(attrmap);
 	}
+	@Override
+	public synchronized void processPunctuation(StreamingInput<Tuple> stream,
+			Punctuation mark) throws Exception {
+		getOperatorContext().getStreamingOutputs().get(0).punctuate(mark);
+	}
 
-	static final String DESC = "";
+	static final String DESC = 
+			"This operator converts JSON strings into SPL Tuples. The tuple structure is expected to match the JSON schema." +
+			" A subset of the attributes can be specified as well. " +
+			" Only those attributes that are present in the Tuple schema and JSON input will be converted. All other attributes will be ignored." +
+			" If an invalid JSON string is found in the input, the operator will fail. " +
+			" This behavior can be overridden by specifying the optional output port or by specifying the \\\"ignoreParsingError\\\" parameter." +
+			" Limitations:" +
+			" BLOB, MAP and COMPLEX attribute types are not supported in the output tuple schema and will be ignored."
+			;
 }
