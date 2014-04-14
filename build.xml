@@ -1,6 +1,6 @@
-<project name="streamsx.inet" default="all" basedir=".">
+<project name="streamsx.json" default="all" basedir=".">
     <description>
-        Build file for streamsx.inet project, built the toolkits and samples.
+        Build file for streamsx.json project, built the toolkits and samples.
     </description>
   <!-- set global properties for this build -->
   <property environment="env" />
