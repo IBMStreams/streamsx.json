@@ -15,8 +15,8 @@ impl/nl/include/*.h
 *$StreamsModel.java
 
 # Package Files #
-com.ibm.streamsx.parsers.json/lib/*.jar
-com.ibm.streamsx.parsers.json/impl/lib/*.jar
+com.ibm.streamsx.json/lib/*.jar
+com.ibm.streamsx.json/impl/lib/*.jar
 *.war
 *.ear
 

@@ -5,8 +5,8 @@
   <!-- set global properties for this build -->
   <property environment="env" />
   <property name="streams.install" value="${env.STREAMS_INSTALL}" />
-  <property name="toolkit" location="com.ibm.streamsx.parsers.json"/>
-	<property name="toolkit.test" location="com.ibm.streamsx.parsers.json.tests"/>
+  <property name="toolkit" location="com.ibm.streamsx.json"/>
+	<property name="toolkit.test" location="tests"/>
   <property name="tmp" location="tmp" />
 	
   <target name="all" depends="toolkit,samples"/>

@@ -6,8 +6,8 @@
 #
 
 sc=${STREAMS_INSTALL}/bin/sc
-args=-t ../com.ibm.streamsx.parsers.json
-ns=com.ibm.streamsx.parsers.json.tests
+args=-t ../com.ibm.streamsx.json
+ns=com.ibm.streamsx.json.tests
 outputdir=./output
 
 tests=BasicTest ListTest SetOfListTest

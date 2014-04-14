@@ -4,7 +4,7 @@
 // * others. All Rights Reserved. *
 // *******************************************************************************
 //
-namespace com.ibm.streamsx.parsers.json.tests;
+namespace com.ibm.streamsx.json.tests;
 
 composite BasicTest {
 

@@ -4,7 +4,7 @@
 // * others. All Rights Reserved. *
 // *******************************************************************************
 //
-namespace com.ibm.streamsx.parsers.json.tests;
+namespace com.ibm.streamsx.json.tests;
 
 //utility class
 composite Verifier(input InputS) {
@@ -16,10 +16,10 @@ composite Verifier(input InputS) {
 	graph
 		
 		stream<rstring jsonString> JsonS = 
-			com.ibm.streamsx.parsers.json::TupleToJSON(InputS)
+			com.ibm.streamsx.json::TupleToJSON(InputS)
 		{}
 		stream<MyType> OutputS = 
-			com.ibm.streamsx.parsers.json::JSONToTuple(JsonS)
+			com.ibm.streamsx.json::JSONToTuple(JsonS)
 		{}
 
 		() as SinkOp = Custom(InputS; OutputS) {

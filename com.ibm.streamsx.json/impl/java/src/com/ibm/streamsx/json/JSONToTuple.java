@@ -4,7 +4,7 @@
 // * others. All Rights Reserved. *
 // *******************************************************************************
 //
-package com.ibm.streamsx.parsers.json;
+package com.ibm.streamsx.json;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
