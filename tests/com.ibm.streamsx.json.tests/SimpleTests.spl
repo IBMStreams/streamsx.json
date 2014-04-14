@@ -1,0 +1,60 @@
+//
+// *******************************************************************************
+// * Copyright (C)2014, International Business Machines Corporation and *
+// * others. All Rights Reserved. *
+// *******************************************************************************
+//
+namespace com.ibm.streamsx.json.tests;
+
+composite BasicTest {
+
+
+	type
+		MyType = rstring name, rstring value, int32 age;
+
+	graph
+		stream<MyType> InputS = Beacon() {
+		param
+			iterations : 1u;
+		output InputS : name = "name", value="value", age=10;
+		}
+		() as SinkOp = Verifier(InputS) {}
+		
+}
+
+composite ListTest {
+
+
+	type
+		MyType = list<rstring> a, list<int64> b, set<float64> c;
+
+	graph
+		stream<MyType> InputS = Beacon() {
+		param
+			iterations : 1u;
+		output InputS : a=[ "a", "b", "c"] , b=[1l,2l,3l], c={1.2, 2.2,3.5};
+		}
+		() as SinkOp = Verifier(InputS) {}
+	config 
+		tracing : debug;
+		
+}
+
+//special case where lists and sets are embedded
+composite SetOfListTest {
+
+
+	type
+		MyType = list<rstring> a, set<list<int64>> b, list<set<float64>> c, list<list<rstring>> d , set<set<float64>> e;
+
+	graph
+		stream<MyType> InputS = Beacon() {
+		param
+			iterations : 1u;
+		output InputS : a=[ "a", "b", "c"] , b={[1l,2l,3l]}, c=[{1.2, 2.2,3.5}], d=[["a", "b", "c"]], e={{1.2,3.4}};
+		}
+		() as SinkOp = Verifier(InputS) {}
+	config 
+		tracing : debug;
+		
+}
