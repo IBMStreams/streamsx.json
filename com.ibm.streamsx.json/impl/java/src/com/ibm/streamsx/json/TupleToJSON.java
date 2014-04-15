@@ -113,17 +113,14 @@ public class TupleToJSON extends AbstractOperator {
 
 	public void process(StreamingInput<Tuple> stream, Tuple tuple) throws Exception 	{
 		StreamingOutput<OutputTuple> ops = getOutput(0);
-		String jsonData = null;
+		final String jsonData;
 		if(sourceAttr == null) 
 			jsonData = convertTuple(tuple);
 		else 
-			jsonData = convertTuple((Tuple)tuple.getObject(sourceAttr));
+			jsonData = convertTuple(tuple.getTuple(sourceAttr));
 
 		OutputTuple op = ops.newTuple();
-		if(dtype.getMetaType() == MetaType.RSTRING)
-			op.setObject(dataParamName, new RString(jsonData.getBytes()));
-		else 
-			op.setObject(dataParamName, jsonData);
+                op.setString(dataParamName, jsonData);
 
 		if(copyFields.size() > 0) {
 			for(String f : copyFields)
