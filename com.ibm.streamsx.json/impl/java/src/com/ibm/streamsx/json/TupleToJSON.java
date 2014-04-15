@@ -68,7 +68,7 @@ public class TupleToJSON extends AbstractOperator {
 		super.initialize(op);
 
 
-		StreamSchema ssop = op.getStreamingOutputs().get(0).getStreamSchema();
+		StreamSchema ssop = getOutput(0).getStreamSchema();
 
 		if(ssop.getAttribute(dataParamName) == null ||
 				(ssop.getAttribute(dataParamName).getType().getMetaType() != MetaType.RSTRING &&
@@ -82,7 +82,7 @@ public class TupleToJSON extends AbstractOperator {
 
 
 
-		StreamSchema ssip = op.getStreamingInputs().get(0).getStreamSchema();
+		StreamSchema ssip = getInput(0).getStreamSchema();
 		if(sourceAttr!=null) {
 			if(ssip.getAttribute(sourceAttr) == null || 
 					ssop.getAttribute(sourceAttr).getType().getMetaType() != MetaType.TUPLE)
@@ -111,19 +111,16 @@ public class TupleToJSON extends AbstractOperator {
 
 	}
 
-	public synchronized void process(StreamingInput<Tuple> stream, Tuple tuple) throws Exception 	{
+	public void process(StreamingInput<Tuple> stream, Tuple tuple) throws Exception 	{
 		StreamingOutput<OutputTuple> ops = getOutput(0);
-		String jsonData = null;
+		final String jsonData;
 		if(sourceAttr == null) 
 			jsonData = convertTuple(tuple);
 		else 
-			jsonData = convertTuple((Tuple)tuple.getObject(sourceAttr));
+			jsonData = convertTuple(tuple.getTuple(sourceAttr));
 
 		OutputTuple op = ops.newTuple();
-		if(dtype.getMetaType() == MetaType.RSTRING)
-			op.setObject(dataParamName, new RString(jsonData.getBytes()));
-		else 
-			op.setObject(dataParamName, jsonData);
+                op.setString(dataParamName, jsonData);
 
 		if(copyFields.size() > 0) {
 			for(String f : copyFields)
@@ -138,12 +135,6 @@ public class TupleToJSON extends AbstractOperator {
 		return je.encodeAsString(tuple);
 	}
 
-	@Override
-	public synchronized void processPunctuation(StreamingInput<Tuple> stream,
-			Punctuation mark) throws Exception {
-		getOperatorContext().getStreamingOutputs().get(0).punctuate(mark);
-	}
-	
 	static final String DESC = 
 			"This operator converts incoming tuples to JSON String." ;
 }

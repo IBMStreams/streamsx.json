@@ -95,8 +95,8 @@ public class JSONToTuple extends AbstractOperator
 		super.initialize(op);
 
 
-		StreamSchema ssOp0 = op.getStreamingOutputs().get(0).getStreamSchema();
-		StreamSchema ssIp0 = op.getStreamingInputs().get(0).getStreamSchema();
+		StreamSchema ssOp0 = getOutput(0).getStreamSchema();
+		StreamSchema ssIp0 = getInput(0).getStreamSchema();
 		hasOptionalOut = op.getStreamingOutputs().size() > 1;
 		
 		List<MetaType> types  = Arrays.asList(MetaType.RSTRING, MetaType.USTRING);
@@ -181,19 +181,13 @@ public class JSONToTuple extends AbstractOperator
 		return rtype;
 	}
 
-	public synchronized void process(StreamingInput<Tuple> stream, Tuple tuple) throws Exception 	{
+	public void process(StreamingInput<Tuple> stream, Tuple tuple) throws Exception 	{
 
 		StreamingOutput<OutputTuple> ops = getOutput(0);
 
-		String str = null;
-		if(dataParamAttrType == MetaType.RSTRING) {
-			str = ((RString)tuple.getObject(dataParamName)).getString();
-		}
-		else {
-			str = tuple.getString(dataParamName);
-		} 
+		String str = tuple.getString(dataParamName);
 		OutputTuple op = ops.newTuple();
-		if(str!=null && str.length()>0) {
+		if(str.length()>0) {
 			if(l.isLoggable(TraceLevel.INFO))
 				l.log(TraceLevel.INFO, "Converting Data Size= " + str.length());
 			try {
@@ -225,12 +219,7 @@ public class JSONToTuple extends AbstractOperator
 			}
 
 			if(jsonStringAttr!= null) {
-				if(jsonStringAttrType == MetaType.RSTRING) {
-					op.setObject(jsonStringAttr, new RString(str));
-				}
-				else {
-					op.setObject(jsonStringAttr, str);
-				}
+				op.setString(jsonStringAttr, str);
 			}
 		}
 		else {
@@ -545,11 +534,6 @@ public class JSONToTuple extends AbstractOperator
 
 		}
 		return schema.getTuple(attrmap);
-	}
-	@Override
-	public synchronized void processPunctuation(StreamingInput<Tuple> stream,
-			Punctuation mark) throws Exception {
-		getOperatorContext().getStreamingOutputs().get(0).punctuate(mark);
 	}
 
 	static final String DESC = 
