@@ -19,7 +19,8 @@ composite BasicTest {
 		output InputS : name = "name", value="value", age=10;
 		}
 		() as SinkOp = Verifier(InputS) {}
-		
+	config 
+	  tracing : debug;
 }
 
 composite ListTest {
