@@ -14,7 +14,7 @@ tests=BasicTest ListTest SetOfListTest
 
 rntest=./scripts/testRunner.sh
 
-all: BasicTest ListTest SetOfListTest
+all: BasicTest ListTest SetOfListTest NullBasicTest
 
 
 compile: ${tests}
