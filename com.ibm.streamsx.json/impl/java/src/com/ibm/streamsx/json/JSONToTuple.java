@@ -91,8 +91,8 @@ public class JSONToTuple extends AbstractOperator
 		super.initialize(op);
 
 
-		StreamSchema ssOp0 = op.getStreamingOutputs().get(0).getStreamSchema();
-		StreamSchema ssIp0 = op.getStreamingInputs().get(0).getStreamSchema();
+		StreamSchema ssOp0 = getOutput(0).getStreamSchema();
+		StreamSchema ssIp0 = getInput(0).getStreamSchema();
 		hasOptionalOut = op.getStreamingOutputs().size() > 1;
 		
 		List<MetaType> types  = Arrays.asList(MetaType.RSTRING, MetaType.USTRING);
@@ -134,22 +134,14 @@ public class JSONToTuple extends AbstractOperator
 		return t;
 	}
 
-	public synchronized void process(StreamingInput<Tuple> stream, Tuple tuple) throws Exception 	{
+	public void process(StreamingInput<Tuple> stream, Tuple tuple) throws Exception 	{
 
 		StreamingOutput<OutputTuple> ops = getOutput(0);
 		OutputTuple op = ops.newTuple();
 		op.assign(tuple);//copy over any relevant attributes
 
-		String str = null;
-		if(dataParamAttrMType == MetaType.RSTRING) {
-			str = ((RString)tuple.getObject(jsonStringAttribute)).getString();
-		}
-		else {
-			str = tuple.getString(jsonStringAttribute);
-		} 
-		if(str!=null && !str.isEmpty()) {
-			if(l.isLoggable(TraceLevel.INFO))
-				l.log(TraceLevel.INFO, "Converting Data Size= " + str.length());
+		String str = tuple.getString(jsonStringAttribute);
+		if(str.length()>0) {
 			if(l.isLoggable(TraceLevel.DEBUG))
 				l.log(TraceLevel.DEBUG, "Converting JSON: " + str);
 			try {
@@ -178,21 +170,13 @@ public class JSONToTuple extends AbstractOperator
 			}
 
 			if(jsonStringOutputAttribute!= null) {
-				if(jsonStringAttrMType == MetaType.RSTRING) {
-					op.setObject(jsonStringOutputAttribute, new RString(str));
-				}
-				else {
-					op.setObject(jsonStringOutputAttribute, str);
-				}
+				op.setString(jsonStringOutputAttribute, str);
 			}
 		}
 		else {
 			if(l.isLoggable(TraceLevel.INFO)) 
 				l.log(TraceLevel.INFO, "No JSON data found");
 		}
-		
-		if(l.isLoggable(TraceLevel.DEBUG)) 
-			l.log(TraceLevel.DEBUG, "Sending Tuple: " + op.toString());
 		
 		ops.submit(op);
 	}
@@ -207,29 +191,43 @@ public class JSONToTuple extends AbstractOperator
 			switch(type.getMetaType()) {
 			case INT8:
 			case UINT8:
+				if(obj instanceof Number)
+					return ((Number)obj).byteValue();
 				return Byte.parseByte(obj.toString());
 			case INT16:
 			case UINT16:
+				if(obj instanceof Number)
+					return ((Number)obj).shortValue();
 				return Short.parseShort(obj.toString());
 			case INT32:
 			case UINT32:
+				if(obj instanceof Number)
+					return ((Number)obj).intValue();
 				return Integer.parseInt(obj.toString());
 			case INT64:
 			case UINT64:
+				if(obj instanceof Number)
+					return ((Number)obj).longValue();
 				return Long.parseLong(obj.toString());
-			case USTRING:
-				return obj.toString();
 			case BOOLEAN:
+				if(obj instanceof Boolean)
+					return (Boolean)obj;
 				return Boolean.parseBoolean(obj.toString());
 			case FLOAT32:
+				if(obj instanceof Number)
+					return ((Number)obj).floatValue();
 				return Float.parseFloat(obj.toString());
 			case FLOAT64:
+				if(obj instanceof Number)
+					return ((Number)obj).doubleValue();
 				return Double.parseDouble(obj.toString());
 			case DECIMAL32:
 			case DECIMAL64:
 			case DECIMAL128:
 				return new java.math.BigDecimal(obj.toString());
 
+			case USTRING:
+				return obj.toString();
 			case BSTRING:
 			case RSTRING:
 				return new RString(obj.toString());
@@ -261,6 +259,8 @@ public class JSONToTuple extends AbstractOperator
 				return jsonToTuple((JSONObject)obj, ((TupleType)type).getTupleSchema());
 			
 			case TIMESTAMP:
+				if(obj instanceof Number)
+					return Timestamp.getTimestamp(((Number)obj).doubleValue());
 				return Timestamp.getTimestamp(Double.parseDouble(obj.toString()));
 				
 			//TODO -- not yet supported types
@@ -270,8 +270,8 @@ public class JSONToTuple extends AbstractOperator
 			case COMPLEX32:
 			case COMPLEX64:
 			default:
-				if(l.isLoggable(TraceLevel.INFO))
-					l.log(TraceLevel.INFO, "Ignoring unsupported field: " + name + ", of type: " + type);
+				if(l.isLoggable(TraceLevel.DEBUG))
+					l.log(TraceLevel.DEBUG, "Ignoring unsupported field: " + name + ", of type: " + type);
 				break;
 			}
 		}catch(Exception e) {
@@ -293,6 +293,7 @@ public class JSONToTuple extends AbstractOperator
 				lst.add(obj);
 		}
 	}
+	
 
 	//this is used when a JSON array maps to a Java array 
 	private Object arrayToSPLArray(String name, JSONArray jarr, Type ptype) throws Exception {
@@ -310,85 +311,112 @@ public class JSONToTuple extends AbstractOperator
 		case INT8:
 		case UINT8: 
 		{
-			byte[] arr= new byte[arrsize];
+			List<Object> lst = new ArrayList<Object>();
 			while(jsonit.hasNext()) {
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonit.next(), ptype);
-				if(obj!=null)
-					arr[cnt++] = (Byte)obj;
+				if(obj!=null) lst.add(obj);
 			}
+			
+			byte[] arr= new byte[lst.size()];
+			for(Object val : lst)
+				arr[cnt++] = (Byte)val;
 			return arr;
 		} 
 		case INT16:
 		case UINT16:
 		{
-			short[] arr= new short[arrsize];
+			List<Object> lst = new ArrayList<Object>();
 			while(jsonit.hasNext()) {
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonit.next(), ptype);
-				arr[cnt++] = obj==null ? 0 :  (Short)obj;
+				if(obj!=null) lst.add(obj);
 			}
+			
+			short[] arr= new short[lst.size()];
+			for(Object val : lst)
+				arr[cnt++] = (Short)val;
 			return arr;
 		} 
 		case INT32:
 		case UINT32:
 		{
-			int[] arr= new int[arrsize];
+			List<Object> lst = new ArrayList<Object>();
 			while(jsonit.hasNext()) {
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonit.next(), ptype);
-				arr[cnt++] = obj==null ? 0 :  (Integer)obj;
+				if(obj!=null) lst.add(obj);
 			}
+			
+			int[] arr= new int[lst.size()];
+			for(Object val : lst)
+				arr[cnt++] = (Integer)val;
 			return arr;
 		} 
 
 		case INT64:
 		case UINT64:
 		{
-			long[] arr= new long[arrsize];
+			List<Object> lst = new ArrayList<Object>();
 			while(jsonit.hasNext()) {
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonit.next(), ptype);
-				arr[cnt++] = obj==null ? 0 :  (Long)obj;
+				if(obj!=null) lst.add(obj);
 			}
+			
+			long[] arr= new long[lst.size()];
+			for(Object val : lst)
+				arr[cnt++] = (Long)val;
 			return arr;
 		} 
 
 		case BOOLEAN:
 		{
-			boolean[] arr= new boolean[arrsize];
+			List<Object> lst = new ArrayList<Object>();
 			while(jsonit.hasNext()) {
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonit.next(), ptype);
-				arr[cnt++] = obj==null ? false :  (Boolean)obj;
+				if(obj!=null) lst.add(obj);
 			}
+			
+			boolean[] arr= new boolean[lst.size()];
+			for(Object val : lst)
+				arr[cnt++] = (Boolean)val;
 			return arr;
 		} 
 
 		case FLOAT32:
 		{
-			float[] arr= new float[arrsize];
+			List<Object> lst = new ArrayList<Object>();
 			while(jsonit.hasNext()) {
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonit.next(), ptype);
-				arr[cnt++] = obj==null ? 0 :  (Float)obj;
+				if(obj!=null) lst.add(obj);
 			}
+			
+			float[] arr= new float[lst.size()];
+			for(Object val : lst)
+				arr[cnt++] = (Float)val;
 			return arr;
 		} 
 
 		case FLOAT64:
 		{
-			double[] arr= new double[arrsize];
+			List<Object> lst = new ArrayList<Object>();
 			while(jsonit.hasNext()) {
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonit.next(), ptype);
-				arr[cnt++] = obj==null ? 0 :  (Double)obj;
+				if(obj!=null) lst.add(obj);
 			}
+			
+			double[] arr= new double[lst.size()];
+			for(Object val : lst)
+				arr[cnt++] = (Double)val;
 			return arr;
 		} 
 
 		case USTRING:
 		{
-			String[] arr= new String[arrsize];
+			List<String> lst =  new ArrayList<String>();
 			while(jsonit.hasNext()) {
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonit.next(), ptype);
-				if(obj!=null)
-					arr[cnt++] = (String)obj;
+				if(obj != null) 
+					lst.add((String)obj);
 			}
-			return arr;
+			return lst.toArray(new String[lst.size()]);
 		} 
 
 		case BSTRING:
@@ -397,7 +425,7 @@ public class JSONToTuple extends AbstractOperator
 			List<RString> lst = new ArrayList<RString>(); 
 			while(jsonit.hasNext()) {
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonit.next(), ptype);
-				if(obj != null)
+				if(obj != null) 
 					lst.add((RString)obj);
 			}
 			return lst;
@@ -408,7 +436,7 @@ public class JSONToTuple extends AbstractOperator
 			List<Tuple> lst = new ArrayList<Tuple>(); 
 			while(jsonit.hasNext()) {
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonit.next(), ptype);
-				if(obj != null)
+				if(obj != null) 
 					lst.add((Tuple)obj);
 			}
 			return lst;
@@ -420,7 +448,7 @@ public class JSONToTuple extends AbstractOperator
 			List<Object> lst = new ArrayList<Object>(); 
 			while(jsonit.hasNext()) {
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonit.next(), ptype);
-				if(obj != null)
+				if(obj != null) 
 					lst.add(obj);
 			}
 			return lst;
@@ -431,7 +459,7 @@ public class JSONToTuple extends AbstractOperator
 			Set<Object> lst = new HashSet<Object>(); 
 			while(jsonit.hasNext()) {
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonit.next(), ptype);
-				if(obj != null)
+				if(obj != null) 
 					lst.add(obj);
 			}
 			return lst;
@@ -443,7 +471,7 @@ public class JSONToTuple extends AbstractOperator
 			List<BigDecimal> lst = new ArrayList<BigDecimal>(); 
 			while(jsonit.hasNext()) {
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonit.next(), ptype);
-				if(obj != null)
+				if(obj != null) 
 					lst.add((BigDecimal)obj);
 			}
 			return lst;
@@ -453,7 +481,7 @@ public class JSONToTuple extends AbstractOperator
 			List<Timestamp> lst = new ArrayList<Timestamp>(); 
 			while(jsonit.hasNext()) {
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonit.next(), ptype);
-				if(obj != null)
+				if(obj != null) 
 					lst.add((Timestamp)obj);
 			}
 			return lst;
@@ -493,8 +521,7 @@ public class JSONToTuple extends AbstractOperator
 				if(obj!=null)
 					attrmap.put(name, obj);
 			}catch(Exception e) {
-				l.log(TraceLevel.ERROR, "Error converting object: "  
-						+ name + ", Exception: " + e);
+				l.log(TraceLevel.ERROR, "Error converting object: " + name, e);
 				throw e;
 			}
 
