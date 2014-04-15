@@ -546,11 +546,6 @@ public class JSONToTuple extends AbstractOperator
 		}
 		return schema.getTuple(attrmap);
 	}
-	@Override
-	public synchronized void processPunctuation(StreamingInput<Tuple> stream,
-			Punctuation mark) throws Exception {
-		getOperatorContext().getStreamingOutputs().get(0).punctuate(mark);
-	}
 
 	static final String DESC = 
 			"This operator converts JSON strings into SPL Tuples. The tuple structure is expected to match the JSON schema." +

@@ -138,12 +138,6 @@ public class TupleToJSON extends AbstractOperator {
 		return je.encodeAsString(tuple);
 	}
 
-	@Override
-	public synchronized void processPunctuation(StreamingInput<Tuple> stream,
-			Punctuation mark) throws Exception {
-		getOperatorContext().getStreamingOutputs().get(0).punctuate(mark);
-	}
-	
 	static final String DESC = 
 			"This operator converts incoming tuples to JSON String." ;
 }
