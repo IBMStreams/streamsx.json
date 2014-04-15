@@ -68,7 +68,7 @@ public class TupleToJSON extends AbstractOperator {
 		super.initialize(op);
 
 
-		StreamSchema ssop = op.getStreamingOutputs().get(0).getStreamSchema();
+		StreamSchema ssop = getOutput(0).getStreamSchema();
 
 		if(ssop.getAttribute(dataParamName) == null ||
 				(ssop.getAttribute(dataParamName).getType().getMetaType() != MetaType.RSTRING &&
@@ -82,7 +82,7 @@ public class TupleToJSON extends AbstractOperator {
 
 
 
-		StreamSchema ssip = op.getStreamingInputs().get(0).getStreamSchema();
+		StreamSchema ssip = getInput(0).getStreamSchema();
 		if(sourceAttr!=null) {
 			if(ssip.getAttribute(sourceAttr) == null || 
 					ssop.getAttribute(sourceAttr).getType().getMetaType() != MetaType.TUPLE)

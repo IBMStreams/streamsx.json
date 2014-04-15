@@ -95,8 +95,8 @@ public class JSONToTuple extends AbstractOperator
 		super.initialize(op);
 
 
-		StreamSchema ssOp0 = op.getStreamingOutputs().get(0).getStreamSchema();
-		StreamSchema ssIp0 = op.getStreamingInputs().get(0).getStreamSchema();
+		StreamSchema ssOp0 = getOutput(0).getStreamSchema();
+		StreamSchema ssIp0 = getInput(0).getStreamSchema();
 		hasOptionalOut = op.getStreamingOutputs().size() > 1;
 		
 		List<MetaType> types  = Arrays.asList(MetaType.RSTRING, MetaType.USTRING);
