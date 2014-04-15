@@ -185,15 +185,9 @@ public class JSONToTuple extends AbstractOperator
 
 		StreamingOutput<OutputTuple> ops = getOutput(0);
 
-		String str = null;
-		if(dataParamAttrType == MetaType.RSTRING) {
-			str = ((RString)tuple.getObject(dataParamName)).getString();
-		}
-		else {
-			str = tuple.getString(dataParamName);
-		} 
+		String str = tuple.getString(dataParamName);
 		OutputTuple op = ops.newTuple();
-		if(str!=null && str.length()>0) {
+		if(str.length()>0) {
 			if(l.isLoggable(TraceLevel.INFO))
 				l.log(TraceLevel.INFO, "Converting Data Size= " + str.length());
 			try {
@@ -225,12 +219,7 @@ public class JSONToTuple extends AbstractOperator
 			}
 
 			if(jsonStringAttr!= null) {
-				if(jsonStringAttrType == MetaType.RSTRING) {
-					op.setObject(jsonStringAttr, new RString(str));
-				}
-				else {
-					op.setObject(jsonStringAttr, str);
-				}
+				op.setString(jsonStringAttr, str);
 			}
 		}
 		else {
