@@ -52,11 +52,9 @@ import com.ibm.streams.operator.types.Timestamp;
 public class JSONToTuple extends AbstractOperator  
 {
 	private String jsonStringAttribute = "jsonString";
-	private MetaType dataParamAttrMType=null;
 	private Logger l = Logger.getLogger(JSONToTuple.class.getCanonicalName());
 	boolean ignoreParsingError = false;
 	private String jsonStringOutputAttribute = null;
-	private MetaType jsonStringAttrMType;
 	private String targetAttribute = null;
 	private Type targetAttrType;
 	private boolean wasTargetSpecified = false;
@@ -96,15 +94,14 @@ public class JSONToTuple extends AbstractOperator
 		hasOptionalOut = op.getStreamingOutputs().size() > 1;
 		
 		List<MetaType> types  = Arrays.asList(MetaType.RSTRING, MetaType.USTRING);
-		dataParamAttrMType =verifyAttributeType(op,  ssIp0, jsonStringAttribute, types).getMetaType();
+		verifyAttributeType(op,  ssIp0, jsonStringAttribute, types).getMetaType();
 
 		if(jsonStringOutputAttribute!=null) {
-			jsonStringAttrMType  = verifyAttributeType(op, ssOp0, jsonStringOutputAttribute, types).getMetaType();
+			verifyAttributeType(op, ssOp0, jsonStringOutputAttribute, types).getMetaType();
 		}
 
 		if(wasTargetSpecified) {
 			targetAttrType = verifyAttributeType(op, ssOp0, targetAttribute, Arrays.asList(MetaType.TUPLE));
-
 			l.log(TraceLevel.INFO, "Will populate target field: " + targetAttribute);
 		}
 
@@ -154,7 +151,7 @@ public class JSONToTuple extends AbstractOperator
 				else {
 					Tuple tup = jsonToTuple(obj, ((TupleType)targetAttrType).getTupleSchema());
 					if(tup!=null)
-						op.setObject(targetAttribute, tup);
+						op.setTuple(targetAttribute, tup);
 				}
 			}catch(Exception e) {
 				l.log(TraceLevel.ERROR, "Error Converting String: " + str, e);
@@ -186,7 +183,7 @@ public class JSONToTuple extends AbstractOperator
 		if(l.isLoggable(TraceLevel.DEBUG)) {
 			l.log(TraceLevel.DEBUG, "Converting: " + name + " -- " + type.toString());
 		}
-
+		if(obj == null) return null;
 		try {
 			switch(type.getMetaType()) {
 			case INT8:
@@ -537,6 +534,7 @@ public class JSONToTuple extends AbstractOperator
 			" This behavior can be overridden by specifying the optional output port or by specifying the \\\"ignoreParsingError\\\" parameter." +
 			" Atributes from the input stream that match those in the output stream will be automaticall copied over. " +
 			" However, if they also exist in the JSON input, their assigned value will be of that specified in the JSON." +
+			" Null values in JSON arrays are ignored. Null values for all other attributes will result in default initializled output attributes. " +
 			" Limitations:" +
 			" BLOB, MAP and COMPLEX attribute types are not supported in the output tuple schema at this time and will be ignored."
 			;

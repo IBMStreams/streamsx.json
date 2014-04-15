@@ -64,3 +64,59 @@ composite Verifier(input InputS) {
 		}
 	
 }
+
+//utility class
+composite VerifierJTOT(input JsonS, ExpectedS) {
+
+
+	type
+		MyType = ExpectedS;
+
+	graph
+		
+		stream<MyType> OutputS = 
+			com.ibm.streamsx.json::JSONToTuple(JsonS)
+		{}
+
+		() as SinkOp = Custom(ExpectedS; OutputS) {
+		logic 
+			state : {
+			mutable list<MyType> inputs ;
+			mutable list<MyType> outputs ;
+			}
+			onTuple ExpectedS : {
+				if(size(outputs) > 0) {	
+				log(Sys.info,(rstring)ExpectedS);
+					MyType val = outputs[0];
+					remove(outputs, 0);
+					
+					if(val != ExpectedS) {
+						log(Sys.error,"ERROR Does not match: " + (rstring)ExpectedS + " and " + (rstring)val);
+						shutdownPE();
+					}
+				}
+				else {
+					log(Sys.info,"Appending: "+ (rstring)ExpectedS);
+					appendM(inputs, ExpectedS);
+				}
+			}
+			onTuple OutputS : {
+				if(size(inputs) > 0) {					
+				log(Sys.info,(rstring)OutputS);
+					MyType val = inputs[0];
+					remove(inputs, 0);
+					
+					if(val != OutputS) {
+						log(Sys.error,"ERROR Does not match: " + (rstring)(rstring)OutputS + " and " + (rstring)val);
+						shutdownPE();
+					}
+				}
+				else {
+					log(Sys.info,"Appending: "+ (rstring)OutputS);
+					appendM(outputs, OutputS);
+				}
+			}
+			
+		}
+	
+}
