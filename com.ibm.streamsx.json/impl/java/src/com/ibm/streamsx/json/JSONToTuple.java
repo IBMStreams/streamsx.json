@@ -181,7 +181,7 @@ public class JSONToTuple extends AbstractOperator
 		return rtype;
 	}
 
-	public synchronized void process(StreamingInput<Tuple> stream, Tuple tuple) throws Exception 	{
+	public void process(StreamingInput<Tuple> stream, Tuple tuple) throws Exception 	{
 
 		StreamingOutput<OutputTuple> ops = getOutput(0);
 

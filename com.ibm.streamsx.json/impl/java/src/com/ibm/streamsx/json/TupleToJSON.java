@@ -111,7 +111,7 @@ public class TupleToJSON extends AbstractOperator {
 
 	}
 
-	public synchronized void process(StreamingInput<Tuple> stream, Tuple tuple) throws Exception 	{
+	public void process(StreamingInput<Tuple> stream, Tuple tuple) throws Exception 	{
 		StreamingOutput<OutputTuple> ops = getOutput(0);
 		String jsonData = null;
 		if(sourceAttr == null) 
