@@ -1,4 +1,4 @@
-#Wed Apr 16 14:55:27 EDT 2014
+#Thu Apr 17 18:30:23 EDT 2014
 copytosourcelist=
 hreftargetslist=dita/com.ibm.streamsx.json$JSONToTuple.xml,dita/com.ibm.streamsx.json$TupleToJSON.xml,dita/com.ibm.streamsx.json$.xml,dita/toolkit.xml,dita/OperatorModel.xml
 fullditatopicfile=fullditatopic.list
@@ -37,7 +37,7 @@ codereffile=coderef.list
 keylist=
 codereflist=
 user.input.file.listfile=usr.input.file.list
-user.input.dir=/homes/hny1/rwagle/github/rohitsw/streamsx.json/com.ibm.streamsx.json/doc/spldoc
+user.input.dir=/homes/hny1/rwagle/github/IBMStreams/master/streamsx.json/com.ibm.streamsx.json/doc/spldoc
 uplevels=../
 tempdirToinputmapdir.relative.value=dita/
 conrefpushfile=conrefpush.list
