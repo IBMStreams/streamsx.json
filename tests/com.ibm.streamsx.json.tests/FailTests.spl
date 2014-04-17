@@ -1,0 +1,23 @@
+//
+// *******************************************************************************
+// * Copyright (C)2014, International Business Machines Corporation and *
+// * others. All Rights Reserved. *
+// *******************************************************************************
+//
+namespace com.ibm.streamsx.json.tests;
+
+
+//this should fail since the error port does not match the input port
+composite CompileFailtest {
+
+graph
+				stream<rstring jsonString> InputS = Beacon() {
+				param iterations : 1u;
+				output InputS : jsonString = "{\"a\" : \"b\"}";
+				}
+
+				(stream<rstring a> OutputS; stream<rstring someValue> ErrorS)
+				= com.ibm.streamsx.json::JSONToTuple(InputS)
+				{}
+
+}

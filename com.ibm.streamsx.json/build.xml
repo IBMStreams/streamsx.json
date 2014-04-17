@@ -31,6 +31,7 @@
 		<delete dir="output"/>
 		<delete dir="${test.run.dir}"/>
 		<delete dir="${test.build.dir}"/>
+		<delete dir="impl/java/bin"/>
 	</target>
 
 
