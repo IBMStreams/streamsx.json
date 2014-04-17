@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,6 +22,7 @@ import com.ibm.json.java.JSONObject;
 import com.ibm.streams.operator.AbstractOperator;
 import com.ibm.streams.operator.Attribute;
 import com.ibm.streams.operator.OperatorContext;
+import com.ibm.streams.operator.OperatorContext.ContextCheck;
 import com.ibm.streams.operator.OutputTuple;
 import com.ibm.streams.operator.StreamSchema;
 import com.ibm.streams.operator.StreamingInput;
@@ -30,6 +30,7 @@ import com.ibm.streams.operator.StreamingOutput;
 import com.ibm.streams.operator.Tuple;
 import com.ibm.streams.operator.Type;
 import com.ibm.streams.operator.Type.MetaType;
+import com.ibm.streams.operator.compile.OperatorContextChecker;
 import com.ibm.streams.operator.logging.TraceLevel;
 import com.ibm.streams.operator.meta.CollectionType;
 import com.ibm.streams.operator.meta.TupleType;
@@ -84,6 +85,15 @@ public class JSONToTuple extends AbstractOperator
 		ignoreParsingError = value;
 	}
 
+	@ContextCheck
+	public static void checkOptionalPortSchema(OperatorContextChecker checker) {
+		if(checker.getOperatorContext().getNumberOfStreamingOutputs() == 2) {
+			checker.checkMatchingSchemas(
+					checker.getOperatorContext().getStreamingInputs().get(0), 
+					checker.getOperatorContext().getStreamingOutputs().get(1));
+		}
+	}
+	
 	@Override
 	public void initialize(OperatorContext op) throws Exception {
 		super.initialize(op);
@@ -103,11 +113,6 @@ public class JSONToTuple extends AbstractOperator
 		if(wasTargetSpecified) {
 			targetAttrType = verifyAttributeType(op, ssOp0, targetAttribute, Arrays.asList(MetaType.TUPLE));
 			l.log(TraceLevel.INFO, "Will populate target field: " + targetAttribute);
-		}
-
-		if(hasOptionalOut) {
-			if(!ssIp0.equals(op.getStreamingOutputs().get(1).getStreamSchema()))
-				throw new Exception("Schemas of input port 0 and output port 1 do not match.");
 		}
 
 	}
@@ -159,9 +164,7 @@ public class JSONToTuple extends AbstractOperator
 					throw e;
 				if(hasOptionalOut) {
 					StreamingOutput<OutputTuple> op1 = getOutput(1);
-					OutputTuple otupErr = op1.newTuple();
-					otupErr.assign(tuple);
-					op1.submit(otupErr);
+					op1.submit(tuple);
 				}
 				return;
 			}
@@ -281,11 +284,9 @@ public class JSONToTuple extends AbstractOperator
 	//this is used when a JSON array maps to a SPL collection 
 	private void arrayToCollection(String name, Collection<Object>lst, JSONArray jarr, Type ptype) throws Exception {
 		CollectionType ctype = (CollectionType) ptype;
-		@SuppressWarnings("unchecked")
-		Iterator<Object> jsonit = jarr.iterator();
 		String cname = lst.getClass().getSimpleName() + ": " + name;
-		while(jsonit.hasNext()) {
-			Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonit.next(), ptype);
+		for(Object jsonObj : jarr) {
+			Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
 			if(obj!=null)
 				lst.add(obj);
 		}
@@ -298,9 +299,6 @@ public class JSONToTuple extends AbstractOperator
 			l.log(TraceLevel.DEBUG, "Creating Array: " + name);
 		}
 		CollectionType ctype = (CollectionType) ptype;
-		int arrsize = jarr.size();
-		@SuppressWarnings("unchecked")
-		Iterator<Object> jsonit = jarr.iterator();
 		int cnt=0;
 		String cname = "List: " + name;
 
@@ -309,8 +307,8 @@ public class JSONToTuple extends AbstractOperator
 		case UINT8: 
 		{
 			List<Object> lst = new ArrayList<Object>();
-			while(jsonit.hasNext()) {
-				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonit.next(), ptype);
+			for(Object jsonObj : jarr) {
+				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
 				if(obj!=null) lst.add(obj);
 			}
 			
@@ -323,8 +321,8 @@ public class JSONToTuple extends AbstractOperator
 		case UINT16:
 		{
 			List<Object> lst = new ArrayList<Object>();
-			while(jsonit.hasNext()) {
-				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonit.next(), ptype);
+			for(Object jsonObj : jarr) {
+				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
 				if(obj!=null) lst.add(obj);
 			}
 			
@@ -337,8 +335,8 @@ public class JSONToTuple extends AbstractOperator
 		case UINT32:
 		{
 			List<Object> lst = new ArrayList<Object>();
-			while(jsonit.hasNext()) {
-				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonit.next(), ptype);
+			for(Object jsonObj : jarr) {
+				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
 				if(obj!=null) lst.add(obj);
 			}
 			
@@ -352,8 +350,8 @@ public class JSONToTuple extends AbstractOperator
 		case UINT64:
 		{
 			List<Object> lst = new ArrayList<Object>();
-			while(jsonit.hasNext()) {
-				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonit.next(), ptype);
+			for(Object jsonObj : jarr) {
+				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
 				if(obj!=null) lst.add(obj);
 			}
 			
@@ -366,8 +364,8 @@ public class JSONToTuple extends AbstractOperator
 		case BOOLEAN:
 		{
 			List<Object> lst = new ArrayList<Object>();
-			while(jsonit.hasNext()) {
-				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonit.next(), ptype);
+			for(Object jsonObj : jarr) {
+				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
 				if(obj!=null) lst.add(obj);
 			}
 			
@@ -380,8 +378,8 @@ public class JSONToTuple extends AbstractOperator
 		case FLOAT32:
 		{
 			List<Object> lst = new ArrayList<Object>();
-			while(jsonit.hasNext()) {
-				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonit.next(), ptype);
+			for(Object jsonObj : jarr) {
+				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
 				if(obj!=null) lst.add(obj);
 			}
 			
@@ -394,8 +392,8 @@ public class JSONToTuple extends AbstractOperator
 		case FLOAT64:
 		{
 			List<Object> lst = new ArrayList<Object>();
-			while(jsonit.hasNext()) {
-				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonit.next(), ptype);
+			for(Object jsonObj : jarr) {
+				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
 				if(obj!=null) lst.add(obj);
 			}
 			
@@ -408,8 +406,8 @@ public class JSONToTuple extends AbstractOperator
 		case USTRING:
 		{
 			List<String> lst =  new ArrayList<String>();
-			while(jsonit.hasNext()) {
-				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonit.next(), ptype);
+			for(Object jsonObj : jarr) {
+				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
 				if(obj != null) 
 					lst.add((String)obj);
 			}
@@ -420,8 +418,8 @@ public class JSONToTuple extends AbstractOperator
 		case RSTRING:
 		{
 			List<RString> lst = new ArrayList<RString>(); 
-			while(jsonit.hasNext()) {
-				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonit.next(), ptype);
+			for(Object jsonObj : jarr) {
+				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
 				if(obj != null) 
 					lst.add((RString)obj);
 			}
@@ -431,8 +429,8 @@ public class JSONToTuple extends AbstractOperator
 		case TUPLE:
 		{
 			List<Tuple> lst = new ArrayList<Tuple>(); 
-			while(jsonit.hasNext()) {
-				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonit.next(), ptype);
+			for(Object jsonObj : jarr) {
+				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
 				if(obj != null) 
 					lst.add((Tuple)obj);
 			}
@@ -443,8 +441,8 @@ public class JSONToTuple extends AbstractOperator
 		case BLIST:
 		{
 			List<Object> lst = new ArrayList<Object>(); 
-			while(jsonit.hasNext()) {
-				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonit.next(), ptype);
+			for(Object jsonObj : jarr) {
+				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
 				if(obj != null) 
 					lst.add(obj);
 			}
@@ -454,8 +452,8 @@ public class JSONToTuple extends AbstractOperator
 		case BSET:
 		{
 			Set<Object> lst = new HashSet<Object>(); 
-			while(jsonit.hasNext()) {
-				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonit.next(), ptype);
+			for(Object jsonObj : jarr) {
+				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
 				if(obj != null) 
 					lst.add(obj);
 			}
@@ -466,8 +464,8 @@ public class JSONToTuple extends AbstractOperator
 		case DECIMAL128:
 		{
 			List<BigDecimal> lst = new ArrayList<BigDecimal>(); 
-			while(jsonit.hasNext()) {
-				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonit.next(), ptype);
+			for(Object jsonObj : jarr) {
+				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
 				if(obj != null) 
 					lst.add((BigDecimal)obj);
 			}
@@ -476,8 +474,8 @@ public class JSONToTuple extends AbstractOperator
 		case TIMESTAMP:
 		{
 			List<Timestamp> lst = new ArrayList<Timestamp>(); 
-			while(jsonit.hasNext()) {
-				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonit.next(), ptype);
+			for(Object jsonObj : jarr) {
+				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
 				if(obj != null) 
 					lst.add((Timestamp)obj);
 			}
@@ -499,9 +497,7 @@ public class JSONToTuple extends AbstractOperator
 
 	private Tuple jsonToTuple(JSONObject jbase, StreamSchema schema) throws Exception {
 		Map<String, Object> attrmap = new HashMap<String, Object>();
-		Iterator<Attribute> iter = schema.iterator();
-		while(iter.hasNext()) {
-			Attribute attr = iter.next();
+		for(Attribute attr : schema) {
 			String name = attr.getName();
 			try {
 				if(l.isLoggable(TraceLevel.DEBUG)) {
