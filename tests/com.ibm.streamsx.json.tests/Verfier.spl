@@ -120,3 +120,76 @@ composite VerifierJTOT(input JsonS, ExpectedS) {
 		}
 	
 }
+
+//utility class
+composite VerifierArray(input InputS) {
+
+	param
+		expression<rstring> $listAttr;
+		
+	type
+		MyType = InputS;
+
+	graph
+		
+		stream<rstring jsonString> JsonS = 
+			com.ibm.streamsx.json::TupleToJSON(InputS)
+		{
+		param
+			rootAttribute : $listAttr;
+		}
+		stream<MyType> OutputS = 
+			com.ibm.streamsx.json::JSONToTuple(JsonS)
+		{
+		param
+			targetAttribute : $listAttr;
+		}
+
+		() as SinkOp = Custom(InputS; OutputS) {
+		logic 
+			state : {
+			mutable list<MyType> inputs ;
+			mutable list<MyType> outputs ;
+			}
+			onTuple InputS : {
+				if(size(outputs) > 0) {	
+				log(Sys.info,(rstring)InputS);
+					MyType val = outputs[0];
+					remove(outputs, 0);
+					
+					if(val != InputS) {
+						log(Sys.error,"ERROR Does not match: " + (rstring)InputS + " and " + (rstring)val);
+						shutdownPE();
+					}
+					else {
+						log(Sys.info,"Matches: " + (rstring)InputS + " and " + (rstring)val);
+					}
+				}
+				else {
+					log(Sys.info,"Appending: "+ (rstring)InputS);
+					appendM(inputs, InputS);
+				}
+			}
+			onTuple OutputS : {
+				if(size(inputs) > 0) {					
+				log(Sys.info,(rstring)OutputS);
+					MyType val = inputs[0];
+					remove(inputs, 0);
+					
+					if(val != OutputS) {
+						log(Sys.error,"ERROR Does not match: " + (rstring)(rstring)OutputS + " and " + (rstring)val);
+						shutdownPE();
+					}
+					else {
+						log(Sys.info,"Matches: " + (rstring)(rstring)OutputS + " and " + (rstring)val);
+					}
+				}
+				else {
+					log(Sys.info,"Appending: "+ (rstring)OutputS);
+					appendM(outputs, OutputS);
+				}
+			}
+			
+		}
+	
+}

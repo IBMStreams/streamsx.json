@@ -72,6 +72,7 @@ public class JSONToTuple extends AbstractOperator
 		this.jsonStringOutputAttribute = value;
 	}
 	@Parameter(optional=true, description="Name of the output stream attribute which should be considered as the root of the JSON tuple to be populated. " +
+			"Note that if \\\"arrayMode \\\" has been set to true, then this parameter must point to a collection type attribute (list, set etc). " + 
 			"Default is the entite tuple root.")
 	public void setTargetAttribute(String value) {
 		this.targetAttribute = value;
@@ -79,21 +80,22 @@ public class JSONToTuple extends AbstractOperator
 	}
 	@Parameter(optional=true, description=
 			"Ignore any JSON parsing errors." +
-			"If the optional output port is enabled, then this parameter is ignored. JSON that cannot be parsed is sent on the optional output port." +
+					"If the optional output port is enabled, then this parameter is ignored. JSON that cannot be parsed is sent on the optional output port." +
 			"Default is false where the operator will fail if the JSON cannot be parsed.")
-	public void ignoreParsingError(boolean value) {
+	public void setIgnoreParsingError(boolean value) {
 		ignoreParsingError = value;
 	}
-
+	
 	@ContextCheck
-	public static void checkOptionalPortSchema(OperatorContextChecker checker) {
+	public static boolean checkOptionalPortSchema(OperatorContextChecker checker) {
 		if(checker.getOperatorContext().getNumberOfStreamingOutputs() == 2) {
-			checker.checkMatchingSchemas(
+			return checker.checkMatchingSchemas(
 					checker.getOperatorContext().getStreamingInputs().get(0), 
 					checker.getOperatorContext().getStreamingOutputs().get(1));
 		}
+		return true;
 	}
-	
+
 	@Override
 	public void initialize(OperatorContext op) throws Exception {
 		super.initialize(op);
@@ -102,7 +104,7 @@ public class JSONToTuple extends AbstractOperator
 		StreamSchema ssOp0 = getOutput(0).getStreamSchema();
 		StreamSchema ssIp0 = getInput(0).getStreamSchema();
 		hasOptionalOut = op.getStreamingOutputs().size() > 1;
-		
+
 		List<MetaType> types  = Arrays.asList(MetaType.RSTRING, MetaType.USTRING);
 		verifyAttributeType(op,  ssIp0, jsonStringAttribute, types).getMetaType();
 
@@ -111,10 +113,10 @@ public class JSONToTuple extends AbstractOperator
 		}
 
 		if(wasTargetSpecified) {
-			targetAttrType = verifyAttributeType(op, ssOp0, targetAttribute, Arrays.asList(MetaType.TUPLE));
+			targetAttrType = verifyAttributeType(op, ssOp0, targetAttribute, 
+	 					Arrays.asList(MetaType.TUPLE, MetaType.LIST, MetaType.BLIST, MetaType.SET, MetaType.BSET));
 			l.log(TraceLevel.INFO, "Will populate target field: " + targetAttribute);
 		}
-
 	}
 
 	static Type verifyAttributeType(OperatorContext op, StreamSchema ss, String attributeName, List<MetaType> types) 
@@ -136,113 +138,118 @@ public class JSONToTuple extends AbstractOperator
 		return t;
 	}
 
-	public void process(StreamingInput<Tuple> stream, Tuple tuple) throws Exception 	{
-
+	public void process(StreamingInput<Tuple> stream, Tuple tuple) throws Exception {
+		String jsonInput = tuple.getString(jsonStringAttribute);
+		
 		StreamingOutput<OutputTuple> ops = getOutput(0);
 		OutputTuple op = ops.newTuple();
 		op.assign(tuple);//copy over any relevant attributes
 
-		String str = tuple.getString(jsonStringAttribute);
-		if(str.length()>0) {
-			if(l.isLoggable(TraceLevel.DEBUG))
-				l.log(TraceLevel.DEBUG, "Converting JSON: " + str);
-			try {
-				JSONObject obj = JSONObject.parse(str);
+		if(l.isLoggable(TraceLevel.DEBUG))
+			l.log(TraceLevel.DEBUG, "Converting JSON: " + jsonInput);
+
+		try {
+			if( targetAttribute != null &&  targetAttrType.getMetaType() != MetaType.TUPLE) {
+				//in this mode, the incoming json string is expected to be an array
+				JSONArray jsonArr = JSONArray.parse(jsonInput);
+				Object collectionObj = jsonToAttribute(targetAttribute, targetAttrType, jsonArr, null);
+				if(collectionObj != null)
+					op.setObject(targetAttribute, collectionObj);
+			}
+			else {
+				JSONObject jsonObj = JSONObject.parse(jsonInput);
 				if(targetAttribute == null) {
-					Tuple tup = jsonToTuple(obj, op.getStreamSchema());
+					Tuple tup = jsonToTuple(jsonObj, op.getStreamSchema());
 					if(tup!=null) 
 						op.assign(tup);
 				}
 				else {
-					Tuple tup = jsonToTuple(obj, ((TupleType)targetAttrType).getTupleSchema());
+					Tuple tup = jsonToTuple(jsonObj, ((TupleType)targetAttrType).getTupleSchema());
 					if(tup!=null)
 						op.setTuple(targetAttribute, tup);
 				}
-			}catch(Exception e) {
-				l.log(TraceLevel.ERROR, "Error Converting String: " + str, e);
-				if(!hasOptionalOut && !ignoreParsingError)
-					throw e;
-				if(hasOptionalOut) {
-					StreamingOutput<OutputTuple> op1 = getOutput(1);
-					op1.submit(tuple);
-				}
-				return;
 			}
-
+			
+			
 			if(jsonStringOutputAttribute!= null) {
-				op.setString(jsonStringOutputAttribute, str);
+				op.setString(jsonStringOutputAttribute, jsonInput);
+			}
+			ops.submit(op);
+
+			
+		} catch(Exception e) {
+			l.log(TraceLevel.ERROR, "Error Converting String: " + jsonInput, e);
+			if(!hasOptionalOut && !ignoreParsingError)
+				throw e;
+			if(hasOptionalOut) {
+				StreamingOutput<OutputTuple> op1 = getOutput(1);
+				op1.submit(tuple);
 			}
 		}
-		else {
-			if(l.isLoggable(TraceLevel.INFO)) 
-				l.log(TraceLevel.INFO, "No JSON data found");
-		}
-		
-		ops.submit(op);
 	}
 
-	private Object jsonToAttribute (String name, Type type, Object obj, Type parentType) throws Exception {
+	private Object jsonToAttribute (String name, Type type, Object jsonObj, Type parentType) throws Exception {
 
 		if(l.isLoggable(TraceLevel.DEBUG)) {
 			l.log(TraceLevel.DEBUG, "Converting: " + name + " -- " + type.toString());
 		}
-		if(obj == null) return null;
+		if(jsonObj == null) return null;
 		try {
 			switch(type.getMetaType()) {
 			case INT8:
 			case UINT8:
-				if(obj instanceof Number)
-					return ((Number)obj).byteValue();
-				return Byte.parseByte(obj.toString());
+				if(jsonObj instanceof Number)
+					return ((Number)jsonObj).byteValue();
+				return Byte.parseByte(jsonObj.toString());
 			case INT16:
 			case UINT16:
-				if(obj instanceof Number)
-					return ((Number)obj).shortValue();
-				return Short.parseShort(obj.toString());
+				if(jsonObj instanceof Number)
+					return ((Number)jsonObj).shortValue();
+				return Short.parseShort(jsonObj.toString());
 			case INT32:
 			case UINT32:
-				if(obj instanceof Number)
-					return ((Number)obj).intValue();
-				return Integer.parseInt(obj.toString());
+				if(jsonObj instanceof Number)
+					return ((Number)jsonObj).intValue();
+				return Integer.parseInt(jsonObj.toString());
 			case INT64:
 			case UINT64:
-				if(obj instanceof Number)
-					return ((Number)obj).longValue();
-				return Long.parseLong(obj.toString());
+				if(jsonObj instanceof Number)
+					return ((Number)jsonObj).longValue();
+				return Long.parseLong(jsonObj.toString());
 			case BOOLEAN:
-				if(obj instanceof Boolean)
-					return (Boolean)obj;
-				return Boolean.parseBoolean(obj.toString());
+				if(jsonObj instanceof Boolean)
+					return (Boolean)jsonObj;
+				return Boolean.parseBoolean(jsonObj.toString());
 			case FLOAT32:
-				if(obj instanceof Number)
-					return ((Number)obj).floatValue();
-				return Float.parseFloat(obj.toString());
+				if(jsonObj instanceof Number)
+					return ((Number)jsonObj).floatValue();
+				return Float.parseFloat(jsonObj.toString());
 			case FLOAT64:
-				if(obj instanceof Number)
-					return ((Number)obj).doubleValue();
-				return Double.parseDouble(obj.toString());
+				if(jsonObj instanceof Number)
+					return ((Number)jsonObj).doubleValue();
+				return Double.parseDouble(jsonObj.toString());
 			case DECIMAL32:
 			case DECIMAL64:
 			case DECIMAL128:
-				return new java.math.BigDecimal(obj.toString());
+				return new java.math.BigDecimal(jsonObj.toString());
 
 			case USTRING:
-				return obj.toString();
+				return jsonObj.toString();
 			case BSTRING:
 			case RSTRING:
-				return new RString(obj.toString());
+				return new RString(jsonObj.toString());
 
 			case LIST:
 			case BLIST:
 			{
 				//depending on the case, the java types for lists can be arrays or collections. 
 				if(!(((CollectionType)type).getElementType()).getMetaType().isCollectionType() &&
-					(parentType == null || !parentType.getMetaType().isCollectionType())) {
-					return arrayToSPLArray(name, (JSONArray) obj, type);
+						(parentType == null || !parentType.getMetaType().isCollectionType())) {
+					return arrayToSPLArray(name, (JSONArray) jsonObj, type);
 				}
 				else {
 					List<Object> lst = new ArrayList<Object>();
-					arrayToCollection(name, lst, (JSONArray) obj, type);
+					arrayToCollection(name, lst, (JSONArray) jsonObj, type);
 					return lst;
 				}
 			}
@@ -251,19 +258,19 @@ public class JSONToTuple extends AbstractOperator
 			case BSET:
 			{
 				Set<Object> lst = new HashSet<Object>();
-				arrayToCollection(name, lst, (JSONArray) obj, type);
+				arrayToCollection(name, lst, (JSONArray) jsonObj, type);
 				return lst;
 			}
 
 			case TUPLE:
-				return jsonToTuple((JSONObject)obj, ((TupleType)type).getTupleSchema());
-			
+				return jsonToTuple((JSONObject)jsonObj, ((TupleType)type).getTupleSchema());
+
 			case TIMESTAMP:
-				if(obj instanceof Number)
-					return Timestamp.getTimestamp(((Number)obj).doubleValue());
-				return Timestamp.getTimestamp(Double.parseDouble(obj.toString()));
-				
-			//TODO -- not yet supported types
+				if(jsonObj instanceof Number)
+					return Timestamp.getTimestamp(((Number)jsonObj).doubleValue());
+				return Timestamp.getTimestamp(Double.parseDouble(jsonObj.toString()));
+
+				//TODO -- not yet supported types
 			case BLOB:
 			case MAP:
 			case BMAP:
@@ -291,7 +298,7 @@ public class JSONToTuple extends AbstractOperator
 				lst.add(obj);
 		}
 	}
-	
+
 
 	//this is used when a JSON array maps to a Java array 
 	private Object arrayToSPLArray(String name, JSONArray jarr, Type ptype) throws Exception {
@@ -311,7 +318,7 @@ public class JSONToTuple extends AbstractOperator
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
 				if(obj!=null) lst.add(obj);
 			}
-			
+
 			byte[] arr= new byte[lst.size()];
 			for(Object val : lst)
 				arr[cnt++] = (Byte)val;
@@ -325,7 +332,7 @@ public class JSONToTuple extends AbstractOperator
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
 				if(obj!=null) lst.add(obj);
 			}
-			
+
 			short[] arr= new short[lst.size()];
 			for(Object val : lst)
 				arr[cnt++] = (Short)val;
@@ -339,7 +346,7 @@ public class JSONToTuple extends AbstractOperator
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
 				if(obj!=null) lst.add(obj);
 			}
-			
+
 			int[] arr= new int[lst.size()];
 			for(Object val : lst)
 				arr[cnt++] = (Integer)val;
@@ -354,7 +361,7 @@ public class JSONToTuple extends AbstractOperator
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
 				if(obj!=null) lst.add(obj);
 			}
-			
+
 			long[] arr= new long[lst.size()];
 			for(Object val : lst)
 				arr[cnt++] = (Long)val;
@@ -368,7 +375,7 @@ public class JSONToTuple extends AbstractOperator
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
 				if(obj!=null) lst.add(obj);
 			}
-			
+
 			boolean[] arr= new boolean[lst.size()];
 			for(Object val : lst)
 				arr[cnt++] = (Boolean)val;
@@ -382,7 +389,7 @@ public class JSONToTuple extends AbstractOperator
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
 				if(obj!=null) lst.add(obj);
 			}
-			
+
 			float[] arr= new float[lst.size()];
 			for(Object val : lst)
 				arr[cnt++] = (Float)val;
@@ -396,7 +403,7 @@ public class JSONToTuple extends AbstractOperator
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
 				if(obj!=null) lst.add(obj);
 			}
-			
+
 			double[] arr= new double[lst.size()];
 			for(Object val : lst)
 				arr[cnt++] = (Double)val;
@@ -481,8 +488,8 @@ public class JSONToTuple extends AbstractOperator
 			}
 			return lst;
 		}
-			
-			
+
+
 		//TODO -- not yet supported types
 		case BLOB:
 		case MAP:
@@ -524,14 +531,14 @@ public class JSONToTuple extends AbstractOperator
 
 	static final String DESC = 
 			"This operator converts JSON strings into SPL Tuples. The tuple structure is expected to match the JSON schema." +
-			" A subset of the attributes can be specified as well. " +
-			" Only those attributes that are present in the Tuple schema and JSON input will be converted. All other attributes will be ignored." +
-			" If an invalid JSON string is found in the input, the operator will fail. " +
-			" This behavior can be overridden by specifying the optional output port or by specifying the \\\"ignoreParsingError\\\" parameter." +
-			" Atributes from the input stream that match those in the output stream will be automaticall copied over. " +
-			" However, if they also exist in the JSON input, their assigned value will be of that specified in the JSON." +
-			" Null values in JSON arrays are ignored. Null values for all other attributes will result in default initializled output attributes. " +
-			" Limitations:" +
-			" BLOB, MAP and COMPLEX attribute types are not supported in the output tuple schema at this time and will be ignored."
-			;
+					" A subset of the attributes can be specified as well. " +
+					" Only those attributes that are present in the Tuple schema and JSON input will be converted. All other attributes will be ignored." +
+					" If an invalid JSON string is found in the input, the operator will fail. " +
+					" This behavior can be overridden by specifying the optional output port or by specifying the \\\"ignoreParsingError\\\" parameter." +
+					" Atributes from the input stream that match those in the output stream will be automaticall copied over. " +
+					" However, if they also exist in the JSON input, their assigned value will be of that specified in the JSON." +
+					" Null values in JSON arrays are ignored. Null values for all other attributes will result in default initializled output attributes. " +
+					" Limitations:" +
+					" BLOB, MAP and COMPLEX attribute types are not supported in the output tuple schema at this time and will be ignored."
+					;
 }

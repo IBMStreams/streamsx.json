@@ -19,6 +19,7 @@ import com.ibm.streams.operator.StreamSchema;
 import com.ibm.streams.operator.StreamingInput;
 import com.ibm.streams.operator.StreamingOutput;
 import com.ibm.streams.operator.Tuple;
+import com.ibm.streams.operator.Type;
 import com.ibm.streams.operator.Type.MetaType;
 import com.ibm.streams.operator.encoding.EncodingFactory;
 import com.ibm.streams.operator.encoding.JSONEncoding;
@@ -38,6 +39,7 @@ public class TupleToJSON extends AbstractOperator {
 	private String jsonStringAttribute = "jsonString";
 
 	private String rootAttribute = null;
+	private Type rootAttributeType =null;
 
 	private static Logger l = Logger.getLogger(TupleToJSON.class.getCanonicalName());
 
@@ -53,7 +55,6 @@ public class TupleToJSON extends AbstractOperator {
 		this.rootAttribute = value;
 	}
 
-
 	@Override
 	public void initialize(OperatorContext op) throws Exception {
 		super.initialize(op);
@@ -65,10 +66,10 @@ public class TupleToJSON extends AbstractOperator {
 
 		StreamSchema ssip = getInput(0).getStreamSchema();
 		if(rootAttribute!=null) {
-			JSONToTuple.verifyAttributeType(getOperatorContext(), ssip, rootAttribute, Arrays.asList(MetaType.TUPLE));
+			rootAttributeType = JSONToTuple.verifyAttributeType(getOperatorContext(), ssip, rootAttribute, 
+					Arrays.asList(MetaType.TUPLE, MetaType.LIST, MetaType.BLIST, MetaType.SET, MetaType.BSET));
 			l.log(TraceLevel.INFO, "Will use source field attribute: " + rootAttribute);
 		}
-
 	}
 
 	public void process(StreamingInput<Tuple> stream, Tuple tuple) throws Exception 	{
@@ -76,9 +77,12 @@ public class TupleToJSON extends AbstractOperator {
 		final String jsonData;
 		if(rootAttribute == null) 
 			jsonData = convertTuple(tuple);
-		else 
-			jsonData = convertTuple(tuple.getTuple(rootAttribute));
-
+		else {
+			if(rootAttributeType.getMetaType() == MetaType.TUPLE)
+				jsonData = convertTuple(tuple.getTuple(rootAttribute));
+			else 
+				jsonData = convertArray(tuple, rootAttribute);
+		}
 		OutputTuple op = ops.newTuple();
 		op.assign(tuple);//copy over all relevant attributes form the source tuple
         op.setString(jsonStringAttribute, jsonData);
@@ -89,6 +93,10 @@ public class TupleToJSON extends AbstractOperator {
 	protected String convertTuple(Tuple tuple) throws IOException  {	
 		JSONEncoding<JSONObject, JSONArray> je = EncodingFactory.getJSONEncoding();
 		return je.encodeAsString(tuple);
+	}
+	protected String convertArray(Tuple tuple, String attrName) throws IOException  {	
+		JSONEncoding<JSONObject, JSONArray> je = EncodingFactory.getJSONEncoding();
+		return ((JSONArray)je.getAttributeObject(tuple, attrName)).serialize();
 	}
 
 	static final String DESC = 
