@@ -71,16 +71,19 @@ public class JSONToTuple extends AbstractOperator
 	public void setJsonStringOutputAttribute(String value) {
 		this.jsonStringOutputAttribute = value;
 	}
-	@Parameter(optional=true, description="Name of the output stream attribute which should be considered as the root of the JSON tuple to be populated. " +
-			"Note that if \\\"arrayMode \\\" has been set to true, then this parameter must point to a collection type attribute (list, set etc). " + 
-			"Default is the entite tuple root.")
+	@Parameter(optional=true, 
+			description="Name of the output stream attribute which should be considered as the root of the JSON tuple to be populated. " +
+		    "Note that this can only point to a tuple type or collection type attributes (list, set etc). " +
+		    "If it points to a list, set etc type attribute, the input JSON is expected to be an array. " +
+			"Default is the output tuple root.")
 	public void setTargetAttribute(String value) {
 		this.targetAttribute = value;
 		wasTargetSpecified=true;
 	}
 	@Parameter(optional=true, description=
 			"Ignore any JSON parsing errors." +
-					"If the optional output port is enabled, then this parameter is ignored. JSON that cannot be parsed is sent on the optional output port." +
+			"If the optional output port is enabled, then this parameter is ignored. " +
+			"JSON that cannot be parsed is sent on the optional output port. " +
 			"Default is false where the operator will fail if the JSON cannot be parsed.")
 	public void setIgnoreParsingError(boolean value) {
 		ignoreParsingError = value;

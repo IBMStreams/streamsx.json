@@ -14,20 +14,18 @@
 
 	<property name="src.dir" value="impl/java/src" />
 	<property name="build.dir" value="impl/java/classes" />
-	<property name="impl.lib.dir" value="impl/lib" />
-	<property name="lib.dir" value="lib" />
+	<property name="lib.dir" value="impl/lib" />
 	<property name="test.run.dir" value="tests" />
 	<property name="test.build.dir" value="${test.run.dir}/bin" />
 	
 	<target name="init">
 		<mkdir dir="${build.dir}" />
 		<mkdir dir="${lib.dir}" />
-		<mkdir dir="${impl.lib.dir}" />
 	</target>
 
 	<target name="clean" depends="cpp-clean">
 		<delete dir="${build.dir}" />
-		<delete dir="${impl.lib.dir}" />
+		<delete dir="${lib.dir}" />
 		<delete dir="output"/>
 		<delete dir="${test.run.dir}"/>
 		<delete dir="${test.build.dir}"/>
@@ -67,13 +65,13 @@
 			includeantruntime="no"
 			excludes="com/ibm/streamsx/json/**/*$StreamsModel.java">
 			<classpath>
-				<path refid="cp.streams" />
+				<path refid="cp.compile" />
 			</classpath>
 		</javac>
 	</target>
 
 	<target name="jar" depends="compile">
-		<jar destfile="${impl.lib.dir}/com.ibm.streamsx.json.jar" basedir="${build.dir}" 
+		<jar destfile="${lib.dir}/com.ibm.streamsx.json.jar" basedir="${build.dir}" 
 				 includes="com/ibm/streamsx/json/**" filesonly="true">
 		</jar>
 		<delete dir="${build.dir}" />
