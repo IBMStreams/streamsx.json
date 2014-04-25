@@ -15,7 +15,7 @@ tests=BasicTest ListTest SetOfListTest
 rntest=./scripts/testRunner.sh
 ftest=./scripts/expectFail.sh
 
-all: BasicTest ListTest SetOfListTest NullBasicTest CompileFailtest
+all: BasicTest ListTest SetOfListTest NullBasicTest RecordArrayListTest CompileFailtest
 	@echo "Tests Passed"
 
 compile: ${tests}
