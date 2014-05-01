@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//ENs"
+"/homes/hny1/rwagle/Distillery/ext/dita-ot/dtd/technicalContent/dtd/reference.dtd">
+<reference id="spldoc_toolkit__toolkit__1.0.0">
+<title outputclass="spltoolkitname">TupleToJSONConvert</title>
+<refbody>
+<section>
+<title outputclass="splhead-1">General Information</title>
+
+<p>Sample application for the TupleToJSON operator
+</p>
+<dl>
+  <dlentry>
+  <dt>Version</dt>
+  <dd>1.0.0</dd>
+  </dlentry>
+  <dlentry>
+  <dt>Required Product Version</dt>
+  <dd>3.2.0</dd>
+  </dlentry>
+  <dlentry>
+  <dt>Author</dt>
+  <dd>IBMStreams Open Source Community at GitHub - https://github.com/IBMStreams/streamsx.json</dd>
+  </dlentry>
+</dl>
+</section>
+<section>
+  <title outputclass="splhead-1">Namespaces</title>
+<dl>
+   <dlentry>
+     <dt outputclass="splpart"><xref href="com.ibm.streamsx.json.sample.ttoj$.xml">com.ibm.streamsx.json.sample.ttoj</xref></dt>
+  <dd>SPL Files
+       <sl>
+         <sli><xref href="com.ibm.streamsx.json.sample.ttoj$JsonArrayConvert$spl.xml">com.ibm.streamsx.json.sample.ttoj/JsonArrayConvert.spl</xref></sli>
+         <sli><xref href="com.ibm.streamsx.json.sample.ttoj$SimpleConversion$spl.xml">com.ibm.streamsx.json.sample.ttoj/SimpleConversion.spl</xref></sli>
+       </sl>
+   </dd>
+   <dd>Operators
+       <sl>
+         <sli><xref href="com.ibm.streamsx.json.sample.ttoj$JsonArrayConvert$spl.xml#spldoc_compilationunit__/composite_operator__JsonArrayConvert">JsonArrayConvert</xref></sli>
+         <sli><xref href="com.ibm.streamsx.json.sample.ttoj$SimpleConversion$spl.xml#spldoc_compilationunit__/composite_operator__SimpleTupleConvert">SimpleTupleConvert</xref></sli>
+       </sl>
+   </dd>
+     </dlentry></dl>
+</section>
+</refbody>
+</reference>
+

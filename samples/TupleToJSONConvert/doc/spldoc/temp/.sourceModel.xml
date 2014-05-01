@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<srcCode:sourceModel xmlns:srcCode="http://www.ibm.com/xmlns/prod/streams/spl/sourceCode" xmlns:common="http://www.ibm.com/xmlns/prod/streams/spl/common" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <srcCode:sourceFile uri="com.ibm.streamsx.json.sample.ttoj/JsonArrayConvert.spl">
+    <srcCode:compilationUnit>
+      <srcCode:splNamespace column="11" line="7" name="com.ibm.streamsx.json.sample.ttoj"/>
+      <srcCode:definitions>
+        <srcCode:compositeDefinition endColumn="1" endLine="40" startColumn="1" startLine="9">
+          <srcCode:compositeHead column="1" line="15" name="JsonArrayConvert">
+            <srcCode:splDoc>
+              <srcCode:description>
+                <srcCode:description>Example showing how to output a JSON array instead of a JSON record using [TupleToJSON]
+Expected output will have a single array of records
+\[ { \"name\" : \"John"}, {\"name\" : \"Kate\"} \]
+
+</srcCode:description>
+              </srcCode:description>
+            </srcCode:splDoc>
+          </srcCode:compositeHead>
+          <srcCode:compositeBody>
+            <srcCode:types column="2" line="18">
+              <srcCode:type endColumn="24" endLine="19" name="MyType" startColumn="3" startLine="19" value="rstring name"/>
+            </srcCode:types>
+            <srcCode:graph>
+              <srcCode:operatorInvocation>
+                <srcCode:operatorInvocationHead column="40" line="21" operatorName="Beacon">
+                  <srcCode:outputs>
+                    <srcCode:output column="31" index="0" line="21" streamName="InputS" type="list&lt;MyType> mylist"/>
+                  </srcCode:outputs>
+                </srcCode:operatorInvocationHead>
+                <srcCode:operatorInvocationBody>
+                  <srcCode:parameters>
+                    <srcCode:parameter column="10" line="22" name="iterations">
+                      <srcCode:value expr="1u"/>
+                    </srcCode:parameter>
+                  </srcCode:parameters>
+                  <srcCode:outputAssignments>
+                    <srcCode:outputAssignment column="11" line="23" portName="InputS">
+                      <srcCode:attributeAssignment column="20" line="23" name="mylist">
+                        <srcCode:value expr="[{name = &quot;John&quot;}, {name = &quot;Kate&quot;}]"/>
+                      </srcCode:attributeAssignment>
+                    </srcCode:outputAssignment>
+                  </srcCode:outputAssignments>
+                </srcCode:operatorInvocationBody>
+              </srcCode:operatorInvocation>
+              <srcCode:operatorInvocation>
+                <srcCode:operatorInvocationHead column="40" line="29" operatorName="::">
+                  <srcCode:outputs>
+                    <srcCode:output column="30" index="0" line="29" streamName="OutputS" type="rstring jsonString"/>
+                  </srcCode:outputs>
+                  <srcCode:inputs>
+                    <srcCode:input column="75" index="0" line="29">
+                      <srcCode:istream column="75" line="29" name="InputS"/>
+                    </srcCode:input>
+                  </srcCode:inputs>
+                </srcCode:operatorInvocationHead>
+                <srcCode:operatorInvocationBody>
+                  <srcCode:parameters>
+                    <srcCode:parameter column="5" line="32" name="rootAttribute">
+                      <srcCode:value expr="&quot;mylist&quot;"/>
+                    </srcCode:parameter>
+                  </srcCode:parameters>
+                </srcCode:operatorInvocationBody>
+              </srcCode:operatorInvocation>
+              <srcCode:operatorInvocation>
+                <srcCode:operatorInvocationHead column="9" invocationAlias="SinkOp" line="34" operatorName="Custom">
+                  <srcCode:inputs>
+                    <srcCode:input column="25" index="0" line="34">
+                      <srcCode:istream column="25" line="34" name="OutputS"/>
+                    </srcCode:input>
+                  </srcCode:inputs>
+                </srcCode:operatorInvocationHead>
+                <srcCode:operatorInvocationBody>
+                  <srcCode:logic hasState="false">
+                    <srcCode:onTuple column="18" line="35" portName="OutputS"/>
+                  </srcCode:logic>
+                </srcCode:operatorInvocationBody>
+              </srcCode:operatorInvocation>
+            </srcCode:graph>
+          </srcCode:compositeBody>
+        </srcCode:compositeDefinition>
+      </srcCode:definitions>
+    </srcCode:compilationUnit>
+  </srcCode:sourceFile>
+
+  <srcCode:sourceFile uri="com.ibm.streamsx.json.sample.ttoj/SimpleConversion.spl">
+    <srcCode:compilationUnit>
+      <srcCode:splNamespace column="11" line="7" name="com.ibm.streamsx.json.sample.ttoj"/>
+      <srcCode:useDirectives>
+        <srcCode:useDirective column="5" line="9" namespaceName="com.ibm.streamsx.json" tail="::*"/>
+      </srcCode:useDirectives>
+      <srcCode:definitions>
+        <srcCode:compositeDefinition endColumn="1" endLine="35" startColumn="1" startLine="11">
+          <srcCode:compositeHead column="1" line="15" name="SimpleTupleConvert">
+            <srcCode:splDoc>
+              <srcCode:description>
+                <srcCode:description>Simple example of an using [TupleToJSON] to convert SPL Tuples into JSON Strings
+
+</srcCode:description>
+              </srcCode:description>
+            </srcCode:splDoc>
+          </srcCode:compositeHead>
+          <srcCode:compositeBody>
+            <srcCode:types column="2" line="16">
+              <srcCode:type endColumn="62" endLine="17" name="JsonType" startColumn="3" startLine="17" value="rstring name, int32 age, list&lt;rstring> relatives"/>
+            </srcCode:types>
+            <srcCode:graph>
+              <srcCode:operatorInvocation>
+                <srcCode:operatorInvocationHead column="28" line="21" operatorName="Beacon">
+                  <srcCode:outputs>
+                    <srcCode:output column="19" index="0" line="21" streamName="InputS" type="JsonType"/>
+                  </srcCode:outputs>
+                </srcCode:operatorInvocationHead>
+                <srcCode:operatorInvocationBody>
+                  <srcCode:parameters>
+                    <srcCode:parameter column="3" line="23" name="iterations">
+                      <srcCode:value expr="1u"/>
+                    </srcCode:parameter>
+                  </srcCode:parameters>
+                  <srcCode:outputAssignments>
+                    <srcCode:outputAssignment column="9" line="24" portName="InputS">
+                      <srcCode:attributeAssignment column="18" line="24" name="name">
+                        <srcCode:value expr="&quot;Jane&quot;"/>
+                      </srcCode:attributeAssignment>
+                      <srcCode:attributeAssignment column="33" line="24" name="age">
+                        <srcCode:value expr="25"/>
+                      </srcCode:attributeAssignment>
+                      <srcCode:attributeAssignment column="43" line="24" name="relatives">
+                        <srcCode:value expr="[&quot;John&quot;, &quot;Sam&quot;]"/>
+                      </srcCode:attributeAssignment>
+                    </srcCode:outputAssignment>
+                  </srcCode:outputAssignments>
+                </srcCode:operatorInvocationBody>
+              </srcCode:operatorInvocation>
+              <srcCode:operatorInvocation>
+                <srcCode:operatorInvocationHead column="37" line="27" operatorName="TupleToJSON">
+                  <srcCode:outputs>
+                    <srcCode:output column="29" index="0" line="27" streamName="JsonS" type="rstring jsonString"/>
+                  </srcCode:outputs>
+                  <srcCode:inputs>
+                    <srcCode:input column="49" index="0" line="27">
+                      <srcCode:istream column="49" line="27" name="InputS"/>
+                    </srcCode:input>
+                  </srcCode:inputs>
+                </srcCode:operatorInvocationHead>
+                <srcCode:operatorInvocationBody/>
+              </srcCode:operatorInvocation>
+              <srcCode:operatorInvocation>
+                <srcCode:operatorInvocationHead column="8" invocationAlias="SinkOp" line="30" operatorName="Custom">
+                  <srcCode:inputs>
+                    <srcCode:input column="24" index="0" line="30">
+                      <srcCode:istream column="24" line="30" name="JsonS"/>
+                    </srcCode:input>
+                  </srcCode:inputs>
+                </srcCode:operatorInvocationHead>
+                <srcCode:operatorInvocationBody>
+                  <srcCode:logic hasState="false">
+                    <srcCode:onTuple column="17" line="31" portName="JsonS"/>
+                  </srcCode:logic>
+                </srcCode:operatorInvocationBody>
+              </srcCode:operatorInvocation>
+            </srcCode:graph>
+          </srcCode:compositeBody>
+        </srcCode:compositeDefinition>
+      </srcCode:definitions>
+    </srcCode:compilationUnit>
+  </srcCode:sourceFile>
+
+</srcCode:sourceModel>

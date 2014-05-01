@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//ENs"
+"/homes/hny1/rwagle/Distillery/ext/dita-ot/dtd/technicalContent/dtd/reference.dtd">
+<reference id ="spldoc_compilationunit__">
+<title>SimpleConversion.spl</title>
+<refbody>
+<section>
+<p>
+<xref href="toolkit.xml">
+TupleToJSONConvert
+</xref>
+-&gt; <xref href="com.ibm.streamsx.json.sample.ttoj$.xml">com.ibm.streamsx.json.sample.ttoj</xref>-&gt; SimpleConversion.spl</p>
+</section>
+<section>
+  <title outputclass="splhead-1">Content</title>
+    <dl>
+    <dlentry><dt></dt><dd></dd></dlentry>
+    <dlentry>
+      <dt outputclass="splhead-2">Composites</dt>
+      <dd><dl>
+  <dlentry>
+     <dt><xref href="#spldoc_compilationunit__/composite_operator__SimpleTupleConvert">composite SimpleTupleConvert</xref></dt>
+     <dd>Simple example of an using <xref format= "html" href="TupleToJSON">TupleToJSON</xref> to convert SPL Tuples into JSON Strings </dd>
+  </dlentry>
+     </dl></dd>
+    </dlentry>
+     </dl>
+</section>
+<section>
+  <title outputclass="splhead-1">Composites</title>
+</section>
+<section id="composite_operator__SimpleTupleConvert">
+  <title outputclass="splpart">composite SimpleTupleConvert</title>
+</section>
+<section>
+
+<p>Simple example of an using <xref format= "html" href="TupleToJSON">TupleToJSON</xref> to convert SPL Tuples into JSON Strings 
+</p>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+  <title outputclass="splhead-2">Composite Graph</title>
+</section>
+<section outputclass="splgraph">
+<object type="image/svg+xml" data="../image/com.ibm.streamsx.json.sample.ttoj$SimpleTupleConvert.svg" width="337" height="109">
+<desc>SPL composite operator image not displayed. Problem loading file: ../image/com.ibm.streamsx.json.sample.ttoj$SimpleTupleConvert.svg
+</desc>
+</object>
+</section>
+</refbody>
+</reference>
+
