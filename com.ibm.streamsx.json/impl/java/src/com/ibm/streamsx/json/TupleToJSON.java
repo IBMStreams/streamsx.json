@@ -68,7 +68,7 @@ public class TupleToJSON extends AbstractOperator {
 		if(rootAttribute!=null) {
 			rootAttributeType = JSONToTuple.verifyAttributeType(getOperatorContext(), ssip, rootAttribute, 
 					Arrays.asList(MetaType.TUPLE, MetaType.LIST, MetaType.BLIST, MetaType.SET, MetaType.BSET));
-			l.log(TraceLevel.INFO, "Will use source field attribute: " + rootAttribute);
+			l.log(TraceLevel.INFO, "Will use source attribute: " + rootAttribute);
 		}
 	}
 

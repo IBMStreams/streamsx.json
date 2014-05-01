@@ -4,11 +4,12 @@
 // * others. All Rights Reserved. *
 // *******************************************************************************
 //
-namespace com.ibm.streamsx.json.sample.jtot;
+namespace com.ibm.streamsx.json.sample.ttoj;
 
 /**
- * Example showing how an input JSON array string can be used
- * Expected output will have a single tuple with a list of MyType attributes.
+ * Example showing how to output a JSON array instead of a JSON record using [TupleToJSON]
+ * Expected output will have a single array of records
+ * //[ { \"name\" : \"John"}, {\"name\" : \"Kate\"} ]
  * 
  */
 composite JsonArrayConvert {
@@ -17,15 +18,18 @@ composite JsonArrayConvert {
 	type
 		MyType = rstring name;
 	graph
-		stream<rstring jsonString> InputS = Beacon() {
+		stream<list<MyType> mylist> InputS = Beacon() {
 			param iterations : 1u;
-			output InputS : jsonString = "[{\"name\" : \"John\"},{}, {\"name\" : \"Kate\"} ]";
+			output InputS : mylist = [
+			{ name = "John"},
+			{ name = "Kate"}
+			];
 		}
 
-		stream<list<MyType> mylist> OutputS = com.ibm.streamsx.json::JSONToTuple(InputS) {
+		stream<rstring jsonString> OutputS = com.ibm.streamsx.json::TupleToJSON(InputS) {
 			param
 				//this attribute must be specified
-				targetAttribute : "mylist";
+				rootAttribute : "mylist";
 		}
 		() as SinkOp = Custom(OutputS) {
 			logic onTuple OutputS : {
@@ -34,3 +38,4 @@ composite JsonArrayConvert {
 		}
 
 }
+

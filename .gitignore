@@ -4,6 +4,7 @@ impl/nl/include/*.h
 *.pm
 .settings
 .toolkitList
+doc
 # If you want to include a perl module, do
 # !foo.pm
 
