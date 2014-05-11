@@ -1,0 +1,25 @@
+namespace com.ibm.streamsx.json.tests;
+
+
+composite RecordArrayListTest {
+	
+	type
+		MyType = rstring name, int32 age;
+		 
+	graph
+		stream<list<MyType> mylist> InputS = Beacon() {
+			param iterations  : 1u;
+			output InputS : mylist = 
+				[
+					{name = "John", age = 20},
+					{name = "Kate", age = 25}
+				];
+		}
+
+		() as Sinkop = VerifierArray(InputS) {
+		param 
+			listAttr : "mylist";
+		}
+	config
+		tracing : debug;
+}
