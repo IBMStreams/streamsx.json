@@ -52,7 +52,8 @@ import com.ibm.streams.operator.types.Timestamp;
 @PrimitiveOperator(name="JSONToTuple", description=JSONToTuple.DESC)
 public class JSONToTuple extends AbstractOperator  
 {
-	private String jsonStringAttribute = "jsonString";
+	private String jsonStringAttribute = null;
+	private static final String defaultJsonStringAttribute = "jsonString";
 	private Logger l = Logger.getLogger(JSONToTuple.class.getCanonicalName());
 	boolean ignoreParsingError = false;
 	private String jsonStringOutputAttribute = null;
@@ -109,6 +110,14 @@ public class JSONToTuple extends AbstractOperator
 		hasOptionalOut = op.getStreamingOutputs().size() > 1;
 
 		List<MetaType> types  = Arrays.asList(MetaType.RSTRING, MetaType.USTRING);
+		if (jsonStringAttribute == null) {
+			if (ssIp0.getAttributeCount() == 1) {
+				jsonStringAttribute = ssIp0.getAttribute(0).getName();
+			}
+			else {
+				jsonStringAttribute = defaultJsonStringAttribute;
+			}
+		}
 		verifyAttributeType(op,  ssIp0, jsonStringAttribute, types).getMetaType();
 
 		if(jsonStringOutputAttribute!=null) {

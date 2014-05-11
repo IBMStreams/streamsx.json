@@ -36,7 +36,8 @@ import com.ibm.streams.operator.model.PrimitiveOperator;
 @PrimitiveOperator(name="TupleToJSON", description=TupleToJSON.DESC)
 public class TupleToJSON extends AbstractOperator {
 
-	private String jsonStringAttribute = "jsonString";
+	private String jsonStringAttribute = null;
+	private static final String defaultJsonStringAttribute = "jsonString";
 
 	private String rootAttribute = null;
 	private Type rootAttributeType =null;
@@ -60,7 +61,17 @@ public class TupleToJSON extends AbstractOperator {
 		super.initialize(op);
 
 		StreamSchema ssop = getOutput(0).getStreamSchema();
-
+		if (jsonStringAttribute == null) {
+			// If we haven't set it using an argument, then...
+			if (ssop.getAttributeCount() > 1) {
+				// when there's more than one attribute, use the default jsonString
+				jsonStringAttribute = defaultJsonStringAttribute;
+			}
+			else {
+				// Only one attribute; so it's clear what to use.
+				jsonStringAttribute = ssop.getAttribute(0).getName();
+			}
+		}
 		JSONToTuple.verifyAttributeType(getOperatorContext(), ssop, jsonStringAttribute, 
 				Arrays.asList(MetaType.RSTRING, MetaType.USTRING));
 
