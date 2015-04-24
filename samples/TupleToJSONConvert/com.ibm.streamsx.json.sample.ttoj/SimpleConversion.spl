@@ -1,0 +1,35 @@
+//
+// *******************************************************************************
+// * Copyright (C)2014, International Business Machines Corporation and *
+// * others. All Rights Reserved. *
+// *******************************************************************************
+//
+namespace com.ibm.streamsx.json.sample.ttoj;
+
+use com.ibm.streamsx.json::*;
+
+/**
+ * Simple example of an using [TupleToJSON] to convert SPL Tuples into JSON Strings
+ * 
+ */
+composite SimpleTupleConvert {
+	type 
+		JsonType = rstring name, int32 age, list<rstring> relatives;
+	
+	graph
+	//generate some tuples
+	stream<JsonType> InputS = Beacon() {
+	param
+		iterations : 1u;
+	output InputS : name = "Jane", age = 25, relatives = ["John", "Sam"];
+	}
+	//Convert the incoming tuples to JSON
+	stream<rstring jsonString> JsonS = TupleToJSON(InputS) {
+	}
+	
+	() as SinkOp = Custom(JsonS) {
+		logic onTuple JsonS : {
+			println("Json String: " + (rstring)JsonS);
+		}
+	}
+}

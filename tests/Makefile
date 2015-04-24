@@ -13,15 +13,20 @@ outputdir=./output
 tests=BasicTest ListTest SetOfListTest
 
 rntest=./scripts/testRunner.sh
+ftest=./scripts/expectFail.sh
 
-all: BasicTest ListTest SetOfListTest
-
+all: BasicTest ListTest SetOfListTest NullBasicTest RecordArrayListTest CompileFailtest
+	@echo "Tests Passed"
 
 compile: ${tests}
 
 %Test:
 	${sc} -T ${args} --output-directory ${outputdir}/$@ -M ${ns}::$@
 	${rntest} ${outputdir}/$@/bin/standalone
+
+
+%Failtest:
+	${ftest} ${sc} -T ${args} --output-directory ${outputdir}/$@ -M ${ns}::$@ 
 
 clean:
 	rm -rf ${outputdir}

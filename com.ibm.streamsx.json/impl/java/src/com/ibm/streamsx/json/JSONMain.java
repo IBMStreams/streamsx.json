@@ -14,23 +14,45 @@ import java.util.*;
 import com.ibm.json.java.JSONArray;
 import com.ibm.json.java.JSONObject;
 
-//this is a utility class
-//give it a filename containing json object as an arg
-//it will print the structure of the json object to help you write a tuple/object with the same structure
+/**
+ * This is a utility class
+ * It requires a filename containing json object/array as input
+ * It will print an SPL structure that closely matches the JSON structure.
+ * @author rwagle
+ *
+ */
 public class JSONMain {
 
   static String TAB = "  ";
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args)  {
     if(args.length!=1) {
-      System.err.println("Please specify a file containing json string.");
+      System.err.println("Please specify a file containing JSON string.");
       System.exit(1);
     }
-    JSONObject obj = JSONObject.parse(readFile(args[0]));
-    //    print(obj, "");
-    List<String> typeList = new ArrayList<String>();
-    print(obj, typeList, "", "Main");
-    for(String s : typeList) {
-      System.out.println(s+"\n");
+    try {
+	    String jsonString = readFile(args[0]);
+	    
+		List<String> typeList = new ArrayList<String>();
+	    if(jsonString.startsWith("[")) {
+	    	JSONArray jarr = JSONArray.parse(jsonString);
+	    	String ret = print(jarr, typeList, "", "Main") ;
+	    	
+	    	for(String s : typeList) {
+	    		System.out.println(s+"\n");
+	    	}
+	    	System.out.println("type MainListType = " + ret + ";");
+	    }
+	    else {
+	    	JSONObject obj = JSONObject.parse(jsonString);
+	    	print(obj, typeList, "", "Main");
+	    	for(String s : typeList) {
+	    		System.out.println(s+"\n");
+	    	}
+	    }
+    }catch(Exception e) {
+    	System.err.println("Unable to generate SPL types");
+    	e.printStackTrace();
+    	System.exit(1);
     }
   }
   
@@ -39,7 +61,8 @@ public class JSONMain {
     BufferedReader br = new BufferedReader(new FileReader(fname));
     String line = null;
     while((line = br.readLine()) != null) {
-      sb.append(line);
+      if(line.trim().isEmpty()) continue;
+      sb.append(line.trim());
       break;//read one line
     }
     br.close();
@@ -80,6 +103,8 @@ public class JSONMain {
       String val = "";
       if(clname.equals("String"))  val = "rstring";
       else if(clname.equals("Long"))  val = "int64";
+      else if(clname.equals("Float"))  val = "float32";
+      else if(clname.equals("Double"))  val = "float64";
       else if(clname.equals("Boolean"))  val = "boolean";
       else {
         System.err.println("Unsupported type: " + clname + " : " + parent + self);

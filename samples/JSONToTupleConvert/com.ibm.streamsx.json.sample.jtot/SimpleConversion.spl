@@ -1,0 +1,39 @@
+//
+// *******************************************************************************
+// * Copyright (C)2014, International Business Machines Corporation and *
+// * others. All Rights Reserved. *
+// *******************************************************************************
+//
+namespace com.ibm.streamsx.json.sample.jtot;
+
+use com.ibm.streamsx.json::*;
+
+/**
+ * Simple example of an using [JSONToTuple] to convert JSON Strings into SPL Tuples
+ * 
+ */
+composite SimpleJsonConvert {
+	type 
+		JsonType = rstring name, int32 age, list<rstring> relatives;
+	
+	graph
+	//read the sample file containing one json string per line
+	stream<rstring jsonString> JsonS = FileSource() {
+		param 
+			file : "sample.json";
+			format : line;
+			
+	}
+
+	//Read and parse the json into a SPL tuple
+	//Note that the [JSONTuTuple] operator will match the tuple attributes 
+	//to their respective JSON ones. Attribute names have to match exactly 
+	stream<JsonType> ParsedS = JSONToTuple(JsonS) {
+	}
+	
+	() as SinkOp = Custom(ParsedS) {
+		logic onTuple ParsedS : {
+			println("Parsed Tuple: " + (rstring)ParsedS);
+		}
+	}
+}

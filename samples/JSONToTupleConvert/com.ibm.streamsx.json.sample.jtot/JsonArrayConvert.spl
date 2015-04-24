@@ -1,0 +1,36 @@
+//
+// *******************************************************************************
+// * Copyright (C)2014, International Business Machines Corporation and *
+// * others. All Rights Reserved. *
+// *******************************************************************************
+//
+namespace com.ibm.streamsx.json.sample.jtot;
+
+/**
+ * Example showing how an input JSON array string can be used
+ * Expected output will have a single tuple with a list of MyType attributes.
+ * 
+ */
+composite JsonArrayConvert {
+
+
+	type
+		MyType = rstring name;
+	graph
+		stream<rstring jsonString> InputS = Beacon() {
+			param iterations : 1u;
+			output InputS : jsonString = "[{\"name\" : \"John\"},{}, {\"name\" : \"Kate\"} ]";
+		}
+
+		stream<list<MyType> mylist> OutputS = com.ibm.streamsx.json::JSONToTuple(InputS) {
+			param
+				//this parameter must be specified
+				targetAttribute : "mylist";
+		}
+		() as SinkOp = Custom(OutputS) {
+			logic onTuple OutputS : {
+				println((rstring)OutputS);
+			}
+		}
+
+}
