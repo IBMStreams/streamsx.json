@@ -1,1 +1,2 @@
-com.ibm.streamsx.json
+com.ibm.streamsx.json/JSONToTuple
+com.ibm.streamsx.json/TupleToJSON
