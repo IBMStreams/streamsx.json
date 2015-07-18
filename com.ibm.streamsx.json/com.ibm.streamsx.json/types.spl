@@ -1,0 +1,14 @@
+//
+// *******************************************************************************
+// * Copyright (C)2015, International Business Machines Corporation and *
+// * others. All Rights Reserved. *
+// *******************************************************************************
+//
+namespace com.ibm.streamsx.json;
+
+/**
+* Default tuple type for representing JSON.
+* Matches the defaults supported by
+* [JSONToTuple] and [TupleToJSON].
+*/
+type Json = rstring jsonString;

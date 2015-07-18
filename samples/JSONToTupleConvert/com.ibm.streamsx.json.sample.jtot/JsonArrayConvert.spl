@@ -24,7 +24,7 @@ composite JsonArrayConvert {
 
 		stream<list<MyType> mylist> OutputS = com.ibm.streamsx.json::JSONToTuple(InputS) {
 			param
-				//this attribute must be specified
+				//this parameter must be specified
 				targetAttribute : "mylist";
 		}
 		() as SinkOp = Custom(OutputS) {
