@@ -10,12 +10,12 @@ args=-t ../com.ibm.streamsx.json
 ns=com.ibm.streamsx.json.tests
 outputdir=./output
 
-tests=BasicTest ListTest SetOfListTest
+tests=BasicTest ListTest SetOfListTest InputSpecificationTest RootAttributeTest
 
 rntest=./scripts/testRunner.sh
 ftest=./scripts/expectFail.sh
 
-all: BasicTest ListTest SetOfListTest NullBasicTest RecordArrayListTest CompileFailtest
+all: BasicTest ListTest SetOfListTest NullBasicTest RecordArrayListTest InputSpecificationTest RootAttributeTest CompileFailtest
 	@echo "Tests Passed"
 
 compile: ${tests}

@@ -29,7 +29,7 @@ composite JsonArrayConvert {
 		stream<rstring jsonString> OutputS = com.ibm.streamsx.json::TupleToJSON(InputS) {
 			param
 				//this attribute must be specified
-				rootAttribute : "mylist";
+				inputAttribute :mylist;
 		}
 		() as SinkOp = Custom(OutputS) {
 			logic onTuple OutputS : {
