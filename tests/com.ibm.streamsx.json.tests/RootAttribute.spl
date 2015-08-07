@@ -1,0 +1,74 @@
+namespace com.ibm.streamsx.json.tests;
+
+use com.ibm.streamsx.json::TupleToJSON;
+
+composite AssertEqual(input Stream1, Stream2) {
+
+graph
+() as checker = Custom(Stream1;Stream2) {
+
+logic state: {
+    mutable list<Stream1> listOne;
+    mutable list<Stream2> listTwo;
+    mutable int32 numPunct = 0;
+}
+onTuple Stream1:
+    appendM(listOne,Stream1);
+onTuple Stream2:
+    appendM(listTwo,Stream2);
+onPunct Stream1: 
+    if (currentPunct() == Sys.FinalMarker) {
+        numPunct++;
+        assert(numPunct<1 || listOne == listTwo);
+    }
+onPunct Stream2:
+    if (currentPunct() == Sys.FinalMarker) {
+        numPunct++;
+        assert(numPunct<1 || listOne == listTwo);
+    }
+}
+
+}
+
+composite RootAttributeTest {
+
+graph
+
+
+stream<list<rstring> characters, tuple<rstring author, rstring title> origin> Data = Beacon() {
+param iterations: 1;
+
+output Data:
+    characters = ["Ajax","Achilles","Agamemon","Helen","Paris"],
+    origin = {author="Homer",title="The Iliad"};
+}
+
+stream<rstring jsonString> WholeTuple = TupleToJSON(Data) {
+
+}
+
+stream<rstring jsonString> List1 = TupleToJSON(Data) {
+    param rootAttribute: "characters";
+}
+
+() as checkList = AssertEqual(List1;List2) {
+
+}
+
+stream<rstring jsonString> List2 = TupleToJSON(Data) {
+    param inputAttribute: characters;
+}
+
+stream<rstring jsonString> Tuple1 = TupleToJSON(Data) {
+    param rootAttribute: "origin";
+}
+
+stream<rstring jsonString> Tuple2 = TupleToJSON(Data) {
+    param inputAttribute: origin;
+}
+
+() as checkTuple = AssertEqual(Tuple1;Tuple2) {
+
+}
+
+}

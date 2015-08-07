@@ -1,0 +1,74 @@
+
+namespace com.ibm.streamsx.json.tests;
+
+use com.ibm.streamsx.json::JSONToTuple;
+type InputTestType = rstring name, int32 age;
+
+composite InputSpecificationTest  {
+
+graph
+
+stream<rstring theString>  SingleAttribute = Beacon() {
+param iterations: 10;
+output SingleAttribute:
+    theString = "{\"name\":\"Buffy\", \"age\":"+(rstring)IterationCount()+"}";
+
+}
+
+stream<int32 count,rstring jsonString> MultiAttribute = Functor(SingleAttribute) {
+   logic state: {
+    mutable int32 iter = 0;
+   }
+   output MultiAttribute:
+        count = iter++,
+        jsonString = theString;
+}
+
+stream<int32 count, rstring theString> NeedArg = Functor(SingleAttribute) {
+logic state: {mutable int32 iter=0;}
+output NeedArg:
+    count = iter++;
+}
+
+// Single attribute, no need to specify.
+stream<InputTestType> SingleAttrTup = JSONToTuple(SingleAttribute) {
+
+}
+
+
+stream<InputTestType> OldWay = JSONToTuple(NeedArg) {
+    param jsonStringAttribute: "theString";
+}
+
+
+stream<InputTestType> NewWay = JSONToTuple(NeedArg) {
+    param inputAttribute: theString;
+}
+
+() as checker = Custom(OldWay;NewWay) {
+logic state: {
+    mutable list<InputTestType> oldWay = (list<InputTestType>)[];
+    mutable list<InputTestType> newWay = (list<InputTestType>)[];
+    mutable int32 numPunct = 0;
+}
+onTuple OldWay:
+    appendM(oldWay,OldWay);
+onTuple NewWay:
+    appendM(newWay,NewWay);
+onPunct OldWay:
+    if (currentPunct() == Sys.FinalMarker) {
+        numPunct++;
+        if (numPunct == 2) {
+            assert(oldWay == newWay);
+        }
+    }
+onPunct NewWay:
+    if (currentPunct() == Sys.FinalMarker) {
+        numPunct++;
+        if (numPunct == 2) {
+            assert(oldWay == newWay);
+        }
+    }
+}
+
+}

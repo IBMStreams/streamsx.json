@@ -28,6 +28,7 @@ import com.ibm.streams.operator.StreamSchema;
 import com.ibm.streams.operator.StreamingInput;
 import com.ibm.streams.operator.StreamingOutput;
 import com.ibm.streams.operator.Tuple;
+import com.ibm.streams.operator.TupleAttribute;
 import com.ibm.streams.operator.Type;
 import com.ibm.streams.operator.Type.MetaType;
 import com.ibm.streams.operator.compile.OperatorContextChecker;
@@ -53,6 +54,7 @@ import com.ibm.streams.operator.types.Timestamp;
 public class JSONToTuple extends AbstractOperator  
 {
 	private String jsonStringAttribute = null;
+	private static final String INPUT_JSON_ATTRIBUTE_PARAM="inputAttribute";
 	private static final String defaultJsonStringAttribute = "jsonString";
 	private Logger l = Logger.getLogger(JSONToTuple.class.getCanonicalName());
 	boolean ignoreParsingError = false;
@@ -61,8 +63,14 @@ public class JSONToTuple extends AbstractOperator
 	private Type targetAttrType;
 	private boolean wasTargetSpecified = false;
 	private boolean hasOptionalOut = false;
-
-	@Parameter(optional=true, description="Name of the input stream attribute which contains the JSON string. " +
+	private TupleAttribute<Tuple,String> inputJsonAttribute = null;
+	
+	@Parameter(name=INPUT_JSON_ATTRIBUTE_PARAM,optional=true, description="The input stream attribute (not the name of the attribute) which contains the input JSON string.  Replaces jsonStringAttribute.")
+	public void setInputJson(TupleAttribute<Tuple,String> in) {
+		inputJsonAttribute = in;
+	}
+	
+	@Parameter(optional=true, description="Deprecated.  Use "+INPUT_JSON_ATTRIBUTE_PARAM+" instead. Name of the input stream attribute which contains the JSON string. " +
 			"This attribute must be of USTRING or RSTRING type. Default is jsonString")
 	public void setJsonStringAttribute(String value) {
 		this.jsonStringAttribute = value;
@@ -97,6 +105,8 @@ public class JSONToTuple extends AbstractOperator
 					checker.getOperatorContext().getStreamingInputs().get(0), 
 					checker.getOperatorContext().getStreamingOutputs().get(1));
 		}
+		checker.checkExcludedParameters(INPUT_JSON_ATTRIBUTE_PARAM, "jsonStringAttribute");
+		checker.checkExcludedParameters("jsonStringAttribute", INPUT_JSON_ATTRIBUTE_PARAM);
 		return true;
 	}
 
@@ -110,7 +120,7 @@ public class JSONToTuple extends AbstractOperator
 		hasOptionalOut = op.getStreamingOutputs().size() > 1;
 
 		List<MetaType> types  = Arrays.asList(MetaType.RSTRING, MetaType.USTRING);
-		if (jsonStringAttribute == null) {
+		if (inputJsonAttribute == null && jsonStringAttribute == null) {
 			if (ssIp0.getAttributeCount() == 1) {
 				jsonStringAttribute = ssIp0.getAttribute(0).getName();
 			}
@@ -118,8 +128,9 @@ public class JSONToTuple extends AbstractOperator
 				jsonStringAttribute = defaultJsonStringAttribute;
 			}
 		}
-		verifyAttributeType(op,  ssIp0, jsonStringAttribute, types).getMetaType();
-
+		if (inputJsonAttribute == null) {
+		     verifyAttributeType(op,  ssIp0, jsonStringAttribute, types).getMetaType();
+		}
 		if(jsonStringOutputAttribute!=null) {
 			verifyAttributeType(op, ssOp0, jsonStringOutputAttribute, types).getMetaType();
 		}
@@ -151,8 +162,13 @@ public class JSONToTuple extends AbstractOperator
 	}
 
 	public void process(StreamingInput<Tuple> stream, Tuple tuple) throws Exception {
-		String jsonInput = tuple.getString(jsonStringAttribute);
-		
+		String jsonInput;
+		if (inputJsonAttribute != null) {
+			jsonInput = inputJsonAttribute.getValue(tuple);
+		}
+		else {
+			jsonInput = tuple.getString(jsonStringAttribute);
+		}
 		StreamingOutput<OutputTuple> ops = getOutput(0);
 		OutputTuple op = ops.newTuple();
 		op.assign(tuple);//copy over any relevant attributes

@@ -138,6 +138,7 @@ composite VerifierArray(input InputS) {
 		param
 			rootAttribute : $listAttr;
 		}
+
 		stream<MyType> OutputS = 
 			com.ibm.streamsx.json::JSONToTuple(JsonS)
 		{

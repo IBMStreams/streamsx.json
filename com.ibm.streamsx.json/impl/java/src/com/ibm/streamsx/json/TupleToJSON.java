@@ -19,6 +19,7 @@ import com.ibm.streams.operator.StreamSchema;
 import com.ibm.streams.operator.StreamingInput;
 import com.ibm.streams.operator.StreamingOutput;
 import com.ibm.streams.operator.Tuple;
+import com.ibm.streams.operator.TupleAttribute;
 import com.ibm.streams.operator.Type;
 import com.ibm.streams.operator.Type.MetaType;
 import com.ibm.streams.operator.encoding.EncodingFactory;
@@ -38,13 +39,20 @@ public class TupleToJSON extends AbstractOperator {
 
 	private String jsonStringAttribute = null;
 	private static final String defaultJsonStringAttribute = "jsonString";
-
+	private static final String ROOT_ATTRIBUTE_PARAM = "inputAttribute";
+	TupleAttribute<Tuple,?> rootAttr = null;
 	private String rootAttribute = null;
 	private Type rootAttributeType =null;
 
 	private static Logger l = Logger.getLogger(TupleToJSON.class.getCanonicalName());
 
-
+	@Parameter(name=ROOT_ATTRIBUTE_PARAM,
+			optional = true,
+			description="Input stream attribute  to be used as the root of the JSON object.  Default is the input tuple.  This parameter specfies the attribute, not its name.")
+	public void setRoot(TupleAttribute<Tuple,?> in) {
+		rootAttr = in;
+	}
+	
 	@Parameter(optional=true, 
 			description="Name of the output stream attribute where the JSON string will be populated. Default is jsonString")
 	public void setJsonStringAttribute(String value) {
@@ -76,6 +84,11 @@ public class TupleToJSON extends AbstractOperator {
 				Arrays.asList(MetaType.RSTRING, MetaType.USTRING));
 
 		StreamSchema ssip = getInput(0).getStreamSchema();
+	
+		if (rootAttr != null) {
+			rootAttribute = rootAttr.getAttribute().getName();
+		}
+		
 		if(rootAttribute!=null) {
 			rootAttributeType = JSONToTuple.verifyAttributeType(getOperatorContext(), ssip, rootAttribute, 
 					Arrays.asList(MetaType.TUPLE, MetaType.LIST, MetaType.BLIST, MetaType.SET, MetaType.BSET));
