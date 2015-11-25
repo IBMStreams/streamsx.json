@@ -187,9 +187,10 @@ public class JSONToTuple extends AbstractOperator
 			else {
 				JSONObject jsonObj = JSONObject.parse(jsonInput);
 				if(targetAttribute == null) {
-					Tuple tup = jsonToTuple(jsonObj, op.getStreamSchema());
-					if(tup!=null) 
-						op.assign(tup);
+					final Map<String, Object> attributeMap = jsonToAtributeMap(jsonObj, op.getStreamSchema());
+					if (!attributeMap.isEmpty())
+					    for (String name : attributeMap.keySet())
+					    	op.setObject(name, attributeMap.get(name));
 				}
 				else {
 					Tuple tup = jsonToTuple(jsonObj, ((TupleType)targetAttrType).getTupleSchema());
@@ -530,7 +531,11 @@ public class JSONToTuple extends AbstractOperator
 
 	}
 
-	private Tuple jsonToTuple(JSONObject jbase, StreamSchema schema) throws Exception {
+	private Tuple jsonToTuple(JSONObject jbase, StreamSchema schema) throws Exception {		
+		return schema.getTuple(jsonToAtributeMap(jbase, schema));
+	}
+	
+	private Map<String, Object> jsonToAtributeMap(JSONObject jbase, StreamSchema schema) throws Exception {
 		Map<String, Object> attrmap = new HashMap<String, Object>();
 		for(Attribute attr : schema) {
 			String name = attr.getName();
@@ -554,7 +559,7 @@ public class JSONToTuple extends AbstractOperator
 			}
 
 		}
-		return schema.getTuple(attrmap);
+		return attrmap;
 	}
 
 	static final String DESC = 
