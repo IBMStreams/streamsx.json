@@ -49,7 +49,6 @@ import com.ibm.streams.operator.types.Timestamp;
 @OutputPorts({
 	@OutputPortSet(cardinality=1, optional=false), 
 	@OutputPortSet(cardinality=1, optional=true)})
-@Libraries(value="@STREAMS_INSTALL@/ext/lib/JSON4J.jar")
 @PrimitiveOperator(name="JSONToTuple", description=JSONToTuple.DESC)
 public class JSONToTuple extends AbstractOperator  
 {
