@@ -10,16 +10,16 @@
       </function:function>
       <function:function>
         <function:description></function:description>
-        <function:prototype>&lt;map T> public rstring mapToJson(T m)</function:prototype>
+        <function:prototype>&lt;string S, any T> public rstring mapToJson(map&lt;S, T> m)</function:prototype>
       </function:function>
       <function:function>
         <function:description></function:description>
-        <function:prototype>&lt;any T> public rstring splToJson(rstring key, T splAny)</function:prototype>
+        <function:prototype>&lt;string S, any T> public rstring splToJson(S key, T splAny)</function:prototype>
       </function:function>
     </function:functions>
     <function:dependencies>
       <function:library>
-        <common:description/>
+        <common:description></common:description>
         <common:managedLibrary>
           <common:includePath>../../impl/include</common:includePath>
         </common:managedLibrary>

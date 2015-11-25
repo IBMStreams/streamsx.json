@@ -21,6 +21,24 @@ using namespace SPL;
 
 namespace json {
 
+	template<typename String>
+	char const* convToChars(String const& str) { return str.c_str(); }
+
+	template<>
+	char const* convToChars<ustring>(ustring const& str) { return spl_cast<rstring,ustring>::cast(str).c_str(); }
+
+	template<>
+	char const* convToChars<ConstValueHandle>(const ConstValueHandle& valueHandle) {
+		if(valueHandle.getMetaType() == Meta::Type::USTRING) {
+			const ustring & str = valueHandle;
+			return spl_cast<rstring,ustring>::cast(str).c_str();
+		}
+		else {
+			const std::string & str = valueHandle;
+			return str.c_str();
+		}
+	}
+
 	template<typename Container, typename Iterator>
 	void writeArray(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle);
 
@@ -91,10 +109,9 @@ namespace json {
 		for(Iterator mapIter = map.getBeginIterator(); mapIter != map.getEndIterator(); mapIter++) {
 
 			const std::pair<ConstValueHandle,ConstValueHandle> & mapHandle = *mapIter;
-			const std::string & mapKey = mapHandle.first;
 			const ConstValueHandle & mapValueHandle = mapHandle.second;
 
-			writer.String(mapKey.c_str());
+			writer.String(convToChars(mapHandle.first));
 			writeAny(writer, mapValueHandle);
 		}
 
@@ -111,7 +128,7 @@ namespace json {
 			const std::string & attrName = (*tupleIter).getName();
 			const ConstValueHandle & attrValueHandle = static_cast<ConstTupleAttribute>(*tupleIter).getValue();
 
-			writer.String(attrName.c_str());
+			writer.String(convToChars(attrName));
 			writeAny(writer, attrValueHandle);
 		}
 
@@ -128,7 +145,7 @@ namespace json {
 			}
 			case Meta::Type::ENUM : {
 				const Enum & value = valueHandle;
-				writer.String(value.getValue().c_str());
+				writer.String(convToChars(value.getValue()));
 				break;
 			}
 			case Meta::Type::INT8 : {
@@ -206,20 +223,13 @@ namespace json {
 			}
 			case Meta::Type::TIMESTAMP : {
 				const timestamp & value = valueHandle;
-				writer.String(Functions::Time::ctime(value).c_str());
+				writer.String(convToChars(Functions::Time::ctime(value)));
 				break;
 			}
-			case Meta::Type::RSTRING : {
-				const rstring & value = valueHandle;
-				writer.String(value.c_str());
-				break;
-			}
-			case Meta::Type::BSTRING : {
-				writer.Null();
-				break;
-			}
+			case Meta::Type::BSTRING :
+			case Meta::Type::RSTRING :
 			case Meta::Type::USTRING : {
-				writer.Null();
+				writer.String(convToChars(valueHandle));
 				break;
 			}
 			case Meta::Type::BLOB : {
@@ -257,8 +267,8 @@ namespace json {
 		return s.GetString();
 	}
 
-	template<class SPLAny>
-	inline std::string splToJson(std::string const& key, SPLAny const& splAny) {
+	template<class String, class SPLAny>
+	inline std::string splToJson(String const& key, SPLAny const& splAny) {
 
 
 	    StringBuffer s;
@@ -266,7 +276,8 @@ namespace json {
 
 		writer.StartObject();
 
-		writer.String(key.c_str());
+		writer.String(convToChars(key));
+
 		writeAny(writer, ConstValueHandle(splAny));
 
 		writer.EndObject();
