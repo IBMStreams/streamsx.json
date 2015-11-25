@@ -246,7 +246,7 @@ namespace json {
 	}
 
 
-	inline std::string tupleToJson(Tuple const& tuple) {
+	inline std::string tupleToJSON(Tuple const& tuple) {
 
 	    StringBuffer s;
 	    Writer<StringBuffer> writer(s);
@@ -257,7 +257,7 @@ namespace json {
 	}
 
 	template<class MAP>
-	inline std::string mapToJson(MAP const& map) {
+	inline std::string mapToJSON(MAP const& map) {
 
 	    StringBuffer s;
 	    Writer<StringBuffer> writer(s);
@@ -268,7 +268,7 @@ namespace json {
 	}
 
 	template<class String, class SPLAny>
-	inline std::string splToJson(String const& key, SPLAny const& splAny) {
+	inline std::string splToJSON(String const& key, SPLAny const& splAny) {
 
 
 	    StringBuffer s;

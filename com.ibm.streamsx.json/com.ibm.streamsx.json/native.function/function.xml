@@ -6,15 +6,15 @@
     <function:functions>
       <function:function>
         <function:description></function:description>
-        <function:prototype>&lt;tuple T> public rstring tupleToJson(T t)</function:prototype>
+        <function:prototype>&lt;tuple T> public rstring tupleToJSON(T t)</function:prototype>
       </function:function>
       <function:function>
         <function:description></function:description>
-        <function:prototype>&lt;string S, any T> public rstring mapToJson(map&lt;S, T> m)</function:prototype>
+        <function:prototype>&lt;string S, any T> public rstring mapToJSON(map&lt;S, T> m)</function:prototype>
       </function:function>
       <function:function>
         <function:description></function:description>
-        <function:prototype>&lt;string S, any T> public rstring splToJson(S key, T splAny)</function:prototype>
+        <function:prototype>&lt;string S, any T> public rstring splToJSON(S key, T splAny)</function:prototype>
       </function:function>
     </function:functions>
     <function:dependencies>
