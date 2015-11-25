@@ -1,0 +1,29 @@
+namespace sample;
+
+use com.ibm.streamsx.json::*;
+
+composite SPLToJsonSample {
+type
+	// Provide any hierarchical tuple to tupleToJson function
+	TestTuple = tuple<rstring str, float64 num, list<int32> nums, map<rstring,timestamp> dates, tuple<boolean flag, enum{YES,NO} answer> additionalTypes>;
+	
+	// Provide a map with r/u/b/string key and any composite value to mapToJson function
+	TestMap = map<rstring, TestTuple>;
+	
+	// Provide a r/u/b/string key and any SPL value to splToJson function
+	TestList = list<TestTuple>;
+graph
+	() as Test = Custom() {
+		logic
+			onProcess : {
+				TestTuple testTuple = {str = "testTuple", num = 42.42, nums = [1,2,3,4], dates = {"date1":getTimestamp()}, additionalTypes = {flag = true, answer = YES}};
+				printStringLn( tupleToJson(testTuple));
+				
+				TestMap testMap = {"testMap" : testTuple};
+				printStringLn( mapToJson(testMap));
+				
+				TestList testList = [testTuple];
+				printStringLn( splToJson("testList", testList));
+			}
+	}
+}
