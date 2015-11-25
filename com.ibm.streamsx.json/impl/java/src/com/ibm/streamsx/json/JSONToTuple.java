@@ -568,7 +568,7 @@ public class JSONToTuple extends AbstractOperator
 					" Only those attributes that are present in the Tuple schema and JSON input will be converted. All other attributes will be ignored." +
 					" If an invalid JSON string is found in the input, the operator will fail. " +
 					" This behavior can be overridden by specifying the optional output port or by specifying the \\\"ignoreParsingError\\\" parameter." +
-					" Atributes from the input stream that match those in the output stream will be automaticall copied over. " +
+					" Attributes from the input stream that match those in the output stream will be automatically copied over. " +
 					" However, if they also exist in the JSON input, their assigned value will be of that specified in the JSON." +
 					" Null values in JSON arrays are ignored. Null values for all other attributes will result in default initializled output attributes. " +
 					" Limitations:" +
