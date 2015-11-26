@@ -268,7 +268,7 @@ namespace json {
 	}
 
 	template<class String, class SPLAny>
-	inline std::string splToJSON(String const& key, SPLAny const& splAny) {
+	inline std::string toJSON(String const& key, SPLAny const& splAny) {
 
 
 	    StringBuffer s;

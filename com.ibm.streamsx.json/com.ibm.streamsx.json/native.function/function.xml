@@ -14,7 +14,7 @@
       </function:function>
       <function:function>
         <function:description></function:description>
-        <function:prototype>&lt;string S, any T> public rstring splToJSON(S key, T splAny)</function:prototype>
+        <function:prototype>&lt;string S, any T> public rstring toJSON(S key, T splAny)</function:prototype>
       </function:function>
     </function:functions>
     <function:dependencies>
