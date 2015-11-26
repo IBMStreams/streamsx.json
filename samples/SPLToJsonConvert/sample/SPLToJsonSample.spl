@@ -23,7 +23,7 @@ graph
 				printStringLn( mapToJSON(testMap));
 				
 				TestList testList = [testTuple];
-				printStringLn( splToJSON("testList", testList));
+				printStringLn( toJSON("testList", testList));
 			}
 	}
 }
