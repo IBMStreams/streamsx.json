@@ -29,13 +29,19 @@ namespace json {
 
 	template<>
 	char const* convToChars<ConstValueHandle>(const ConstValueHandle& valueHandle) {
-		if(valueHandle.getMetaType() == Meta::Type::USTRING) {
-			const ustring & str = valueHandle;
-			return spl_cast<rstring,ustring>::cast(str).c_str();
-		}
-		else {
-			const std::string & str = valueHandle;
-			return str.c_str();
+		switch(valueHandle.getMetaType()) {
+			case Meta::Type::BSTRING : {
+				const BString & str = valueHandle;
+				return str.getCString();
+			}
+			case Meta::Type::USTRING : {
+				const ustring & str = valueHandle;
+				return spl_cast<rstring,ustring>::cast(str).c_str();
+			}
+			default: {
+				const rstring & str = valueHandle;
+				return str.c_str();
+			}
 		}
 	}
 
