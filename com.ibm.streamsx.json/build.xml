@@ -78,5 +78,15 @@
 		<delete dir="${build.dir}" />
 	</target>
 
+	<target name="converter-jar" depends="compile">
+		<jar destfile="${lib.dir}/com.ibm.streamsx.json.converter.jar" filesonly="true">
+			<fileset dir="${build.dir}">
+				<include name="com/ibm/streamsx/json/JSONMain.class" />
+				<include name="com/ibm/streamsx/json/converters/**" />
+			</fileset>
+		</jar>
+		
+	</target>
+	
 </project>
 
