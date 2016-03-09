@@ -19,7 +19,7 @@
 using namespace rapidjson;
 using namespace SPL;
 
-namespace json {
+namespace com { namespace ibm { namespace streamsx { namespace json {
 
 	template<typename String>
 	char const* convToChars(String const& str) { return str.c_str(); }
@@ -291,6 +291,6 @@ namespace json {
 		return s.GetString();
 	}
 
-}
+}}}}
 
 #endif /* JSON_H_ */
