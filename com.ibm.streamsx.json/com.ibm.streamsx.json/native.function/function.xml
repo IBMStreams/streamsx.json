@@ -2,7 +2,7 @@
 <function:functionModel xmlns:common="http://www.ibm.com/xmlns/prod/streams/spl/common" xmlns:function="http://www.ibm.com/xmlns/prod/streams/spl/function">
   <function:functionSet>
     <function:headerFileName>Json.h</function:headerFileName>
-    <function:cppNamespaceName>json</function:cppNamespaceName>
+    <function:cppNamespaceName>com::ibm::streamsx::json</function:cppNamespaceName>
     <function:functions>
       <function:function>
         <function:description></function:description>
