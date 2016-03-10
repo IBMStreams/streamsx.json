@@ -38,3 +38,9 @@ com.ibm.streamsx.json/impl/lib/*.jar
 
 # temporary directories
 tmp
+
+# test artifacts
+test/result.txt
+test/bin
+com.ibm.streamsx.json/scripts/emotion.json
+com.ibm.streamsx.json/scripts/report.json

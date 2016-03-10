@@ -6,21 +6,14 @@
 //
 package com.ibm.streamsx.json;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import com.ibm.json.java.JSONArray;
 import com.ibm.json.java.JSONObject;
 import com.ibm.streams.operator.AbstractOperator;
-import com.ibm.streams.operator.Attribute;
 import com.ibm.streams.operator.OperatorContext;
 import com.ibm.streams.operator.OperatorContext.ContextCheck;
 import com.ibm.streams.operator.OutputTuple;
@@ -33,17 +26,13 @@ import com.ibm.streams.operator.Type;
 import com.ibm.streams.operator.Type.MetaType;
 import com.ibm.streams.operator.compile.OperatorContextChecker;
 import com.ibm.streams.operator.logging.TraceLevel;
-import com.ibm.streams.operator.meta.CollectionType;
 import com.ibm.streams.operator.meta.TupleType;
 import com.ibm.streams.operator.model.InputPortSet;
 import com.ibm.streams.operator.model.InputPorts;
-import com.ibm.streams.operator.model.Libraries;
 import com.ibm.streams.operator.model.OutputPortSet;
 import com.ibm.streams.operator.model.OutputPorts;
 import com.ibm.streams.operator.model.Parameter;
 import com.ibm.streams.operator.model.PrimitiveOperator;
-import com.ibm.streams.operator.types.RString;
-import com.ibm.streams.operator.types.Timestamp;
 import com.ibm.streamsx.json.converters.JSONToTupleConverter;
 import com.ibm.streamsx.json.converters.TupleTypeVerifier;
 
@@ -65,7 +54,6 @@ public class JSONToTuple extends AbstractOperator
 	private boolean wasTargetSpecified = false;
 	private boolean hasOptionalOut = false;
 	private TupleAttribute<Tuple,String> inputJsonAttribute = null;
-	private JSONToTupleConverter converter;
 	
 	@Parameter(name=INPUT_JSON_ATTRIBUTE_PARAM,optional=true, description="The input stream attribute (not the name of the attribute) which contains the input JSON string.  Replaces jsonStringAttribute.")
 	public void setInputJson(TupleAttribute<Tuple,String> in) {
@@ -115,7 +103,6 @@ public class JSONToTuple extends AbstractOperator
 	@Override
 	public void initialize(OperatorContext op) throws Exception {
 		super.initialize(op);
-		converter = new JSONToTupleConverter();
 
 		StreamSchema ssOp0 = getOutput(0).getStreamSchema();
 		StreamSchema ssIp0 = getInput(0).getStreamSchema();
@@ -163,20 +150,20 @@ public class JSONToTuple extends AbstractOperator
 			if( targetAttribute != null &&  targetAttrType.getMetaType() != MetaType.TUPLE) {
 				//in this mode, the incoming json string is expected to be an array
 				JSONArray jsonArr = JSONArray.parse(jsonInput);
-				Object collectionObj = converter.jsonToAttribute(targetAttribute, targetAttrType, jsonArr, null);
+				Object collectionObj = JSONToTupleConverter.jsonToAttribute(targetAttribute, targetAttrType, jsonArr, null);
 				if(collectionObj != null)
 					op.setObject(targetAttribute, collectionObj);
 			}
 			else {
 				JSONObject jsonObj = JSONObject.parse(jsonInput);
 				if(targetAttribute == null) {
-					final Map<String, Object> attributeMap = converter.jsonToAtributeMap(jsonObj, op.getStreamSchema());
+					final Map<String, Object> attributeMap = JSONToTupleConverter.jsonToAtributeMap(jsonObj, op.getStreamSchema());
 					if (!attributeMap.isEmpty())
 					    for (String name : attributeMap.keySet())
 					    	op.setObject(name, attributeMap.get(name));
 				}
 				else {
-					Tuple tup = converter.jsonToTuple(jsonObj, ((TupleType)targetAttrType).getTupleSchema());
+					Tuple tup = JSONToTupleConverter.jsonToTuple(jsonObj, ((TupleType)targetAttrType).getTupleSchema());
 					if(tup!=null)
 						op.setTuple(targetAttribute, tup);
 				}

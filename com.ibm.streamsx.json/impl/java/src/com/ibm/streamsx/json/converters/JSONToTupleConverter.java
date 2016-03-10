@@ -24,9 +24,19 @@ import com.ibm.streams.operator.types.Timestamp;
 
 public class JSONToTupleConverter {
 
-	private Logger l = Logger.getLogger(this.getClass().getCanonicalName());
+	private static Logger l = Logger.getLogger(JSONToTupleConverter.class.getCanonicalName());
 	
-	public Object jsonToAttribute (String name, Type type, Object jsonObj, Type parentType) throws Exception {
+	/**
+	 * Convert a JSON object to a Java object of the specified type. 
+	 * 
+	 * @param name The name of the attribute being converted (used for logging purposes)
+	 * @param type SPL type that the JSON object is being converted to. 
+	 * @param jsonObj JSON object that is being converted (can be either JSONObject or JSONArray) 
+	 * @param parentType This parameter is used when converting JSON arrays or maps to an attribute. For all other types, can be set to null.
+	 * @return Java object of the specified type representing the converted JSON object.
+	 * @throws Exception If there was a problem converting the JSON object.
+	 */
+	public static Object jsonToAttribute (String name, Type type, Object jsonObj, Type parentType) throws Exception {
 
 		if(l.isLoggable(TraceLevel.DEBUG)) {
 			l.log(TraceLevel.DEBUG, "Converting: " + name + " -- " + type.toString());
@@ -127,7 +137,7 @@ public class JSONToTupleConverter {
 	}
 
 	//this is used when a JSON array maps to a SPL collection 
-	public void arrayToCollection(String name, Collection<Object>lst, JSONArray jarr, Type ptype) throws Exception {
+	private static void arrayToCollection(String name, Collection<Object>lst, JSONArray jarr, Type ptype) throws Exception {
 		CollectionType ctype = (CollectionType) ptype;
 		String cname = lst.getClass().getSimpleName() + ": " + name;
 		for(Object jsonObj : jarr) {
@@ -139,7 +149,7 @@ public class JSONToTupleConverter {
 
 
 	//this is used when a JSON array maps to a Java array 
-	public Object arrayToSPLArray(String name, JSONArray jarr, Type ptype) throws Exception {
+	private static Object arrayToSPLArray(String name, JSONArray jarr, Type ptype) throws Exception {
 		if(l.isLoggable(TraceLevel.DEBUG)) {
 			l.log(TraceLevel.DEBUG, "Creating Array: " + name);
 		}
@@ -340,11 +350,31 @@ public class JSONToTupleConverter {
 
 	}
 
-	public Tuple jsonToTuple(JSONObject jbase, StreamSchema schema) throws Exception {		
+	/**
+	 * Convert a JSONObject to an SPL tuple with the specified schema. The SPL schema must 
+	 * contain attribute names that match the JSON key names in the JSONObject. 
+	 * 
+	 * @param jbase SPL object to convert
+	 * @param schema Schema of the tuple
+	 * @return Converted SPL tuple.  
+	 * @throws Exception If there was a problem converting the JSONObject.
+	 */
+	public static Tuple jsonToTuple(JSONObject jbase, StreamSchema schema) throws Exception {		
 		return schema.getTuple(jsonToAtributeMap(jbase, schema));
 	}
 	
-	public Map<String, Object> jsonToAtributeMap(JSONObject jbase, StreamSchema schema) throws Exception {
+	/**
+	 * Convert a JSONObject to an Map. The specified SPL schema must 
+	 * contain attribute names that match the JSON key names in the JSONObject. 
+	 * The key values of the returned map will match the names of the attributes
+	 * contained in the StreamSchema.  
+	 * 
+	 * @param jbase SPL object to convert
+	 * @param schema Schema of the tuple
+	 * @return Converted Map.
+	 * @throws Exception If there was a problem converting the JSONObject.
+	 */
+	public static Map<String, Object> jsonToAtributeMap(JSONObject jbase, StreamSchema schema) throws Exception {
 		Map<String, Object> attrmap = new HashMap<String, Object>();
 		for(Attribute attr : schema) {
 			String name = attr.getName();

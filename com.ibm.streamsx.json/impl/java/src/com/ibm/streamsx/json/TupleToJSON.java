@@ -6,12 +6,9 @@
 //
 package com.ibm.streamsx.json;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
-import com.ibm.json.java.JSONArray;
-import com.ibm.json.java.JSONObject;
 import com.ibm.streams.operator.AbstractOperator;
 import com.ibm.streams.operator.OperatorContext;
 import com.ibm.streams.operator.OutputTuple;
@@ -22,8 +19,6 @@ import com.ibm.streams.operator.Tuple;
 import com.ibm.streams.operator.TupleAttribute;
 import com.ibm.streams.operator.Type;
 import com.ibm.streams.operator.Type.MetaType;
-import com.ibm.streams.operator.encoding.EncodingFactory;
-import com.ibm.streams.operator.encoding.JSONEncoding;
 import com.ibm.streams.operator.logging.TraceLevel;
 import com.ibm.streams.operator.model.InputPortSet;
 import com.ibm.streams.operator.model.InputPorts;
@@ -45,7 +40,6 @@ public class TupleToJSON extends AbstractOperator {
 	TupleAttribute<Tuple,?> rootAttr = null;
 	private String rootAttribute = null;
 	private Type rootAttributeType =null;
-	private TupleToJSONConverter converter;
 	
 	private static Logger l = Logger.getLogger(TupleToJSON.class.getCanonicalName());
 
@@ -70,7 +64,6 @@ public class TupleToJSON extends AbstractOperator {
 	@Override
 	public void initialize(OperatorContext op) throws Exception {
 		super.initialize(op);
-		converter = new TupleToJSONConverter();
 		
 		StreamSchema ssop = getOutput(0).getStreamSchema();
 		if (jsonStringAttribute == null) {
@@ -104,12 +97,12 @@ public class TupleToJSON extends AbstractOperator {
 		StreamingOutput<OutputTuple> ops = getOutput(0);
 		final String jsonData;
 		if(rootAttribute == null) 
-			jsonData = converter.convertTuple(tuple);
+			jsonData = TupleToJSONConverter.convertTuple(tuple);
 		else {
 			if(rootAttributeType.getMetaType() == MetaType.TUPLE)
-				jsonData = converter.convertTuple(tuple.getTuple(rootAttribute));
+				jsonData = TupleToJSONConverter.convertTuple(tuple.getTuple(rootAttribute));
 			else 
-				jsonData = converter.convertArray(tuple, rootAttribute);
+				jsonData = TupleToJSONConverter.convertArray(tuple, rootAttribute);
 		}
 		OutputTuple op = ops.newTuple();
 		op.assign(tuple);//copy over all relevant attributes form the source tuple
