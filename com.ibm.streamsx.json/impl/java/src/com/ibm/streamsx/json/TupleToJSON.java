@@ -22,6 +22,7 @@ import com.ibm.streams.operator.Type.MetaType;
 import com.ibm.streams.operator.logging.TraceLevel;
 import com.ibm.streams.operator.model.InputPortSet;
 import com.ibm.streams.operator.model.InputPorts;
+import com.ibm.streams.operator.model.Libraries;
 import com.ibm.streams.operator.model.OutputPortSet;
 import com.ibm.streams.operator.model.OutputPorts;
 import com.ibm.streams.operator.model.Parameter;
@@ -32,6 +33,7 @@ import com.ibm.streamsx.json.converters.TupleTypeVerifier;
 @InputPorts(@InputPortSet(cardinality=1, optional=false))
 @OutputPorts(@OutputPortSet(cardinality=1, optional=false))
 @PrimitiveOperator(name="TupleToJSON", description=TupleToJSON.DESC)
+@Libraries("impl/lib/com.ibm.streamsx.json.converter.jar")
 public class TupleToJSON extends AbstractOperator {
 
 	private String jsonStringAttribute = null;
@@ -77,7 +79,7 @@ public class TupleToJSON extends AbstractOperator {
 				jsonStringAttribute = ssop.getAttribute(0).getName();
 			}
 		}
-		TupleTypeVerifier.verifyAttributeType(getOperatorContext(), ssop, jsonStringAttribute, 
+		TupleTypeVerifier.verifyAttributeType(ssop, jsonStringAttribute, 
 				Arrays.asList(MetaType.RSTRING, MetaType.USTRING));
 
 		StreamSchema ssip = getInput(0).getStreamSchema();
@@ -87,7 +89,7 @@ public class TupleToJSON extends AbstractOperator {
 		}
 		
 		if(rootAttribute!=null) {
-			rootAttributeType = TupleTypeVerifier.verifyAttributeType(getOperatorContext(), ssip, rootAttribute, 
+			rootAttributeType = TupleTypeVerifier.verifyAttributeType(ssip, rootAttribute, 
 					Arrays.asList(MetaType.TUPLE, MetaType.LIST, MetaType.BLIST, MetaType.SET, MetaType.BSET));
 			l.log(TraceLevel.INFO, "Will use source attribute: " + rootAttribute);
 		}

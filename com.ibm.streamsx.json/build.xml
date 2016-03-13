@@ -71,9 +71,9 @@
 		</javac>
 	</target>
 
-	<target name="jar" depends="compile">
+	<target name="jar" depends="compile,standalone-jar">
 		<jar destfile="${lib.dir}/com.ibm.streamsx.json.jar" basedir="${build.dir}" 
-				 includes="com/ibm/streamsx/json/**" filesonly="true">
+				 includes="com/ibm/streamsx/json/*" filesonly="true">
 		</jar>
 		<delete dir="${build.dir}" />
 	</target>

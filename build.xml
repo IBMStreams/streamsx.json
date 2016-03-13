@@ -8,6 +8,13 @@
   <property name="toolkit" location="com.ibm.streamsx.json"/>
 	<property name="toolkit.test" location="tests"/>
   <property name="tmp" location="tmp" />
+
+  <path id="cp.streams">
+    <pathelement location="${streams.install}/lib/com.ibm.streams.operator.jar" />
+    <pathelement location="${streams.install}/lib/com.ibm.streams.operator.samples.jar" />
+    <pathelement location="${streams.install}/ext/lib/JSON4J.jar" />
+  </path>
+
 	
   <target name="all" depends="toolkit,samples"/>
 
@@ -114,8 +121,17 @@
      </exec>
   </target>
 
+  <target name="converter-javadoc">
+    <property name="tkdir" value="${toolkit}"/>
+    <echo message="Source: ${tkdir}/impl/java/src" />
+    <javadoc packagenames="com.ibm.streamsx.json.converters.*"
+      sourcepath="${tkdir}/impl/java/src"
+      destdir="${tkdir}/doc/converters"
+      classpathref="cp.streams" />
+  </target>
+
   <!-- Targets to build releases -->
-  <target name="release"  depends="clean,all,spldoc">
+  <target name="release"  depends="clean,all,spldoc,converter-javadoc">
 	<mkdir dir="${tmp}" />
         <property name="releasefilename" value="${tmp}/streamsx.json.toolkits-${tkinfo.info:identity.info:version}-${DSTAMP}-${TSTAMP}.tgz"/>
     	<tar compression="gzip" longfile="gnu"

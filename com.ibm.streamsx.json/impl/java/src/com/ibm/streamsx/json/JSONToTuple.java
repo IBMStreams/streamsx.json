@@ -29,6 +29,7 @@ import com.ibm.streams.operator.logging.TraceLevel;
 import com.ibm.streams.operator.meta.TupleType;
 import com.ibm.streams.operator.model.InputPortSet;
 import com.ibm.streams.operator.model.InputPorts;
+import com.ibm.streams.operator.model.Libraries;
 import com.ibm.streams.operator.model.OutputPortSet;
 import com.ibm.streams.operator.model.OutputPorts;
 import com.ibm.streams.operator.model.Parameter;
@@ -41,6 +42,7 @@ import com.ibm.streamsx.json.converters.TupleTypeVerifier;
 	@OutputPortSet(cardinality=1, optional=false), 
 	@OutputPortSet(cardinality=1, optional=true)})
 @PrimitiveOperator(name="JSONToTuple", description=JSONToTuple.DESC)
+@Libraries("impl/lib/com.ibm.streamsx.json.converter.jar")
 public class JSONToTuple extends AbstractOperator  
 {
 	private String jsonStringAttribute = null;
@@ -118,14 +120,14 @@ public class JSONToTuple extends AbstractOperator
 			}
 		}
 		if (inputJsonAttribute == null) {
-			TupleTypeVerifier.verifyAttributeType(op,  ssIp0, jsonStringAttribute, types).getMetaType();
+			TupleTypeVerifier.verifyAttributeType(ssIp0, jsonStringAttribute, types).getMetaType();
 		}
 		if(jsonStringOutputAttribute!=null) {
-			TupleTypeVerifier.verifyAttributeType(op, ssOp0, jsonStringOutputAttribute, types).getMetaType();
+			TupleTypeVerifier.verifyAttributeType(ssOp0, jsonStringOutputAttribute, types).getMetaType();
 		}
 
 		if(wasTargetSpecified) {
-			targetAttrType = TupleTypeVerifier.verifyAttributeType(op, ssOp0, targetAttribute, 
+			targetAttrType = TupleTypeVerifier.verifyAttributeType(ssOp0, targetAttribute, 
 	 					Arrays.asList(MetaType.TUPLE, MetaType.LIST, MetaType.BLIST, MetaType.SET, MetaType.BSET));
 			l.log(TraceLevel.INFO, "Will populate target field: " + targetAttribute);
 		}

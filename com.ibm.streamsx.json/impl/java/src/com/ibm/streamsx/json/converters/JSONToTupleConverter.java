@@ -22,19 +22,22 @@ import com.ibm.streams.operator.meta.TupleType;
 import com.ibm.streams.operator.types.RString;
 import com.ibm.streams.operator.types.Timestamp;
 
+/**
+ * Converts JSON values to SPL tuples and SPL tuple attributes. 
+ */
 public class JSONToTupleConverter {
 
 	private static Logger l = Logger.getLogger(JSONToTupleConverter.class.getCanonicalName());
 	
 	/**
-	 * Convert a JSON object to a Java object of the specified type. 
+	 * Convert JSON value to an SPL tuple attribute value. 
 	 * 
-	 * @param name The name of the attribute being converted (used for logging purposes)
-	 * @param type SPL type that the JSON object is being converted to. 
-	 * @param jsonObj JSON object that is being converted (can be either JSONObject or JSONArray) 
-	 * @param parentType This parameter is used when converting JSON arrays or maps to an attribute. For all other types, can be set to null.
-	 * @return Java object of the specified type representing the converted JSON object.
-	 * @throws Exception If there was a problem converting the JSON object.
+	 * @param name The name of the attribute being converted (used for logging purposes).
+	 * @param type SPL attribute type that the JSON value is being converted to. 
+	 * @param jsonObj JSON value that is being converted (can be either JSONObject or JSONArray).
+	 * @param parentType This parameter is used when converting arrays or maps to an SPL tuple attribute. For all other JSON types, can be set to null.
+	 * @return Value converted to SPL representation with type {@code type}.
+	 * @throws Exception If there was a problem converting the JSON.
 	 */
 	public static Object jsonToAttribute (String name, Type type, Object jsonObj, Type parentType) throws Exception {
 
@@ -354,9 +357,9 @@ public class JSONToTupleConverter {
 	 * Convert a JSONObject to an SPL tuple with the specified schema. The SPL schema must 
 	 * contain attribute names that match the JSON key names in the JSONObject. 
 	 * 
-	 * @param jbase SPL object to convert
-	 * @param schema Schema of the tuple
-	 * @return Converted SPL tuple.  
+	 * @param jbase JSON value that is being converted
+	 * @param schema Schema of the SPL tuple
+	 * @return Value converted to SPL tuple with the specified {@code schema} 
 	 * @throws Exception If there was a problem converting the JSONObject.
 	 */
 	public static Tuple jsonToTuple(JSONObject jbase, StreamSchema schema) throws Exception {		
@@ -364,14 +367,14 @@ public class JSONToTupleConverter {
 	}
 	
 	/**
-	 * Convert a JSONObject to an Map. The specified SPL schema must 
+	 * Convert a JSONObject to an Map. The specified {@code schema} must 
 	 * contain attribute names that match the JSON key names in the JSONObject. 
 	 * The key values of the returned map will match the names of the attributes
-	 * contained in the StreamSchema.  
+	 * contained in the {@code schema}.  
 	 * 
-	 * @param jbase SPL object to convert
-	 * @param schema Schema of the tuple
-	 * @return Converted Map.
+	 * @param jbase JSON value that is being converted.
+	 * @param schema Schema containing attribute names that will be used as the key values of the map. 
+	 * @return Value converted to a {@code Map<String, Object>}.
 	 * @throws Exception If there was a problem converting the JSONObject.
 	 */
 	public static Map<String, Object> jsonToAtributeMap(JSONObject jbase, StreamSchema schema) throws Exception {
