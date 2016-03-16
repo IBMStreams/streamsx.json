@@ -35,7 +35,6 @@
 
 	<path id="cp.streams">
 		<pathelement location="${streams.install}/lib/com.ibm.streams.operator.samples.jar" />
-		<pathelement location="${streams.install}/ext/lib/JSON4J.jar" />
 	</path>
 
 
@@ -71,15 +70,15 @@
 		</javac>
 	</target>
 
-	<target name="jar" depends="compile,standalone-jar">
+	<target name="jar" depends="compile,converter-jar">
 		<jar destfile="${lib.dir}/com.ibm.streamsx.json.jar" basedir="${build.dir}" 
 				 includes="com/ibm/streamsx/json/*" filesonly="true">
 		</jar>
 		<delete dir="${build.dir}" />
 	</target>
 
-	<target name="standalone-jar" depends="compile">
-		<jar destfile="${lib.dir}/com.ibm.streamsx.json.converter.jar" filesonly="true">
+	<target name="converter-jar" depends="compile">
+		<jar destfile="lib/com.ibm.streamsx.json.converters.jar" filesonly="true">
 			<fileset dir="${build.dir}">
 				<include name="com/ibm/streamsx/json/JSONMain.class" />
 				<include name="com/ibm/streamsx/json/converters/**" />

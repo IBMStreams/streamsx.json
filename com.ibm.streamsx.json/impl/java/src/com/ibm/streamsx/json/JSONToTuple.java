@@ -42,7 +42,7 @@ import com.ibm.streamsx.json.converters.TupleTypeVerifier;
 	@OutputPortSet(cardinality=1, optional=false), 
 	@OutputPortSet(cardinality=1, optional=true)})
 @PrimitiveOperator(name="JSONToTuple", description=JSONToTuple.DESC)
-@Libraries("impl/lib/com.ibm.streamsx.json.converter.jar")
+@Libraries("lib/com.ibm.streamsx.json.converters.jar")
 public class JSONToTuple extends AbstractOperator  
 {
 	private String jsonStringAttribute = null;

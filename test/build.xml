@@ -16,17 +16,18 @@
     <pathelement location="${streams.install}/ext/lib/JSON4J.jar" />
     <pathelement path="${java.class.path}" />
     <pathelement location="${toolkit}/impl/lib/com.ibm.streamsx.json.jar" />
+    <pathelement location="${toolkit}/lib/com.ibm.streamsx.json.converters.jar" />
   </path>
 	
-  <target name="all" depends="toolkit,standalone-jar,test"/>
+  <target name="all" depends="toolkit,test"/>
 
   <target name="toolkit"
         description="Build any code and index the toolkit." >
         <ant dir="${toolkit}" target="all"/>
   </target>
 
-  <target name="standalone-jar" description="Build the standalone jar file">
-    <ant dir="${toolkit}" target="standalone-jar" />
+  <target name="converter-jar" description="Build the converter jar file">
+    <ant dir="${toolkit}" target="converter-jar" />
   </target>
 
   <target name="compile-tests">
