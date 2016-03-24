@@ -78,7 +78,7 @@ public class JSONToTupleConverter {
 			case FLOAT64:
 				if(jsonObj instanceof Number)
 					return ((Number)jsonObj).doubleValue();
-				return Double.parseDouble(jsonObj.toString());
+				return jsonObj.toString().length()>0 ? Double.parseDouble(jsonObj.toString()) : 0.0;
 			case DECIMAL32:
 			case DECIMAL64:
 			case DECIMAL128:
