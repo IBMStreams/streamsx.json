@@ -1,0 +1,55 @@
+<project name="streamsx.json" default="all" basedir=".">
+    <description>
+        Runs Java tests for streamsx.json project.
+    </description>
+  <!-- set global properties for this build -->
+  <property environment="env" />
+  <property name="streams.install" value="${env.STREAMS_INSTALL}" />
+  <property name="toolkit" location="../com.ibm.streamsx.json"/>
+  <property name="toolkit.test" location="tests"/>
+  <property name="tmp" location="tmp" />
+  <property name="test.src.dir" location="src" />
+  <property name="test.bin.dir" location="bin" />
+
+  <path id="cp.streams">
+    <pathelement location="${streams.install}/lib/com.ibm.streams.operator.jar" />
+    <pathelement location="${streams.install}/ext/lib/JSON4J.jar" />
+    <pathelement path="${java.class.path}" />
+    <pathelement location="${toolkit}/impl/lib/com.ibm.streamsx.json.jar" />
+    <pathelement location="${toolkit}/lib/com.ibm.streamsx.json.converters.jar" />
+  </path>
+	
+  <target name="all" depends="toolkit,test"/>
+
+  <target name="toolkit"
+        description="Build any code and index the toolkit." >
+        <ant dir="${toolkit}" target="all"/>
+  </target>
+
+  <target name="converter-jar" description="Build the converter jar file">
+    <ant dir="${toolkit}" target="converter-jar" />
+  </target>
+
+  <target name="compile-tests">
+    <mkdir dir="${test.bin.dir}" />
+    <javac srcdir="${test.src.dir}" destdir="${test.bin.dir}" debug="true"
+      includeantruntime="no"
+      source="1.7" target="1.7">
+      <classpath>
+        <path refid="cp.streams" />
+      </classpath> 
+    </javac>
+  </target>
+
+  <target name="test" depends="compile-tests">
+    <junit printsummary="yes" fork="yes" haltonfailure="yes">
+      <classpath>
+        <path refid="cp.streams" />
+	<path location="bin/" />
+      </classpath>
+      <formatter type="plain" />
+      <test name="com.ibm.streamsx.json.test.JSONToTupleTest" outfile="result"/>
+      <test name="com.ibm.streamsx.json.test.StandaloneJARTest" outfile="result"/>
+    </junit>
+  </target>
+</project>

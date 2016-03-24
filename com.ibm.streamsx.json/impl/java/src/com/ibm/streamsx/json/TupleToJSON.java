@@ -6,12 +6,9 @@
 //
 package com.ibm.streamsx.json;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
-import com.ibm.json.java.JSONArray;
-import com.ibm.json.java.JSONObject;
 import com.ibm.streams.operator.AbstractOperator;
 import com.ibm.streams.operator.OperatorContext;
 import com.ibm.streams.operator.OutputTuple;
@@ -22,19 +19,21 @@ import com.ibm.streams.operator.Tuple;
 import com.ibm.streams.operator.TupleAttribute;
 import com.ibm.streams.operator.Type;
 import com.ibm.streams.operator.Type.MetaType;
-import com.ibm.streams.operator.encoding.EncodingFactory;
-import com.ibm.streams.operator.encoding.JSONEncoding;
 import com.ibm.streams.operator.logging.TraceLevel;
 import com.ibm.streams.operator.model.InputPortSet;
 import com.ibm.streams.operator.model.InputPorts;
+import com.ibm.streams.operator.model.Libraries;
 import com.ibm.streams.operator.model.OutputPortSet;
 import com.ibm.streams.operator.model.OutputPorts;
 import com.ibm.streams.operator.model.Parameter;
 import com.ibm.streams.operator.model.PrimitiveOperator;
+import com.ibm.streamsx.json.converters.TupleToJSONConverter;
+import com.ibm.streamsx.json.converters.TupleTypeVerifier;
 
 @InputPorts(@InputPortSet(cardinality=1, optional=false))
 @OutputPorts(@OutputPortSet(cardinality=1, optional=false))
 @PrimitiveOperator(name="TupleToJSON", description=TupleToJSON.DESC)
+@Libraries("lib/com.ibm.streamsx.json.converters.jar")
 public class TupleToJSON extends AbstractOperator {
 
 	private String jsonStringAttribute = null;
@@ -43,7 +42,7 @@ public class TupleToJSON extends AbstractOperator {
 	TupleAttribute<Tuple,?> rootAttr = null;
 	private String rootAttribute = null;
 	private Type rootAttributeType =null;
-
+	
 	private static Logger l = Logger.getLogger(TupleToJSON.class.getCanonicalName());
 
 	@Parameter(name=ROOT_ATTRIBUTE_PARAM,
@@ -67,7 +66,7 @@ public class TupleToJSON extends AbstractOperator {
 	@Override
 	public void initialize(OperatorContext op) throws Exception {
 		super.initialize(op);
-
+		
 		StreamSchema ssop = getOutput(0).getStreamSchema();
 		if (jsonStringAttribute == null) {
 			// If we haven't set it using an argument, then...
@@ -80,7 +79,7 @@ public class TupleToJSON extends AbstractOperator {
 				jsonStringAttribute = ssop.getAttribute(0).getName();
 			}
 		}
-		JSONToTuple.verifyAttributeType(getOperatorContext(), ssop, jsonStringAttribute, 
+		TupleTypeVerifier.verifyAttributeType(ssop, jsonStringAttribute, 
 				Arrays.asList(MetaType.RSTRING, MetaType.USTRING));
 
 		StreamSchema ssip = getInput(0).getStreamSchema();
@@ -90,7 +89,7 @@ public class TupleToJSON extends AbstractOperator {
 		}
 		
 		if(rootAttribute!=null) {
-			rootAttributeType = JSONToTuple.verifyAttributeType(getOperatorContext(), ssip, rootAttribute, 
+			rootAttributeType = TupleTypeVerifier.verifyAttributeType(ssip, rootAttribute, 
 					Arrays.asList(MetaType.TUPLE, MetaType.LIST, MetaType.BLIST, MetaType.SET, MetaType.BSET));
 			l.log(TraceLevel.INFO, "Will use source attribute: " + rootAttribute);
 		}
@@ -100,27 +99,18 @@ public class TupleToJSON extends AbstractOperator {
 		StreamingOutput<OutputTuple> ops = getOutput(0);
 		final String jsonData;
 		if(rootAttribute == null) 
-			jsonData = convertTuple(tuple);
+			jsonData = TupleToJSONConverter.convertTuple(tuple);
 		else {
 			if(rootAttributeType.getMetaType() == MetaType.TUPLE)
-				jsonData = convertTuple(tuple.getTuple(rootAttribute));
+				jsonData = TupleToJSONConverter.convertTuple(tuple.getTuple(rootAttribute));
 			else 
-				jsonData = convertArray(tuple, rootAttribute);
+				jsonData = TupleToJSONConverter.convertArray(tuple, rootAttribute);
 		}
 		OutputTuple op = ops.newTuple();
 		op.assign(tuple);//copy over all relevant attributes form the source tuple
         op.setString(jsonStringAttribute, jsonData);
 
 		ops.submit(op);
-	}
-
-	protected String convertTuple(Tuple tuple) throws IOException  {	
-		JSONEncoding<JSONObject, JSONArray> je = EncodingFactory.getJSONEncoding();
-		return je.encodeAsString(tuple);
-	}
-	protected String convertArray(Tuple tuple, String attrName) throws IOException  {	
-		JSONEncoding<JSONObject, JSONArray> je = EncodingFactory.getJSONEncoding();
-		return ((JSONArray)je.getAttributeObject(tuple, attrName)).serialize();
 	}
 
 	static final String DESC = 
