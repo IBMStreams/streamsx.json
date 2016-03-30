@@ -41,48 +41,48 @@ public class JSONToTupleConverter {
 	 */
 	public static Object jsonToAttribute (String name, Type type, Object jsonObj, Type parentType) throws Exception {
 
-		if(l.isLoggable(TraceLevel.DEBUG)) {
-			l.log(TraceLevel.DEBUG, "Converting: " + name + " -- " + type.toString());
+		if (jsonObj == null) return null;
+		if (l.isLoggable(TraceLevel.DEBUG)) {
+          l.log(TraceLevel.DEBUG, "Converting Java value '" + jsonObj.toString() + "' of type " + jsonObj.getClass().getSimpleName() + " to SPL attribute " + name + " of type " + type.toString());
 		}
-		if(jsonObj == null) return null;
 		try {
 			switch(type.getMetaType()) {
+			case BOOLEAN:
+				if(jsonObj instanceof Boolean)
+					return (Boolean)jsonObj;
+				return jsonObj.toString().length()>0 ? Boolean.parseBoolean(jsonObj.toString()) : false;
 			case INT8:
 			case UINT8:
 				if(jsonObj instanceof Number)
 					return ((Number)jsonObj).byteValue();
-				return Byte.parseByte(jsonObj.toString());
+				return jsonObj.toString().length()>0 ? Byte.parseByte(jsonObj.toString()) : 0;
 			case INT16:
 			case UINT16:
 				if(jsonObj instanceof Number)
 					return ((Number)jsonObj).shortValue();
-				return Short.parseShort(jsonObj.toString());
+				return jsonObj.toString().length()>0 ? Short.parseShort(jsonObj.toString()) : 0;
 			case INT32:
 			case UINT32:
 				if(jsonObj instanceof Number)
 					return ((Number)jsonObj).intValue();
-				return Integer.parseInt(jsonObj.toString());
+				return jsonObj.toString().length()>0 ? Integer.parseInt(jsonObj.toString()) : 0;
 			case INT64:
 			case UINT64:
 				if(jsonObj instanceof Number)
 					return ((Number)jsonObj).longValue();
-				return Long.parseLong(jsonObj.toString());
-			case BOOLEAN:
-				if(jsonObj instanceof Boolean)
-					return (Boolean)jsonObj;
-				return Boolean.parseBoolean(jsonObj.toString());
+				return jsonObj.toString().length()>0 ? Long.parseLong(jsonObj.toString()) : 0;
 			case FLOAT32:
 				if(jsonObj instanceof Number)
 					return ((Number)jsonObj).floatValue();
-				return Float.parseFloat(jsonObj.toString());
+				return jsonObj.toString().length()>0 ? Float.parseFloat(jsonObj.toString()) : 0;
 			case FLOAT64:
 				if(jsonObj instanceof Number)
 					return ((Number)jsonObj).doubleValue();
-				return jsonObj.toString().length()>0 ? Double.parseDouble(jsonObj.toString()) : 0.0;
+				return jsonObj.toString().length()>0 ? Double.parseDouble(jsonObj.toString()) : 0;
 			case DECIMAL32:
 			case DECIMAL64:
 			case DECIMAL128:
-				return new java.math.BigDecimal(jsonObj.toString());
+                return jsonObj.toString().length()>0 ? new java.math.BigDecimal(jsonObj.toString()) : new java.math.BigDecimal(0);
 
 			case USTRING:
 				return jsonObj.toString();
@@ -119,7 +119,7 @@ public class JSONToTupleConverter {
 			case TIMESTAMP:
 				if(jsonObj instanceof Number)
 					return Timestamp.getTimestamp(((Number)jsonObj).doubleValue());
-				return Timestamp.getTimestamp(Double.parseDouble(jsonObj.toString()));
+				return Timestamp.getTimestamp(jsonObj.toString().length()>0 ? Double.parseDouble(jsonObj.toString()) : 0);
 
 				//TODO -- not yet supported types
 			case BLOB:
