@@ -50,7 +50,7 @@ public class JSONToTupleConverter {
 			case BOOLEAN:
 				if(jsonObj instanceof Boolean)
 					return (Boolean)jsonObj;
-				return jsonObj.toString().isEmpty() ? false : Boolean.parseBoolean(jsonObj.toString());
+				return Boolean.parseBoolean(jsonObj.toString());
 			case INT8:
 			case UINT8:
 				if(jsonObj instanceof Number)
