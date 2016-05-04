@@ -5,15 +5,15 @@
     <function:cppNamespaceName>com::ibm::streamsx::json</function:cppNamespaceName>
     <function:functions>
       <function:function>
-        <function:description></function:description>
+        <function:description>tupleToJSON converts a tuple to JSON String. Blob, complex and xml values are converted to nulls.</function:description>
         <function:prototype>&lt;tuple T> public rstring tupleToJSON(T t)</function:prototype>
       </function:function>
       <function:function>
-        <function:description></function:description>
+        <function:description>mapToJSON converts a map to JSON String. Blob, complex and xml values are converted to nulls.</function:description>
         <function:prototype>&lt;string S, any T> public rstring mapToJSON(map&lt;S, T> m)</function:prototype>
       </function:function>
       <function:function>
-        <function:description></function:description>
+        <function:description>toJSON converts any value to JSON String. String key should be provided. Blob, complex and xml values are converted to nulls.</function:description>
         <function:prototype>&lt;string S, any T> public rstring toJSON(S key, T splAny)</function:prototype>
       </function:function>
     </function:functions>
