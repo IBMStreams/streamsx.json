@@ -1,0 +1,50 @@
+//
+// *******************************************************************************
+// * Copyright (C)2016, International Business Machines Corporation and *
+// * others. All Rights Reserved. *
+// *******************************************************************************
+//
+namespace com.ibm.streamsx.json.tests;
+
+use com.ibm.streamsx.json::*;
+
+composite EmptyStringTest {
+
+	type MyType = 
+      boolean   aBit,
+      int8      aByte,
+      int16     aShortInteger,
+      int32     anInteger,
+      int64     aLongInteger,
+      float32   aSmallFloat,
+      float64   aLargeFloat,
+      decimal64 aDecimal,
+      timestamp aTimestamp;
+         
+	graph
+
+    stream<rstring jsonString> JSONStringStream = FileSource() {
+      param file: "./EmptyStrings.json"; format: line; }
+    () as JSONStringStreamSink = FileSink(JSONStringStream) { param file: "EmptyStringTest.JSONStringStream.out"; format: txt; flush: 1u; }
+
+    stream<MyType> JSONTupleStream = JSONToTuple(JSONStringStream) {
+    param  inputAttribute: jsonString; }
+    () as JSONTupleStreamSink = FileSink(JSONTupleStream) { param file: "EmptyStringTest.JSONTupleStream.out"; format: txt; flush: 1u; }
+
+    stream<MyType> ExpectedTupleStream = Beacon() {
+      param iterations: 3u;
+      output ExpectedTupleStream: 
+        aBit=false,
+        aByte=0b,
+        aShortInteger=0h,
+        anInteger=0,
+        aLongInteger=0l,
+        aSmallFloat=0.0w,
+        aLargeFloat=0.0,
+        aDecimal=0.0d,
+        aTimestamp=createTimestamp(0l,0u); }
+
+    () as SinkOp = VerifierJTOT(JSONStringStream; ExpectedTupleStream) {}
+	  config tracing : debug;
+}
+
