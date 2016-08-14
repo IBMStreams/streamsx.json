@@ -95,6 +95,7 @@
   <target name="indextoolkit">
      <echo message="Tookit to index: ${basedir}"/>
      <exec executable="${streams.install}/bin/spl-make-toolkit">
+        <arg value="--make-operator"/>
         <arg value="--directory"/>
         <arg value="${basedir}"/>
      </exec>
@@ -110,7 +111,8 @@
   <target name="spldoctoolkit">
      <property name="tkdir" value="${basedir}"/>
      <echo message="Tookit to SPLDOC: ${tkdir}"/>
-     <exec executable="${streams.install}/bin/spl-make-doc">
+     <exec executable="${streams.install}/bin/spl-make-doc" failonerror="true">
+        <arg value="--warn-no-comments"/>
         <arg value="--include-composite-operator-diagram"/>
         <arg value="--author"/>
         <arg value="IBMStreams Open Source Community at GitHub - https://github.com/IBMStreams/${ant.project.name}"/>
