@@ -16,7 +16,7 @@ Incubation for projects is covered here: https://github.com/IBMStreams/administr
   * Status: Testing exists but is split across different directories, needs to be rationalized into a single test suite.
 - [ ] :red_circle: Instructions on how to get started with development and contributing to project
   * Status: **TBD**
-- [ ] :while_check_mark: Website that contains information and documentation of the project
+- [ ] :white_check_mark: Website that contains information and documentation of the project
   * Status: Website contains documentation.
 - [ ] :red_circle: Clear release plan
   * Status: **TBD**
