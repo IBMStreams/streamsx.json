@@ -7,7 +7,9 @@
 namespace com.ibm.streamsx.json;
 
 /**
-* Default tuple type for representing JSON.
+* Default tuple type for representing JSON object.
+* A JSON object is represented by its serialized
+* form as an `rstring` using UTF-8 encoding.
 * Matches the defaults supported by
 * [JSONToTuple] and [TupleToJSON].
 */
