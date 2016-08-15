@@ -22,8 +22,12 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.json Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.json.html">com.ibm.streamsx.json 1.1.1.commit_c169722</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.json.html">com.ibm.streamsx.json</a> &gt; JSONToTuple</p>
+<a class="xref" href="../toolkits/toolkits.html">IBM Streams com.ibm.streamsx.json Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.json.html">com.ibm.streamsx.json 1.2.1.commit_cc3b08f</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.json.html">com.ibm.streamsx.json</a> &gt; JSONToTuple</p>
 
+</div>
+
+<div class="section splprimop">
+  <embed class="image" src="../../image/tk$com.ibm.streamsx.json/op$com.ibm.streamsx.json$JSONToTuple.svg" width="672" height="112"/>
 </div>
 
 <div class="section">
@@ -31,10 +35,6 @@
 <p class="p">This operator converts JSON strings into SPL Tuples. The tuple structure is expected to match the JSON schema. A subset of the attributes can be specified as well.  Only those attributes that are present in the Tuple schema and JSON input will be converted. All other attributes will be ignored. If an invalid JSON string is found in the input, the operator will fail.  This behavior can be overridden by specifying the optional output port or by specifying the "ignoreParsingError" parameter. Attributes from the input stream that match those in the output stream will be automatically copied over.  However, if they also exist in the JSON input, their assigned value will be of that specified in the JSON. Null values in JSON arrays are ignored. Null values for all other attributes will result in default initializled output attributes.  Limitations: BLOB, MAP and COMPLEX attribute types are not supported in the output tuple schema at this time and will be ignored.
 </p>
 
-</div>
-
-<div class="section splprimop">
-  <embed class="image" src="../../image/tk$com.ibm.streamsx.json/op$com.ibm.streamsx.json$JSONToTuple.svg" width="672" height="112"/>
 </div>
 
 <div class="section"><h2 class="title sectiontitle splhead-1">Summary</h2>
@@ -243,7 +243,7 @@ This operator supports 5 parameters.<dl class="dl">
 <dt class="dt dlterm" id="spldoc_operator__parameter_inputAttribute"><tt class="ph tt">inputAttribute</tt></dt>
 
 <dd class="dd">
-<p class="p">The input stream attribute (not the name of the attribute) which contains the input JSON string.  Replaces jsonStringAttribute.
+<p class="p">The input stream attribute (not the name of the attribute) which contains the input JSON string. This attribute must be of <tt class="ph tt">rstring</tt> or <tt class="ph tt">ustring</tt> type. Default is the sole input attribute when the schema has one attribute otherwise <tt class="ph tt">jsonString</tt>. Replaces parameter <tt class="ph tt">jsonStringAttribute</tt>.
 </p>
 <dl class="dl">
 
@@ -277,7 +277,7 @@ This operator supports 5 parameters.<dl class="dl">
 <dt class="dt dlterm" id="spldoc_operator__parameter_jsonStringAttribute"><tt class="ph tt">jsonStringAttribute</tt></dt>
 
 <dd class="dd">
-<p class="p">Deprecated.  Use inputAttribute instead. Name of the input stream attribute which contains the JSON string. This attribute must be of USTRING or RSTRING type. Default is jsonString
+<p class="p">Deprecated.  Use <tt class="ph tt">inputAttribute</tt> instead. Name of the input stream attribute which contains the JSON string. This attribute must be of <tt class="ph tt">rstring</tt> or <tt class="ph tt">ustring</tt> type. Default is the sole input attribute when the schema has one attribute otherwise <tt class="ph tt">jsonString</tt>.
 </p>
 <dl class="dl">
 
@@ -308,7 +308,7 @@ This operator supports 5 parameters.<dl class="dl">
 <dt class="dt dlterm" id="spldoc_operator__parameter_jsonStringOutputAttribute"><tt class="ph tt">jsonStringOutputAttribute</tt></dt>
 
 <dd class="dd">
-<p class="p">Name of the output stream attribute which should be populated with the incoming JSON string. This attribute must be of USTRING or RSTRING type. Default is to ignore.
+<p class="p">Name of the output stream attribute which should be populated with the incoming JSON string. This attribute must be of <tt class="ph tt">rstring</tt> or <tt class="ph tt">ustring</tt> type. Default is to ignore.
 </p>
 <dl class="dl">
 
@@ -380,7 +380,7 @@ This operator supports 5 parameters.<dl class="dl">
 
   <dd class="dd"/>
 
-  <dd class="dd"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__dependencies__managedlibrary__libpath">Library Path</a>: <tt class="ph tt">../../impl/lib/com.ibm.streamsx.json.jar</tt></dd>
+  <dd class="dd"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__dependencies__managedlibrary__libpath">Library Path</a>: <tt class="ph tt">../../impl/lib/com.ibm.streamsx.json.jar, ../../lib/com.ibm.streamsx.json.converters.jar</tt></dd>
 
  
  </dl>

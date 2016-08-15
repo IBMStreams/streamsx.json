@@ -22,7 +22,17 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.json Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.json.html">com.ibm.streamsx.json 1.1.1.commit_c169722</a> &gt; com.ibm.streamsx.json</p>
+<a class="xref" href="../toolkits/toolkits.html">IBM Streams com.ibm.streamsx.json Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.json.html">com.ibm.streamsx.json 1.2.1.commit_cc3b08f</a> &gt; com.ibm.streamsx.json</p>
+
+</div>
+
+<div class="section">
+
+<p class="p">JSON support for SPL. A <a class="xref" href="http://www.json.org/">JSON</a> object is encoded within a tuple as an <tt class="ph tt">rstring</tt> attribute containing the serialized object using UTF-8 encoding. The common paradigm is to use an attribute named <tt class="ph tt">jsonString</tt>, <a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__type__Json">Json</a> may be used to represent a complete tuple that is just a JSON object, or an attribute within a stream schema.
+</p>
+
+<p class="p">Tuples are converted to JSON objects using the operator <a class="xref" href="op$com.ibm.streamsx.json$TupleToJSON.html">TupleToJSON</a> or the function <a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__tupleToJSON.T">tupleToJSON(T)</a>. SPL values are converted using the functions <a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__toJSON.S.T">toJSON(S,T)</a> or <a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__mapToJSON.map:.:S.T:.:">mapToJSON(map&lt;S,T&gt;)</a>.
+</p>
 
 </div>
 
@@ -39,10 +49,26 @@
 
 </div>
 
+<div class="section"><h2 class="title sectiontitle splhead-1">Functions</h2>
+  
+<ul class="sl simple">
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__mapToJSON.map:.:S.T:.:">mapToJSON(map&lt;S, T&gt;)</a></strong>: Convert a map to JSON object encoded as a serialized JSON string.
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__toJSON.S.T">toJSON(S, T)</a></strong>: Convert a value to JSON object with a single key encoded as a serialized JSON string.
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__tupleToJSON.T">tupleToJSON(T)</a></strong>: Convert a tuple to JSON object encoded as a serialized JSON String.
+</li>
+
+</ul>
+
+</div>
+
 <div class="section"><h2 class="title sectiontitle splhead-1">Types</h2>
   
 <ul class="sl simple">
-<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__type__Json">Json</a></strong>: Default tuple type for representing JSON.
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__type__Json">Json</a></strong>: Default tuple type for representing JSON object.
 </li>
 
 </ul>

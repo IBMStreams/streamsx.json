@@ -22,8 +22,12 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.json Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.json.html">com.ibm.streamsx.json 1.1.1.commit_c169722</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.json.html">com.ibm.streamsx.json</a> &gt; TupleToJSON</p>
+<a class="xref" href="../toolkits/toolkits.html">IBM Streams com.ibm.streamsx.json Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.json.html">com.ibm.streamsx.json 1.2.1.commit_cc3b08f</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.json.html">com.ibm.streamsx.json</a> &gt; TupleToJSON</p>
 
+</div>
+
+<div class="section splprimop">
+  <embed class="image" src="../../image/tk$com.ibm.streamsx.json/op$com.ibm.streamsx.json$TupleToJSON.svg" width="672" height="112"/>
 </div>
 
 <div class="section">
@@ -31,10 +35,6 @@
 <p class="p">This operator converts incoming tuples to JSON String. Note that any matching attributes from the input stream will be copied over to the output. If an attribute, with the same name as the JSON string output attribute exists in the input stream, it will be overwritten by the JSON String that is generated.
 </p>
 
-</div>
-
-<div class="section splprimop">
-  <embed class="image" src="../../image/tk$com.ibm.streamsx.json/op$com.ibm.streamsx.json$TupleToJSON.svg" width="672" height="112"/>
 </div>
 
 <div class="section"><h2 class="title sectiontitle splhead-1">Summary</h2>
@@ -178,7 +178,7 @@ This operator supports 3 parameters.<dl class="dl">
 <dt class="dt dlterm" id="spldoc_operator__parameter_jsonStringAttribute"><tt class="ph tt">jsonStringAttribute</tt></dt>
 
 <dd class="dd">
-<p class="p">Name of the output stream attribute where the JSON string will be populated. Default is jsonString
+<p class="p">Name of the output stream attribute where the JSON string will be populated. Default is <tt class="ph tt">jsonString</tt>.
 </p>
 <dl class="dl">
 
@@ -209,7 +209,7 @@ This operator supports 3 parameters.<dl class="dl">
 <dt class="dt dlterm" id="spldoc_operator__parameter_inputAttribute"><tt class="ph tt">inputAttribute</tt></dt>
 
 <dd class="dd">
-<p class="p">Input stream attribute  to be used as the root of the JSON object.  Default is the input tuple.  This parameter specfies the attribute, not its name.
+<p class="p">Input stream attribute to be used as the root of the JSON object. Required type for attribute is <tt class="ph tt">tuple</tt>, <tt class="ph tt">list</tt> or <tt class="ph tt">set</tt>.  Default is the input tuple.  This parameter specfies the attribute, not its name, and is preferred to the <tt class="ph tt">rootAttribute</tt> parameter which specifies the attribute's name.
 </p>
 <dl class="dl">
 
@@ -240,7 +240,7 @@ This operator supports 3 parameters.<dl class="dl">
 <dt class="dt dlterm" id="spldoc_operator__parameter_rootAttribute"><tt class="ph tt">rootAttribute</tt></dt>
 
 <dd class="dd">
-<p class="p">Name of the input stream attribute to be used as the root of the JSON object. Default is the input tuple.
+<p class="p">Deprecated. Name of the input stream attribute to be used as the root of the JSON object. Replaced by parameter <tt class="ph tt">inputAttribute</tt> which specifies the attribute rather than the attribute's name. Required type is <tt class="ph tt">tuple</tt>, <tt class="ph tt">list</tt> or <tt class="ph tt">set</tt>. Default is the input tuple.
 </p>
 <dl class="dl">
 
@@ -281,7 +281,7 @@ This operator supports 3 parameters.<dl class="dl">
 
   <dd class="dd"/>
 
-  <dd class="dd"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__dependencies__managedlibrary__libpath">Library Path</a>: <tt class="ph tt">../../impl/lib/com.ibm.streamsx.json.jar</tt></dd>
+  <dd class="dd"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__dependencies__managedlibrary__libpath">Library Path</a>: <tt class="ph tt">../../impl/lib/com.ibm.streamsx.json.jar, ../../lib/com.ibm.streamsx.json.converters.jar</tt></dd>
 
  
  </dl>
