@@ -47,18 +47,18 @@ public class TupleToJSON extends AbstractOperator {
 
 	@Parameter(name=ROOT_ATTRIBUTE_PARAM,
 			optional = true,
-			description="Input stream attribute to be used as the root of the JSON object.  Default is the input tuple.  This parameter specfies the attribute, not its name, and is preferred to the `rootAttribute` parameter which specifies the attribute's name.")
+			description="Input stream attribute to be used as the root of the JSON object. Required type for attribute is `tuple`, `list` or `set`.  Default is the input tuple.  This parameter specfies the attribute, not its name, and is preferred to the `rootAttribute` parameter which specifies the attribute's name.")
 	public void setRoot(TupleAttribute<Tuple,?> in) {
 		rootAttr = in;
 	}
 	
 	@Parameter(optional=true, 
-			description="Name of the output stream attribute where the JSON string will be populated. Default is jsonString.")
+			description="Name of the output stream attribute where the JSON string will be populated. Default is `jsonString`.")
 	public void setJsonStringAttribute(String value) {
 		this.jsonStringAttribute = value;
 	}
 	@Parameter(optional=true, 
-			description="Deprecated. Name of the input stream attribute to be used as the root of the JSON object. Replaced by parameter `inputAttribute` which specifies the attribute rather than the attribute's name. Default is the input tuple.")
+			description="Deprecated. Name of the input stream attribute to be used as the root of the JSON object. Replaced by parameter `inputAttribute` which specifies the attribute rather than the attribute's name. Required type is `tuple`, `list` or `set`. Default is the input tuple.")
 	public void setRootAttribute(String value) {
 		this.rootAttribute = value;
 	}
