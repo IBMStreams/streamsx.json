@@ -1,8 +1,11 @@
-namespace sample;
+namespace com.ibm.streamsx.json.sample.stoj;
 
 use com.ibm.streamsx.json::*;
 
-composite SPLToJSONSample {
+/**
+ * Sample showin conversion of SPL values to JSON String values.
+*/
+public composite SPLToJSONSample {
 type
 	// Provide any hierarchical tuple to tupleToJSON function
 	TestTuple = tuple<rstring str, float64 num, list<int32> nums, map<rstring,timestamp> dates, tuple<boolean flag, enum{YES,NO} answer> additionalTypes>;

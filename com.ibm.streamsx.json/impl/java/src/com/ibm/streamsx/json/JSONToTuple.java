@@ -57,18 +57,18 @@ public class JSONToTuple extends AbstractOperator
 	private boolean hasOptionalOut = false;
 	private TupleAttribute<Tuple,String> inputJsonAttribute = null;
 	
-	@Parameter(name=INPUT_JSON_ATTRIBUTE_PARAM,optional=true, description="The input stream attribute (not the name of the attribute) which contains the input JSON string.  Replaces jsonStringAttribute.")
+	@Parameter(name=INPUT_JSON_ATTRIBUTE_PARAM,optional=true, description="The input stream attribute (not the name of the attribute) which contains the input JSON string. This attribute must be of `rstring` or `ustring` type. Default is the sole input attribute when the schema has one attribute otherwise `jsonString`. Replaces parameter `jsonStringAttribute`.")
 	public void setInputJson(TupleAttribute<Tuple,String> in) {
 		inputJsonAttribute = in;
 	}
 	
-	@Parameter(optional=true, description="Deprecated.  Use "+INPUT_JSON_ATTRIBUTE_PARAM+" instead. Name of the input stream attribute which contains the JSON string. " +
-			"This attribute must be of USTRING or RSTRING type. Default is jsonString")
+	@Parameter(optional=true, description="Deprecated.  Use `"+INPUT_JSON_ATTRIBUTE_PARAM+"` instead. Name of the input stream attribute which contains the JSON string. " +
+			"This attribute must be of `rstring` or `ustring` type. Default is the sole input attribute when the schema has one attribute otherwise `jsonString`.")
 	public void setJsonStringAttribute(String value) {
 		this.jsonStringAttribute = value;
 	}
 	@Parameter(optional=true, description="Name of the output stream attribute which should be populated with the incoming JSON string. " +
-			"This attribute must be of USTRING or RSTRING type. Default is to ignore.")
+			"This attribute must be of `rstring` or `ustring` type. Default is to ignore.")
 	public void setJsonStringOutputAttribute(String value) {
 		this.jsonStringOutputAttribute = value;
 	}
