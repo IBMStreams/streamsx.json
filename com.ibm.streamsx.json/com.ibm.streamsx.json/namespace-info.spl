@@ -1,0 +1,24 @@
+/*
+ * Copyright (C)2016, International Business Machines Corporation and 
+ * others. All Rights Reserved.
+ */
+
+/**
+ * JSON support for SPL.
+ * A [http://www.json.org/|JSON] object is encoded within a tuple as an `rstring` attribute
+ * containing the serialized object using UTF-8 encoding.
+ * The common paradigm is to use an attribute named `jsonString`,
+ * [Json] may be used to represent a complete tuple
+ * that is just a JSON object, or an attribute within a stream schema.
+ * 
+ * Tuples are converted to JSON objects using the operator
+ * [TupleToJSON] or the function [tupleToJSON(T)]. SPL values
+ * are converted using the functions
+ * [toJSON(S,T)]
+ * or [mapToJSON(map<S,T>)].
+ *
+ * 
+ *
+ */
+
+namespace com.ibm.streamsx.json;

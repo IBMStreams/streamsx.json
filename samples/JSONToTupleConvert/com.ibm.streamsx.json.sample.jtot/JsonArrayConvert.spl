@@ -6,23 +6,25 @@
 //
 namespace com.ibm.streamsx.json.sample.jtot;
 
+use com.ibm.streamsx.json::*;
+
 /**
- * Example showing how an input JSON array string can be used
+ * Example showing how an input JSON array string can be used.
  * Expected output will have a single tuple with a list of MyType attributes.
  * 
  */
-composite JsonArrayConvert {
+public composite JsonArrayConvert {
 
 
 	type
 		MyType = rstring name;
 	graph
-		stream<rstring jsonString> InputS = Beacon() {
+		stream<Json> InputS = Beacon() {
 			param iterations : 1u;
 			output InputS : jsonString = "[{\"name\" : \"John\"},{}, {\"name\" : \"Kate\"} ]";
 		}
 
-		stream<list<MyType> mylist> OutputS = com.ibm.streamsx.json::JSONToTuple(InputS) {
+		stream<list<MyType> mylist> OutputS = JSONToTuple(InputS) {
 			param
 				//this parameter must be specified
 				targetAttribute : "mylist";

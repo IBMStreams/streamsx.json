@@ -1,4 +1,6 @@
-<project name="streamsx.json" default="all" basedir=".">
+<project name="streamsx.json"
+    xmlns:if="ant:if"
+    default="all" basedir=".">
     <description>
         Build file for streamsx.json project, built the toolkits and samples.
     </description>
@@ -59,17 +61,7 @@
   	<ant dir="${toolkit}" target="all"/>
   </target>
 
-  <target name="spldoc" depends="spldoc_work, revertversion"/>
-
-  <target name="spldoc_work" depends="setcommitversion, samples">
-    <antcall target="spldoctoolkit">
-       <param name="tkdir" value="${toolkit}"/>
-       <param name="tktitle" value="IBMStreams ${tkinfo.info:identity.info:name} Toolkit"/>
-    </antcall>
-    <subant target="spldoctoolkit" genericantfile="${basedir}/build.xml">
-       <dirset dir="samples" includes="*"/>
-    </subant>
-  </target>
+  <target name="spldoc" depends="setcommitversion, _spldoc-json, _spldoc-samples, revertversion"/>
 
   <target name="samples" depends="toolkit">
     <subant target="indextoolkit" genericantfile="${basedir}/build.xml">
@@ -77,6 +69,7 @@
     </subant>
   </target>
   <target name="cleansamples">
+    <delete dir="samples/doc"/>
     <subant target="cleantoolkit" genericantfile="${basedir}/build.xml">
        <dirset dir="samples" includes="*"/>
     </subant>
@@ -101,23 +94,42 @@
   </target>
   <target name="cleantoolkit">
      <echo message="Tookit to clean: ${basedir}"/>
+     <delete dir="${basedir}/doc"/>
      <exec executable="${streams.install}/bin/spl-make-toolkit">
         <arg value="--clean"/>
         <arg value="--directory"/>
         <arg value="${basedir}"/>
      </exec>
   </target>
-  <target name="spldoctoolkit">
-     <property name="tkdir" value="${basedir}"/>
-     <echo message="Tookit to SPLDOC: ${tkdir}"/>
-     <exec executable="${streams.install}/bin/spl-make-doc">
+  <!-- SPLDOC for just the toolkit -->
+  <target name="_spldoc-json">
+     <exec executable="${streams.install}/bin/spl-make-doc" failonerror="true">
+        <arg value="--warn-no-comments"/>
         <arg value="--include-composite-operator-diagram"/>
         <arg value="--author"/>
         <arg value="IBMStreams Open Source Community at GitHub - https://github.com/IBMStreams/${ant.project.name}"/>
         <arg value="--doc-title"/>
-        <arg value="${tktitle}"/>
+        <arg value="IBM Streams ${tkinfo.info:identity.info:name} Toolkit"/>
         <arg value="--directory"/>
-        <arg value="${tkdir}"/>
+        <arg value="${toolkit}"/>
+     </exec>
+  </target>
+
+  <!-- SPLDOC for the toolkit and the samples -->
+  <target name="_spldoc-samples">
+     <mkdir dir="samples/doc/json"/>
+     <exec executable="${streams.install}/bin/spl-make-doc" failonerror="true">
+        <arg value="--include-source"/>
+        <arg value="--warn-no-comments"/>
+        <arg value="--include-composite-operator-diagram"/>
+        <arg value="--author"/>
+        <arg value="IBMStreams Open Source Community at GitHub - https://github.com/IBMStreams/${ant.project.name}"/>
+        <arg value="--doc-title"/>
+        <arg value="IBM Streams ${tkinfo.info:identity.info:name} Toolkit and samples"/>
+        <arg value="--output-directory"/>
+        <arg value="samples/doc/json"/>
+        <arg value="--toolkit-path"/>
+        <arg value="${toolkit}:samples"/>
      </exec>
   </target>
 
