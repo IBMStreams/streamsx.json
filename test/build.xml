@@ -41,7 +41,45 @@
     </javac>
   </target>
 
-  <target name="test" depends="compile-tests">
+  <!-- ensure all the samples can be built -->
+  <target name="compile-samples">
+     <exec executable="${streams.install}/bin/sc" dir="../samples/JSONToTupleConvert" failonerror="yes">
+        <arg value="-M"/>
+        <arg value="com.ibm.streamsx.json.sample.jtot::SimpleJsonConvert"/>
+        <arg value="-t"/>
+        <arg value="${toolkit}"/>
+     </exec>
+
+     <exec executable="${streams.install}/bin/sc" dir="../samples/JSONToTupleConvert" failonerror="yes">
+        <arg value="-M"/>
+        <arg value="com.ibm.streamsx.json.sample.jtot::JsonArrayConvert"/>
+        <arg value="-t"/>
+        <arg value="${toolkit}"/>
+     </exec>
+
+     <exec executable="${streams.install}/bin/sc" dir="../samples/TupleToJSONConvert" failonerror="yes">
+        <arg value="-M"/>
+        <arg value="com.ibm.streamsx.json.sample.ttoj::SimpleTupleConvert"/>
+        <arg value="-t"/>
+        <arg value="${toolkit}"/>
+     </exec>
+
+     <exec executable="${streams.install}/bin/sc" dir="../samples/TupleToJSONConvert" failonerror="yes">
+        <arg value="-M"/>
+        <arg value="com.ibm.streamsx.json.sample.ttoj::JsonArrayConvert"/>
+        <arg value="-t"/>
+        <arg value="${toolkit}"/>
+     </exec>
+
+     <exec executable="${streams.install}/bin/sc" dir="../samples/SPLToJsonConvert" failonerror="yes">
+        <arg value="-M"/>
+        <arg value="com.ibm.streamsx.json.sample.stoj::SPLToJSONSample"/>
+        <arg value="-t"/>
+        <arg value="${toolkit}"/>
+     </exec>
+  </target>
+
+  <target name="test" depends="compile-tests,compile-samples">
     <junit printsummary="yes" fork="yes" haltonfailure="yes">
       <classpath>
         <path refid="cp.streams" />
