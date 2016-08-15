@@ -9,10 +9,10 @@ namespace com.ibm.streamsx.json.sample.ttoj;
 use com.ibm.streamsx.json::*;
 
 /**
- * Simple example of an using [TupleToJSON] to convert SPL Tuples into JSON Strings
+ * Example of an using [com.ibm.streamsx.json::TupleToJSON] to convert SPL tuples into JSON Strings.
  * 
  */
-composite SimpleTupleConvert {
+public composite SimpleTupleConvert {
 	type 
 		JsonType = rstring name, int32 age, list<rstring> relatives;
 	
@@ -24,7 +24,7 @@ composite SimpleTupleConvert {
 	output InputS : name = "Jane", age = 25, relatives = ["John", "Sam"];
 	}
 	//Convert the incoming tuples to JSON
-	stream<rstring jsonString> JsonS = TupleToJSON(InputS) {
+	stream<Json> JsonS = TupleToJSON(InputS) {
 	}
 	
 	() as SinkOp = Custom(JsonS) {
