@@ -2,6 +2,9 @@ namespace com.ibm.streamsx.json.sample.stoj;
 
 use com.ibm.streamsx.json::*;
 
+/**
+ * Sample showin conversion of SPL values to JSON String values.
+*/
 public composite SPLToJSONSample {
 type
 	// Provide any hierarchical tuple to tupleToJSON function
