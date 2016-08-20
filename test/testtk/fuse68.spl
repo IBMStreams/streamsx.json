@@ -1,0 +1,12 @@
+use com.ibm.streamsx.json::toJSON;
+
+public composite FuseJson68 {
+   graph
+     () as A = Custom() {
+      logic state: rstring a = toJSON("a", 3) + toJSON("b", "4");
+     }
+     () as B = Custom() {
+      logic state: rstring a = toJSON("a", true) + toJSON("b", "4");
+     }
+   config placement: partitionColocation("AB");
+}

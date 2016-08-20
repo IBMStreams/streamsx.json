@@ -41,6 +41,16 @@
     </javac>
   </target>
 
+  <target name="compile-spl-test-code">
+     <delete dir="testtk/output"/>
+     <exec executable="${streams.install}/bin/sc" dir="testtk" failonerror="yes">
+        <arg value="-M"/>
+        <arg value="FuseJson68"/>
+        <arg value="-t"/>
+        <arg value="${toolkit}"/>
+     </exec>
+  </target>
+
   <!-- ensure all the samples can be built -->
   <target name="compile-samples">
      <exec executable="${streams.install}/bin/sc" dir="../samples/JSONToTupleConvert" failonerror="yes">
@@ -79,7 +89,7 @@
      </exec>
   </target>
 
-  <target name="test" depends="compile-tests,compile-samples">
+  <target name="test" depends="compile-tests,compile-spl-test-code,compile-samples">
     <junit printsummary="yes" fork="yes" haltonfailure="yes">
       <classpath>
         <path refid="cp.streams" />
