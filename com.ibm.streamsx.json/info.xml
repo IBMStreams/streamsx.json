@@ -5,10 +5,12 @@
 // * others. All Rights Reserved. *
 // *******************************************************************************
 -->
-<info:toolkitInfoModel xmlns:common="http://www.ibm.com/xmlns/prod/streams/spl/common" xmlns:info="http://www.ibm.com/xmlns/prod/streams/spl/toolkitInfo">
-  <info:identity>
-    <info:name>com.ibm.streamsx.json</info:name>
-    <info:description>
+<info:toolkitInfoModel
+	xmlns:common="http://www.ibm.com/xmlns/prod/streams/spl/common"
+	xmlns:info="http://www.ibm.com/xmlns/prod/streams/spl/toolkitInfo">
+	<info:identity>
+		<info:name>com.ibm.streamsx.json</info:name>
+		<info:description>
 JSON support for SPL.
 This toolkit provides standard transforms between SPL values and JSON objects.
 Other toolkits can utilize the standard representation to allow processing
@@ -26,9 +28,15 @@ of type [com.ibm.streamsx.json::Json|Json] using
 resulting stream using `com.ibm.streamsx.topology.topic::Publish`.
 An application implemented in Python (or any other language) may
 them subscribe to the stream of JSON objects.
-</info:description>
-    <info:version>1.2.1.__dev__</info:version>
-    <info:requiredProductVersion>4.0</info:requiredProductVersion>
-  </info:identity>
-  <info:dependencies/>
+		</info:description>
+		<info:version>1.2.1.__dev__</info:version>
+		<info:requiredProductVersion>4.0</info:requiredProductVersion>
+	</info:identity>
+	<info:dependencies/>
+	<info:resources>
+		<info:messageSet name="JSONResource">
+			<info:lang default="true">en_US/JSONResource.xlf</info:lang>
+	 	</info:messageSet>
+	</info:resources>
 </info:toolkitInfoModel>
+

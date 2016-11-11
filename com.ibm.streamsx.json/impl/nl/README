@@ -1,0 +1,39 @@
+Information File for Translation of IBM Streams
+===============================================
+
+
+Project Number:					t.b.d.
+Toolkit Name:					JSON Toolkit
+Toolkit Namespace:				com.ibm.streamsx.json
+Lab Contact:					schulz2@de.ibm.com
+Return Date:					2016-12-05
+
+
+
+List of files to be translated
+------------------------------
+.../streamsx.json/com.ibm.streamsx.json/impl/java/src/com/ibm/streamsx/json/i18n/JsonToolkitMessages.properties
+.../streamsx.json/com.ibm.streamsx.json/impl/nl/en_US/JSONResource.xlf
+
+
+File type and Markup Information
+--------------------------------
+
+	File Type				Markup Type				Markup
+	---------				-----------				------     
+	.properties				JAVA2-PRB				IBMNJDK2
+	.xlf					XML-XLIF12				IBMXUXLF
+
+
+
+Further instructions
+--------------------
+
+	Do not translate the following words:
+		
+
+
+	Return package to:
+		schulz2@de.ibm.com
+
+

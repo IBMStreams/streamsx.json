@@ -21,6 +21,7 @@ import com.ibm.streams.operator.meta.CollectionType;
 import com.ibm.streams.operator.meta.TupleType;
 import com.ibm.streams.operator.types.RString;
 import com.ibm.streams.operator.types.Timestamp;
+import com.ibm.streamsx.json.i18n.Messages;
 
 /**
  * Converts JSON values to SPL tuples and SPL tuple attributes. 
@@ -43,7 +44,7 @@ public class JSONToTupleConverter {
 
 		if (jsonObj == null) return null;
 		if (l.isLoggable(TraceLevel.DEBUG)) {
-          l.log(TraceLevel.DEBUG, "Converting Java value '" + jsonObj.toString() + "' of type " + jsonObj.getClass().getSimpleName() + " to SPL attribute " + name + " of type " + type.toString());
+          l.log(TraceLevel.DEBUG, "Converting Java value '" + jsonObj.toString() + "' of type " + jsonObj.getClass().getSimpleName() + " to SPL attribute " + name + " of type " + type.toString()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		}
 		try {
 			switch(type.getMetaType()) {
@@ -129,11 +130,11 @@ public class JSONToTupleConverter {
 			case COMPLEX64:
 			default:
 				if(l.isLoggable(TraceLevel.DEBUG))
-					l.log(TraceLevel.DEBUG, "Ignoring unsupported field: " + name + ", of type: " + type);
+					l.log(TraceLevel.DEBUG, "Ignoring unsupported field: " + name + ", of type: " + type); //$NON-NLS-1$ //$NON-NLS-2$
 				break;
 			}
 		}catch(Exception e) {
-			l.log(TraceLevel.ERROR, "Error converting attribute: Exception: " + e);
+			l.log(TraceLevel.ERROR, "Error converting attribute: Exception: " + e); //$NON-NLS-1$
 			throw e;
 		}
 		return null;
@@ -142,7 +143,7 @@ public class JSONToTupleConverter {
 	//this is used when a JSON array maps to a SPL collection 
 	private static void arrayToCollection(String name, Collection<Object>lst, JSONArray jarr, Type ptype) throws Exception {
 		CollectionType ctype = (CollectionType) ptype;
-		String cname = lst.getClass().getSimpleName() + ": " + name;
+		String cname = lst.getClass().getSimpleName() + ": " + name; //$NON-NLS-1$
 		for(Object jsonObj : jarr) {
 			Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
 			if(obj!=null)
@@ -154,11 +155,11 @@ public class JSONToTupleConverter {
 	//this is used when a JSON array maps to a Java array 
 	private static Object arrayToSPLArray(String name, JSONArray jarr, Type ptype) throws Exception {
 		if(l.isLoggable(TraceLevel.DEBUG)) {
-			l.log(TraceLevel.DEBUG, "Creating Array: " + name);
+			l.log(TraceLevel.DEBUG, "Creating Array: " + name); //$NON-NLS-1$
 		}
 		CollectionType ctype = (CollectionType) ptype;
 		int cnt=0;
-		String cname = "List: " + name;
+		String cname = "List: " + name; //$NON-NLS-1$
 
 		switch(ctype.getElementType().getMetaType()) {
 		case INT8:
@@ -348,7 +349,7 @@ public class JSONToTupleConverter {
 		case COMPLEX32:
 		case COMPLEX64:
 		default:
-			throw new Exception("Unhandled array type: " + ctype.getElementType().getMetaType());
+			throw new Exception(Messages.getString("UNHANDLED_ARRAY_TYPE") + ctype.getElementType().getMetaType()); //$NON-NLS-1$
 		}
 
 	}
@@ -383,12 +384,12 @@ public class JSONToTupleConverter {
 			String name = attr.getName();
 			try {
 				if(l.isLoggable(TraceLevel.DEBUG)) {
-					l.log(TraceLevel.DEBUG, "Checking for: " + name);
+					l.log(TraceLevel.DEBUG, "Checking for: " + name); //$NON-NLS-1$
 				}
 				Object childobj = jbase.get(name);
 				if(childobj==null) {
 					if(l.isLoggable(TraceLevel.DEBUG)) {
-						l.log(TraceLevel.DEBUG, "Not Found: " + name);
+						l.log(TraceLevel.DEBUG, "Not Found: " + name); //$NON-NLS-1$
 					}
 					continue;
 				}
@@ -396,7 +397,7 @@ public class JSONToTupleConverter {
 				if(obj!=null)
 					attrmap.put(name, obj);
 			}catch(Exception e) {
-				l.log(TraceLevel.ERROR, "Error converting object: " + name, e);
+				l.log(TraceLevel.ERROR, "Error converting object: " + name, e); //$NON-NLS-1$
 				throw e;
 			}
 

@@ -1,17 +1,22 @@
 package com.ibm.streamsx.json.converters;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import com.ibm.streams.operator.Attribute;
 import com.ibm.streams.operator.StreamSchema;
 import com.ibm.streams.operator.Type;
 import com.ibm.streams.operator.Type.MetaType;
+import com.ibm.streams.operator.logging.LogLevel;
+import com.ibm.streamsx.json.i18n.Messages;
 
 /**
  * Verifies that the type of an attribute in a given schema matches a list
  * of acceptable types.
  */
 public class TupleTypeVerifier {
+	
+	static private Logger l = Logger.getLogger(TupleTypeVerifier.class.getCanonicalName());
 
 	/**
 	 * Verifies that the type of the attribute in the specified schema matches one of the
@@ -27,7 +32,8 @@ public class TupleTypeVerifier {
 			throws Exception {
 		Attribute attr = schema.getAttribute(attributeName);
 		if(attr == null) {
-			throw new Exception("Attribute \""+attributeName+"\" must be specified");
+			l.log(LogLevel.ERROR, Messages.getString("ATTRIBUTE_MUST_BE_SPECIFIED"), new Object[]{attributeName});	//$NON-NLS-1$
+			throw new Exception("CDIST0954E Attribute " + attributeName +" must be specified."); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		Type t = attr.getType();
 		MetaType rtype = attr.getType().getMetaType();
@@ -37,7 +43,8 @@ public class TupleTypeVerifier {
 					return t;
 				}
 			}
-			throw new Exception("Attribute \""+attributeName+"\" must be one of the following types: " + types.toString());
+			l.log(LogLevel.ERROR, Messages.getString("ATTRIBUTE_MUST_BE_OF_TYPES"), new Object[]{attributeName, types.toString()});	//$NON-NLS-1$
+			throw new Exception("CDIST0955E Attribute " + attributeName + " must be one of the following types: " + types.toString()); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return t;
 	}
