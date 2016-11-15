@@ -8,7 +8,7 @@ import com.ibm.streams.operator.StreamSchema;
 import com.ibm.streams.operator.Type;
 import com.ibm.streams.operator.Type.MetaType;
 import com.ibm.streams.operator.logging.LogLevel;
-import com.ibm.streamsx.json.i18n.Messages;
+import com.ibm.streamsx.json.converters.Messages;
 
 /**
  * Verifies that the type of an attribute in a given schema matches a list

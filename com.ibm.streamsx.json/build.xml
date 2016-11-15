@@ -99,8 +99,9 @@
 	</target>
 
 	<target name="jar" depends="compile,converter-jar">
-		<jar destfile="${lib.dir}/com.ibm.streamsx.json.jar" basedir="${build.dir}" 
-				 includes="com/ibm/streamsx/json/*" filesonly="true">
+		<jar destfile="${lib.dir}/com.ibm.streamsx.json.jar" filesonly="true">
+			<fileset dir="${build.dir}" includes="com/ibm/streamsx/json/*"/>
+			<fileset dir="${src.dir}" includes="com/ibm/streamsx/json/*.properties"/>
 		</jar>
 		<delete dir="${build.dir}" />
 	</target>
@@ -110,6 +111,9 @@
 			<fileset dir="${build.dir}">
 				<include name="com/ibm/streamsx/json/JSONMain.class" />
 				<include name="com/ibm/streamsx/json/converters/**" />
+			</fileset>
+			<fileset dir="${src.dir}">
+				<include name="com/ibm/streamsx/json/converters/*.properties" />
 			</fileset>
 		</jar>
 		

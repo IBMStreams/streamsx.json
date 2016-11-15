@@ -13,7 +13,7 @@ import java.util.*;
 
 import com.ibm.json.java.JSONArray;
 import com.ibm.json.java.JSONObject;
-import com.ibm.streamsx.json.i18n.Messages;
+import com.ibm.streamsx.json.Messages;
 
 /**
  * This is a utility class

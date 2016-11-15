@@ -16,12 +16,13 @@ import com.ibm.streams.operator.Attribute;
 import com.ibm.streams.operator.StreamSchema;
 import com.ibm.streams.operator.Tuple;
 import com.ibm.streams.operator.Type;
+import com.ibm.streams.operator.logging.LogLevel;
 import com.ibm.streams.operator.logging.TraceLevel;
 import com.ibm.streams.operator.meta.CollectionType;
 import com.ibm.streams.operator.meta.TupleType;
 import com.ibm.streams.operator.types.RString;
 import com.ibm.streams.operator.types.Timestamp;
-import com.ibm.streamsx.json.i18n.Messages;
+import com.ibm.streamsx.json.converters.Messages;
 
 /**
  * Converts JSON values to SPL tuples and SPL tuple attributes. 
@@ -349,7 +350,10 @@ public class JSONToTupleConverter {
 		case COMPLEX32:
 		case COMPLEX64:
 		default:
-			throw new Exception(Messages.getString("UNHANDLED_ARRAY_TYPE") + ctype.getElementType().getMetaType()); //$NON-NLS-1$
+		{
+			l.log(LogLevel.ERROR, Messages.getString("UNHANDLED_ARRAY_TYPE"), new Object[]{ctype.getElementType().getMetaType()});	//$NON-NLS-1$
+			throw new Exception("CDIST0953E Unhandled array type: " + ctype.getElementType().getMetaType()); //$NON-NLS-1$
+		}
 		}
 
 	}

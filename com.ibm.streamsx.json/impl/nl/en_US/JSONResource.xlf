@@ -61,7 +61,8 @@
 
 				<!--
 					CDIST0950 - CDIST0955 are used in 
-					streamsx.json/com.ibm.streamsx.json/impl/java/src/com/ibm/streamsx/json/i18n/JsonToolkitMessages.properties
+					streamsx.json/com.ibm.streamsx.json/impl/java/src/com/ibm/streamsx/json/JsonMessages.properties
+					streamsx.json/com.ibm.streamsx.json/impl/java/src/com/ibm/streamsx/json/converters/JsonConverterMessages.properties
 				-->
 
 

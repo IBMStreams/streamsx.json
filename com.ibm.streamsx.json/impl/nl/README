@@ -12,7 +12,8 @@ Return Date:					2016-12-05
 
 List of files to be translated
 ------------------------------
-.../streamsx.json/com.ibm.streamsx.json/impl/java/src/com/ibm/streamsx/json/i18n/JsonToolkitMessages.properties
+.../streamsx.json/com.ibm.streamsx.json/impl/java/src/com/ibm/streamsx/json/JsonMessages.properties
+.../streamsx.json/com.ibm.streamsx.json/impl/java/src/com/ibm/streamsx/json/converters/JsonConverterMessages.properties
 .../streamsx.json/com.ibm.streamsx.json/impl/nl/en_US/JSONResource.xlf
 
 
