@@ -22,13 +22,13 @@ using namespace SPL;
 namespace com { namespace ibm { namespace streamsx { namespace json {
 
 	template<typename String>
-	char const* convToChars(String const& str) { return str.c_str(); }
+	inline char const* convToChars(String const& str) { return str.c_str(); }
 
 	template<>
-	char const* convToChars<ustring>(ustring const& str) { return spl_cast<rstring,ustring>::cast(str).c_str(); }
+	inline char const* convToChars<ustring>(ustring const& str) { return spl_cast<rstring,ustring>::cast(str).c_str(); }
 
 	template<>
-	char const* convToChars<ConstValueHandle>(const ConstValueHandle& valueHandle) {
+	inline char const* convToChars<ConstValueHandle>(const ConstValueHandle& valueHandle) {
 		switch(valueHandle.getMetaType()) {
 			case Meta::Type::BSTRING : {
 				const BString & str = valueHandle;
@@ -46,17 +46,17 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 	}
 
 	template<typename Container, typename Iterator>
-	void writeArray(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle);
+	inline void writeArray(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle);
 
 	template<typename Container, typename Iterator>
-	void writeMap(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle);
+	inline void writeMap(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle);
 
-	void writeTuple(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle);
+	inline void writeTuple(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle);
 
-	void writePrimitive(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle);
+	inline void writePrimitive(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle);
 
 
-	void writeAny(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle) {
+	inline void writeAny(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle) {
 
 		switch (valueHandle.getMetaType()) {
 			case Meta::Type::LIST : {
@@ -92,7 +92,7 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 	}
 
 	template<typename Container, typename Iterator>
-	void writeArray(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle) {
+	inline void writeArray(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle) {
 
 		writer.StartArray();
 
@@ -107,7 +107,7 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 	}
 
 	template<typename Container, typename Iterator>
-	void writeMap(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle) {
+	inline void writeMap(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle) {
 
 		writer.StartObject();
 
@@ -124,7 +124,7 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 		writer.EndObject();
 	}
 
-	void writeTuple(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle) {
+	inline void writeTuple(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle) {
 
 		writer.StartObject();
 
@@ -141,7 +141,7 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 		writer.EndObject();
 	}
 
-	void writePrimitive(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle) {
+	inline void writePrimitive(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle) {
 
 		switch (valueHandle.getMetaType()) {
 			case Meta::Type::BOOLEAN : {
