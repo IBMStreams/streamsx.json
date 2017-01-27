@@ -8,7 +8,7 @@ STREAMS_JSON_TOOLKIT ?=../../com.ibm.streamsx.json:$(STREAMS_INSTALL)/toolkits/c
 SPLC_FLAGS ?= -a -t $(STREAMS_JSON_TOOLKIT)
 SPLC = $(STREAMS_INSTALL)/bin/sc
 SPL_CMD_ARGS ?= 
-SPL_NS=sample
+SPL_NS=com.ibm.streamsx.json.sample.stoj
 
 all: build
 
