@@ -46,8 +46,8 @@ import com.ibm.streamsx.json.converters.TupleTypeVerifier;
 public class JSONToTuple extends AbstractOperator  
 {
 	private String jsonStringAttribute = null;
-	private static final String INPUT_JSON_ATTRIBUTE_PARAM="inputAttribute";
-	private static final String defaultJsonStringAttribute = "jsonString";
+	private static final String INPUT_JSON_ATTRIBUTE_PARAM="inputAttribute"; //$NON-NLS-1$
+	private static final String defaultJsonStringAttribute = "jsonString"; //$NON-NLS-1$
 	private Logger l = Logger.getLogger(JSONToTuple.class.getCanonicalName());
 	boolean ignoreParsingError = false;
 	private String jsonStringOutputAttribute = null;
@@ -97,8 +97,8 @@ public class JSONToTuple extends AbstractOperator
 					checker.getOperatorContext().getStreamingInputs().get(0), 
 					checker.getOperatorContext().getStreamingOutputs().get(1));
 		}
-		checker.checkExcludedParameters(INPUT_JSON_ATTRIBUTE_PARAM, "jsonStringAttribute");
-		checker.checkExcludedParameters("jsonStringAttribute", INPUT_JSON_ATTRIBUTE_PARAM);
+		checker.checkExcludedParameters(INPUT_JSON_ATTRIBUTE_PARAM, "jsonStringAttribute"); //$NON-NLS-1$
+		checker.checkExcludedParameters("jsonStringAttribute", INPUT_JSON_ATTRIBUTE_PARAM); //$NON-NLS-1$
 		return true;
 	}
 
@@ -129,7 +129,7 @@ public class JSONToTuple extends AbstractOperator
 		if(wasTargetSpecified) {
 			targetAttrType = TupleTypeVerifier.verifyAttributeType(ssOp0, targetAttribute, 
 	 					Arrays.asList(MetaType.TUPLE, MetaType.LIST, MetaType.BLIST, MetaType.SET, MetaType.BSET));
-			l.log(TraceLevel.INFO, "Will populate target field: " + targetAttribute);
+			l.log(TraceLevel.INFO, "Will populate target field: " + targetAttribute); //$NON-NLS-1$
 		}
 	}
 
@@ -146,7 +146,7 @@ public class JSONToTuple extends AbstractOperator
 		op.assign(tuple);//copy over any relevant attributes
 
 		if(l.isLoggable(TraceLevel.DEBUG))
-			l.log(TraceLevel.DEBUG, "Converting JSON: " + jsonInput);
+			l.log(TraceLevel.DEBUG, "Converting JSON: " + jsonInput); //$NON-NLS-1$
 
 		try {
 			if( targetAttribute != null &&  targetAttrType.getMetaType() != MetaType.TUPLE) {
@@ -179,7 +179,7 @@ public class JSONToTuple extends AbstractOperator
 
 			
 		} catch(Exception e) {
-			l.log(TraceLevel.ERROR, "Error Converting String: " + jsonInput, e);
+			l.log(TraceLevel.ERROR, "Error Converting String: " + jsonInput, e); //$NON-NLS-1$
 			if(!hasOptionalOut && !ignoreParsingError)
 				throw e;
 			if(hasOptionalOut) {
@@ -190,15 +190,15 @@ public class JSONToTuple extends AbstractOperator
 	}
 
 	static final String DESC = 
-			"This operator converts JSON strings into SPL Tuples. The tuple structure is expected to match the JSON schema." +
-					" A subset of the attributes can be specified as well. " +
-					" Only those attributes that are present in the Tuple schema and JSON input will be converted. All other attributes will be ignored." +
-					" If an invalid JSON string is found in the input, the operator will fail. " +
-					" This behavior can be overridden by specifying the optional output port or by specifying the \\\"ignoreParsingError\\\" parameter." +
-					" Attributes from the input stream that match those in the output stream will be automatically copied over. " +
-					" However, if they also exist in the JSON input, their assigned value will be of that specified in the JSON." +
-					" Null values in JSON arrays are ignored. Null values for all other attributes will result in default initializled output attributes. " +
-					" Limitations:" +
-					" BLOB, MAP and COMPLEX attribute types are not supported in the output tuple schema at this time and will be ignored."
+			"This operator converts JSON strings into SPL Tuples. The tuple structure is expected to match the JSON schema." + //$NON-NLS-1$
+					" A subset of the attributes can be specified as well. " + //$NON-NLS-1$
+					" Only those attributes that are present in the Tuple schema and JSON input will be converted. All other attributes will be ignored." + //$NON-NLS-1$
+					" If an invalid JSON string is found in the input, the operator will fail. " + //$NON-NLS-1$
+					" This behavior can be overridden by specifying the optional output port or by specifying the \\\"ignoreParsingError\\\" parameter." + //$NON-NLS-1$
+					" Attributes from the input stream that match those in the output stream will be automatically copied over. " + //$NON-NLS-1$
+					" However, if they also exist in the JSON input, their assigned value will be of that specified in the JSON." + //$NON-NLS-1$
+					" Null values in JSON arrays are ignored. Null values for all other attributes will result in default initializled output attributes. " + //$NON-NLS-1$
+					" Limitations:" + //$NON-NLS-1$
+					" BLOB, MAP and COMPLEX attribute types are not supported in the output tuple schema at this time and will be ignored." //$NON-NLS-1$
 					;
 }

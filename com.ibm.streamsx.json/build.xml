@@ -8,9 +8,26 @@
 //
 -->
 <project name="com.ibm.streamsx.json" basedir="." default="all">
-
+	
+	<!-- Resolve the directory that this file is in -->
+	<dirname property="com.ibm.streamsx.json.DIR" file="${ant.file.com.ibm.streamsx.json}"/>
+	
+	
+	<!-- the location of the streams installation used to build the toolkit -->
+	<!-- can either be specified by one of the following:                   -->
+	<!-- $STREAMS_INSTALL environment variable (set in invoking environment)-->
+	<!-- ${STREAMS_INSTALL} ant property (set outside of this build.xml)    -->
+	<!-- If STREAMS_INSTALL property is not set, set it to a "bad" value    -->
+	<condition property="STREAMS_INSTALL" value="NOTFOUND">
+		<not><isset property="STREAMS_INSTALL"/></not>
+	</condition>
+	<!-- If the environment variable is set, use this, otherwise use the    -->
+	<!-- STREAMS_INSTALL property                                           -->
 	<property environment="env" />
-	<property name="streams.install" value="${env.STREAMS_INSTALL}" />
+	<condition property="streams.install" value="${env.STREAMS_INSTALL}" else="${STREAMS_INSTALL}">
+		<isset property="env.STREAMS_INSTALL" />
+	</condition>
+	<property name="spl-mt" value="${streams.install}/bin/spl-make-toolkit" />
 
 	<property name="src.dir" value="impl/java/src" />
 	<property name="build.dir" value="impl/java/classes" />
@@ -18,12 +35,16 @@
 	<property name="test.run.dir" value="tests" />
 	<property name="test.build.dir" value="${test.run.dir}/bin" />
 	
+	
+	<property name="toolkit.dir" value="${com.ibm.streamsx.json.DIR}"/>
+	
+	
 	<target name="init">
 		<mkdir dir="${build.dir}" />
 		<mkdir dir="${lib.dir}" />
 	</target>
 
-	<target name="clean" depends="cpp-clean">
+	<target name="clean" depends="toolkit-clean">
 		<delete dir="${build.dir}" />
 		<delete dir="${lib.dir}" />
 		<delete dir="output"/>
@@ -42,22 +63,29 @@
 		<path refid="cp.streams" />
 	</path>
 	
-	<target name="all" depends="jar,cpp"/>
+	<target name="all" depends="jar,toolkit"/>
 	
-	<target name="cpp">
-		<exec executable="${streams.install}/bin/spl-make-toolkit" failonerror="true">
-			<arg value="-i"/>
-			<arg value="."/>
-	  </exec>
-	</target>
+	
+    <target name="toolkit">
+        <exec executable="${spl-mt}" dir="${toolkit.dir}" failonerror="true">
+            <env key="STREAMS_INSTALL" value="${streams.install}"/>
+            <arg value="-i"/>
+            <arg value="."/>
+            <arg value="-m"/>
+        </exec>
+    </target>
 
-	<target name="cpp-clean">
-		<exec executable="${streams.install}/bin/spl-make-toolkit" failonerror="true">
-			<arg value="-c"/>
-			<arg value="-i"/>
-			<arg value="."/>
-	  </exec>
-	</target>
+
+	<target name="toolkit-clean">
+    	<exec executable="${spl-mt}" failonerror="true">
+            <env key="STREAMS_INSTALL" value="${streams.install}"/>
+            <arg value="-c"/>
+            <arg value="-i"/>
+            <arg value="."/>
+            <arg value="-m"/>
+        </exec>
+    </target>
+
 
 	<target name="compile" depends="init">
 		<javac srcdir="${src.dir}" destdir="${build.dir}" debug="true"
@@ -71,8 +99,9 @@
 	</target>
 
 	<target name="jar" depends="compile,converter-jar">
-		<jar destfile="${lib.dir}/com.ibm.streamsx.json.jar" basedir="${build.dir}" 
-				 includes="com/ibm/streamsx/json/*" filesonly="true">
+		<jar destfile="${lib.dir}/com.ibm.streamsx.json.jar" filesonly="true">
+			<fileset dir="${build.dir}" includes="com/ibm/streamsx/json/*"/>
+			<fileset dir="${src.dir}" includes="com/ibm/streamsx/json/*.properties"/>
 		</jar>
 		<delete dir="${build.dir}" />
 	</target>
@@ -82,6 +111,9 @@
 			<fileset dir="${build.dir}">
 				<include name="com/ibm/streamsx/json/JSONMain.class" />
 				<include name="com/ibm/streamsx/json/converters/**" />
+			</fileset>
+			<fileset dir="${src.dir}">
+				<include name="com/ibm/streamsx/json/converters/*.properties" />
 			</fileset>
 		</jar>
 		

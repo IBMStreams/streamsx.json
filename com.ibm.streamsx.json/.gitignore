@@ -1,3 +1,5 @@
 com.ibm.streamsx.json/JSONToTuple
 com.ibm.streamsx.json/TupleToJSON
 /output/
+/build.xml~
+/info.xml~
