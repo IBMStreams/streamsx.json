@@ -37,8 +37,8 @@ import com.ibm.streamsx.json.converters.TupleTypeVerifier;
 public class TupleToJSON extends AbstractOperator {
 
 	private String jsonStringAttribute = null;
-	private static final String defaultJsonStringAttribute = "jsonString";
-	private static final String ROOT_ATTRIBUTE_PARAM = "inputAttribute";
+	private static final String defaultJsonStringAttribute = "jsonString"; //$NON-NLS-1$
+	private static final String ROOT_ATTRIBUTE_PARAM = "inputAttribute"; //$NON-NLS-1$
 	TupleAttribute<Tuple,?> rootAttr = null;
 	private String rootAttribute = null;
 	private Type rootAttributeType =null;
@@ -91,7 +91,7 @@ public class TupleToJSON extends AbstractOperator {
 		if(rootAttribute!=null) {
 			rootAttributeType = TupleTypeVerifier.verifyAttributeType(ssip, rootAttribute, 
 					Arrays.asList(MetaType.TUPLE, MetaType.LIST, MetaType.BLIST, MetaType.SET, MetaType.BSET));
-			l.log(TraceLevel.INFO, "Will use source attribute: " + rootAttribute);
+			l.log(TraceLevel.INFO, "Will use source attribute: " + rootAttribute); //$NON-NLS-1$
 		}
 	}
 
@@ -114,8 +114,8 @@ public class TupleToJSON extends AbstractOperator {
 	}
 
 	static final String DESC = 
-			"This operator converts incoming tuples to JSON String." +
-			" Note that any matching attributes from the input stream will be copied over to the output." +
-			" If an attribute, with the same name as the JSON string output attribute exists in the input stream, " +
-			"it will be overwritten by the JSON String that is generated." ;
+			"This operator converts incoming tuples to JSON String." + //$NON-NLS-1$
+			" Note that any matching attributes from the input stream will be copied over to the output." + //$NON-NLS-1$
+			" If an attribute, with the same name as the JSON string output attribute exists in the input stream, " + //$NON-NLS-1$
+			"it will be overwritten by the JSON String that is generated." ; //$NON-NLS-1$
 }
