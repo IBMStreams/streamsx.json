@@ -35,8 +35,8 @@ them subscribe to the stream of JSON objects.
   <info:resources>
     <info:messageSet name="JSONResource">
       <info:lang default="true">en_US/JSONResource.xlf</info:lang>
-<!--
       <info:lang>de_DE/JSONResource.xlf</info:lang>
+<!--
       <info:lang>es_ES/JSONResource.xlf</info:lang>
 -->
       <info:lang>fr_FR/JSONResource.xlf</info:lang>
