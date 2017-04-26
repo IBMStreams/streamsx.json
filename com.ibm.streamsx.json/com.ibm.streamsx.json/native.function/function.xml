@@ -29,6 +29,51 @@ Convert a value to JSON object with a single key encoded as a serialized JSON st
 </function:description>
         <function:prototype>&lt;string S, any T> public rstring toJSON(S key, T value)</function:prototype>
       </function:function>
+      <function:function>
+        <function:description>
+Extract values from JSON string accordingly to a given tuple.
+@param jsonString The input JSON string.
+@param tuple A mutable tuple to save extracted values.
+@return Reference to the input tuple.
+</function:description>
+        <function:prototype>&lt;tuple T> public T extractFromJSON(rstring jsonString, T value)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>
+Extract values from JSON string accordingly to a given tuple.
+@param jsonString The input JSON string.
+@param tuple A mutable tuple to save extracted values.
+@return Reference to the input tuple.
+</function:description>
+        <function:prototype>public boolean queryJSON(rstring jsonString, rstring jsonPath, boolean defaultVal)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>
+Extract values from JSON string accordingly to a given tuple.
+@param jsonString The input JSON string.
+@param tuple A mutable tuple to save extracted values.
+@return Reference to the input tuple.
+</function:description>
+        <function:prototype>&lt;integral T> public T queryJSON(rstring jsonString, rstring jsonPath, T defaultVal)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>
+Extract values from JSON string accordingly to a given tuple.
+@param jsonString The input JSON string.
+@param tuple A mutable tuple to save extracted values.
+@return Reference to the input tuple.
+</function:description>
+        <function:prototype>&lt;floatingpoint T> public T queryJSON(rstring jsonString, rstring jsonPath, T defaultVal)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>
+Extract values from JSON string accordingly to a given tuple.
+@param jsonString The input JSON string.
+@param tuple A mutable tuple to save extracted values.
+@return Reference to the input tuple.
+</function:description>
+        <function:prototype>&lt;string T> public T queryJSON(rstring jsonString, rstring jsonPath, T valueType)</function:prototype>
+      </function:function>
     </function:functions>
     <function:dependencies>
       <function:library>
