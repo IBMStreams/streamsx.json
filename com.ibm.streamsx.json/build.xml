@@ -90,7 +90,7 @@
 	<target name="compile" depends="init">
 		<javac srcdir="${src.dir}" destdir="${build.dir}" debug="true"
 			includeantruntime="no"
-			source="1.7" target="1.7"
+			source="1.8" target="1.8"
 			excludes="com/ibm/streamsx/json/**/*$StreamsModel.java">
 			<classpath>
 				<path refid="cp.compile" />
