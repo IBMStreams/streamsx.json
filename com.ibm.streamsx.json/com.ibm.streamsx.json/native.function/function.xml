@@ -42,37 +42,50 @@ Extract values from JSON string accordingly to a given tuple.
         <function:description>
 Extract values from JSON string accordingly to a given tuple.
 @param jsonString The input JSON string.
-@param tuple A mutable tuple to save extracted values.
-@return Reference to the input tuple.
+@param jsonIndex Json index of enum type (e.g. enum{_1}).
+@return Error code (0 - no error).
 </function:description>
-        <function:prototype>public boolean queryJSON(rstring jsonString, rstring jsonPath, boolean defaultVal)</function:prototype>
+        <function:prototype>&lt;enum E> public uint32 parseJSON(rstring jsonString, E jsonIndex)</function:prototype>
       </function:function>
       <function:function>
         <function:description>
 Extract values from JSON string accordingly to a given tuple.
-@param jsonString The input JSON string.
-@param tuple A mutable tuple to save extracted values.
-@return Reference to the input tuple.
+@param jsonPath Path to a JSON attribute.
+@param defaultVal Default value to apply when an attribute not found.
+@param jsonIndex Json index of enum type (e.g. enum{_1}).
+@return JSON value.
 </function:description>
-        <function:prototype>&lt;integral T> public T queryJSON(rstring jsonString, rstring jsonPath, T defaultVal)</function:prototype>
+        <function:prototype>&lt;enum E> public boolean queryJSON(rstring jsonPath, boolean defaultVal, E jsonIndex)</function:prototype>
       </function:function>
       <function:function>
         <function:description>
 Extract values from JSON string accordingly to a given tuple.
-@param jsonString The input JSON string.
-@param tuple A mutable tuple to save extracted values.
-@return Reference to the input tuple.
+@param jsonPath Path to a JSON attribute.
+@param defaultVal Default value to apply when an attribute not found.
+@param jsonIndex Json index of enum type (e.g. enum{_1}).
+@return JSON value.
 </function:description>
-        <function:prototype>&lt;floatingpoint T> public T queryJSON(rstring jsonString, rstring jsonPath, T defaultVal)</function:prototype>
+        <function:prototype>&lt;integral T, enum E> public T queryJSON(rstring jsonPath, T defaultVal, E jsonIndex)</function:prototype>
       </function:function>
       <function:function>
         <function:description>
 Extract values from JSON string accordingly to a given tuple.
-@param jsonString The input JSON string.
-@param tuple A mutable tuple to save extracted values.
-@return Reference to the input tuple.
+@param jsonPath Path to a JSON attribute.
+@param defaultVal Default value to apply when an attribute not found.
+@param jsonIndex Json index of enum type (e.g. enum{_1}).
+@return JSON value.
 </function:description>
-        <function:prototype>&lt;string T> public T queryJSON(rstring jsonString, rstring jsonPath, T valueType)</function:prototype>
+        <function:prototype>&lt;floatingpoint T, enum E> public T queryJSON(rstring jsonPath, T defaultVal, E jsonIndex)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>
+Extract values from JSON string accordingly to a given tuple.
+@param jsonPath Path to a JSON attribute.
+@param defaultVal Default value to apply when an attribute not found.
+@param jsonIndex Json index of enum type (e.g. enum{_1}).
+@return JSON value.
+</function:description>
+        <function:prototype>&lt;string T, enum E> public T queryJSON(rstring jsonPath, T defaultVal, E jsonIndex)</function:prototype>
       </function:function>
     </function:functions>
     <function:dependencies>

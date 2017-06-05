@@ -8,12 +8,14 @@
 #ifndef JSON_READER_H_
 #define JSON_READER_H_
 
+#include "rapidjson/error/en.h"
 #include "rapidjson/document.h"
 #include "rapidjson/pointer.h"
 #include "rapidjson/reader.h"
 
 #include <stack>
 #include <streams_boost/mpl/or.hpp>
+#include <streams_boost/thread/tss.hpp>
 #include <streams_boost/type_traits.hpp>
 #include <streams_boost/utility/enable_if.hpp>
 
@@ -24,6 +26,10 @@ using namespace streams_boost;
 using namespace SPL;
 
 namespace com { namespace ibm { namespace streamsx { namespace json {
+
+	namespace {
+		struct OperatorInstance {};
+	}
 
 	typedef enum{ NO, LIST, MAP } InCollection;
 
@@ -428,11 +434,35 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 	}
 
 
-	template<typename T>
-	inline T queryJSON(rstring const& jsonString, rstring const& jsonPath, T defaultVal, typename enable_if<is_same<boolean, T>, void*>::type t = NULL) {
+	template<typename Index, typename OP>
+	inline Document& getDocument() {
+		static thread_specific_ptr<Document> jsonPtr_;
 
-		Document json;
-		json.Parse(jsonString.c_str());
+		Document * jsonPtr = jsonPtr_.get();
+		if(!jsonPtr) {
+			jsonPtr_.reset(new Document());
+			jsonPtr = jsonPtr_.get();
+		}
+
+		return *jsonPtr;
+	}
+
+	template<typename Index>
+	inline uint32_t  parseJSON(rstring const& jsonString, const Index & jsonIndex) {
+		Document & json = getDocument<Index, OperatorInstance>();
+
+		if(json.Parse(jsonString.c_str()).HasParseError()) {
+			SPLAPPLOG(L_ERROR, GetParseError_En(json.GetParseError()), "QUERY_JSON");
+		}
+
+		return json.GetParseError();
+	}
+
+	template<typename T, typename Index>
+	inline T queryJSON(rstring const& jsonPath, T defaultVal, const Index & jsonIndex,
+					   typename enable_if<is_same<boolean, T>, void*>::type t = NULL) {
+
+		Document & json = getDocument<Index, OperatorInstance>();
 
 		Value * value = Pointer(jsonPath.c_str()).Get(json);
 		if(value && !value->IsNull() && value->IsBool())
@@ -441,8 +471,8 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 		return defaultVal;
 	}
 
-	template<typename T>
-	inline T queryJSON(rstring const& jsonString, rstring const& jsonPath, T defaultVal,
+	template<typename T, typename Index>
+	inline T queryJSON(rstring const& jsonPath, T defaultVal, const Index & jsonIndex,
 					   typename enable_if< typename mpl::or_<
 					   	   mpl::bool_< is_arithmetic<T>::value>,
 					   	   mpl::bool_< is_same<decimal32, T>::value>,
@@ -450,8 +480,7 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 						   mpl::bool_< is_same<decimal128, T>::value>
 					   >::type, void*>::type t = NULL) {
 
-		Document json;
-		json.Parse(jsonString.c_str());
+		Document & json = getDocument<Index, OperatorInstance>();
 
 		Value * value = Pointer(jsonPath.c_str()).Get(json);
 		if(value && !value->IsNull()) {
@@ -466,15 +495,14 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 		return defaultVal;
 	}
 
-	template<typename T>
-	inline T queryJSON(rstring const& jsonString, rstring const& jsonPath, T const& defaultVal,
+	template<typename T, typename Index>
+	inline T queryJSON(rstring const& jsonPath, T const& defaultVal, const Index & jsonIndex,
 					   typename enable_if< typename mpl::or_<
 					   	   mpl::bool_< is_base_of<RString, T>::value>,
 						   mpl::bool_< is_same<ustring, T>::value>
 					   >::type, void*>::type t = NULL) {
 
-		Document json;
-		json.Parse(jsonString.c_str());
+		Document & json = getDocument<Index, OperatorInstance>();
 
 		Value * value = Pointer(jsonPath.c_str()).Get(json);
 		if(value && !value->IsNull() && value->IsString())
