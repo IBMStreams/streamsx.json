@@ -463,6 +463,8 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 					   typename enable_if<is_same<boolean, T>, void*>::type t = NULL) {
 
 		Document & json = getDocument<Index, OperatorInstance>();
+		if(json.IsNull())
+			THROW(SPL::SPLRuntimeOperator, "Invalid usage of 'queryJSON' function, 'parseJSON' function must be used before.");
 
 		Value * value = Pointer(jsonPath.c_str()).Get(json);
 		if(value && !value->IsNull() && value->IsBool())
@@ -481,6 +483,8 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 					   >::type, void*>::type t = NULL) {
 
 		Document & json = getDocument<Index, OperatorInstance>();
+		if(json.IsNull())
+			THROW(SPL::SPLRuntimeOperator, "Invalid usage of 'queryJSON' function, 'parseJSON' function must be used before.");
 
 		Value * value = Pointer(jsonPath.c_str()).Get(json);
 		if(value && !value->IsNull()) {
@@ -503,6 +507,8 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 					   >::type, void*>::type t = NULL) {
 
 		Document & json = getDocument<Index, OperatorInstance>();
+		if(json.IsNull())
+			THROW(SPL::SPLRuntimeOperator, "Invalid usage of 'queryJSON' function, 'parseJSON' function must be used before.");
 
 		Value * value = Pointer(jsonPath.c_str()).Get(json);
 		if(value && !value->IsNull() && value->IsString())
