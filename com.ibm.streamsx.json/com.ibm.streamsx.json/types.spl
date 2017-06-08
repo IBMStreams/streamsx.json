@@ -39,3 +39,8 @@ public composite JsonIndex {
 		static type_19 = enum{_19};
 		static type_20 = enum{_20};
 }
+
+public composite JsonStatus {
+	type
+		static status = enum{FOUND, FOUND_WRONG_TYPE, FOUND_NULL, NOT_FOUND};
+}

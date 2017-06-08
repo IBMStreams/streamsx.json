@@ -458,8 +458,8 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 		return json.GetParseError();
 	}
 
-	template<typename T, typename Index>
-	inline T queryJSON(rstring const& jsonPath, T defaultVal, const Index & jsonIndex,
+	template<typename T, typename Status, typename Index>
+	inline T queryJSON(rstring const& jsonPath, T defaultVal, Status & status, Index const& jsonIndex,
 					   typename enable_if<is_same<boolean, T>, void*>::type t = NULL) {
 
 		Document & json = getDocument<Index, OperatorInstance>();
@@ -467,14 +467,21 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 			THROW(SPL::SPLRuntimeOperator, "Invalid usage of 'queryJSON' function, 'parseJSON' function must be used before.");
 
 		Value * value = Pointer(jsonPath.c_str()).Get(json);
-		if(value && !value->IsNull() && value->IsBool())
-			return value->GetBool();
 
-		return defaultVal;
+		if(!value)
+			status = 3;
+		else if(value->IsNull())
+			status = 2;
+		else if(!value->IsBool())
+			status = 1;
+		else
+			status = 0;
+
+		return status == 0 ? boolean(value->GetBool()) : defaultVal;
 	}
 
-	template<typename T, typename Index>
-	inline T queryJSON(rstring const& jsonPath, T defaultVal, const Index & jsonIndex,
+	template<typename T, typename Status, typename Index>
+	inline T queryJSON(rstring const& jsonPath, T defaultVal, Status & status, Index const& jsonIndex,
 					   typename enable_if< typename mpl::or_<
 					   	   mpl::bool_< is_arithmetic<T>::value>,
 					   	   mpl::bool_< is_same<decimal32, T>::value>,
@@ -487,20 +494,27 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 			THROW(SPL::SPLRuntimeOperator, "Invalid usage of 'queryJSON' function, 'parseJSON' function must be used before.");
 
 		Value * value = Pointer(jsonPath.c_str()).Get(json);
-		if(value && !value->IsNull()) {
-			if(value->IsInt())		return static_cast<T>(value->GetInt());
-			if(value->IsUint())		return static_cast<T>(value->GetUint());
-			if(value->IsInt64())	return static_cast<T>(value->GetInt64());
-			if(value->IsUint64())	return static_cast<T>(value->GetUint64());
-			if(value->IsFloat())	return static_cast<T>(value->GetFloat());
-			if(value->IsDouble())	return static_cast<T>(value->GetDouble());
+
+		if(!value)
+			status = 3;
+		else if(value->IsNull())
+			status = 2;
+		else {
+			if(value->IsInt())		{ status = 0; return static_cast<T>(value->GetInt()); }
+			if(value->IsUint())		{ status = 0; return static_cast<T>(value->GetUint()); }
+			if(value->IsInt64())	{ status = 0; return static_cast<T>(value->GetInt64()); }
+			if(value->IsUint64())	{ status = 0; return static_cast<T>(value->GetUint64()); }
+			if(value->IsFloat())	{ status = 0; return static_cast<T>(value->GetFloat()); }
+			if(value->IsDouble())	{ status = 0; return static_cast<T>(value->GetDouble()); }
+
+			status = 1;
 		}
 
 		return defaultVal;
 	}
 
-	template<typename T, typename Index>
-	inline T queryJSON(rstring const& jsonPath, T const& defaultVal, const Index & jsonIndex,
+	template<typename T, typename Status, typename Index>
+	inline T queryJSON(rstring const& jsonPath, T const& defaultVal, Status & status, Index const& jsonIndex,
 					   typename enable_if< typename mpl::or_<
 					   	   mpl::bool_< is_base_of<RString, T>::value>,
 						   mpl::bool_< is_same<ustring, T>::value>
@@ -511,11 +525,26 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 			THROW(SPL::SPLRuntimeOperator, "Invalid usage of 'queryJSON' function, 'parseJSON' function must be used before.");
 
 		Value * value = Pointer(jsonPath.c_str()).Get(json);
-		if(value && !value->IsNull() && value->IsString())
-			return value->GetString();
 
-		return defaultVal;
+		if(!value)
+			status = 3;
+		else if(value->IsNull())
+			status = 2;
+		else if(!value->IsString())
+			status = 1;
+		else
+			status = 0;
+
+		return status == 0 ? value->GetString() : defaultVal;
 	}
+
+	template<typename T, typename Index>
+	inline T queryJSON(rstring const& jsonPath, T const& defaultVal, Index const& jsonIndex) {
+
+		 int status = 0;
+		 return queryJSON(jsonPath, defaultVal, status, jsonIndex);
+	}
+
 }}}}
 
 #endif /* JSON_READER_H_ */
