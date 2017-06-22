@@ -14,6 +14,7 @@
 #include "rapidjson/reader.h"
 
 #include <stack>
+#include <streams_boost/lexical_cast.hpp>
 #include <streams_boost/mpl/or.hpp>
 #include <streams_boost/thread/tss.hpp>
 #include <streams_boost/type_traits.hpp>
@@ -64,7 +65,6 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 
 					if(objectStack.size() > 1) {
 						objectStack.pop();
-//						int & objectCount = objectStack.top().get<3>();
 						objectStack.top().objectCount++;
 					}
 					else {
@@ -458,30 +458,26 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 		return json.GetParseError();
 	}
 
-	template<typename T, typename Status, typename Index>
-	inline T queryJSON(rstring const& jsonPath, T defaultVal, Status & status, Index const& jsonIndex,
-					   typename enable_if<is_same<boolean, T>, void*>::type t = NULL) {
+	template<typename Status, typename Index>
+	inline boolean getJSONValue(Value * value, boolean defaultVal, Status & status, Index const& jsonIndex) {
 
-		Document & json = getDocument<Index, OperatorInstance>();
-		if(json.IsNull())
-			THROW(SPL::SPLRuntimeOperator, "Invalid usage of 'queryJSON' function, 'parseJSON' function must be used before.");
+		if(!value)					status = 4;
+		else if(value->IsNull())	status = 3;
+		else {
+			try {
+				if(value->IsBool())		{ status = 0; return static_cast<boolean>(value->GetBool()); }
+				if(value->IsString())	{ status = 1; return lexical_cast<boolean>(value->GetString()); }
+			}
+			catch(bad_lexical_cast const&) {}
 
-		Value * value = Pointer(jsonPath.c_str()).Get(json);
-
-		if(!value)
-			status = 3;
-		else if(value->IsNull())
 			status = 2;
-		else if(!value->IsBool())
-			status = 1;
-		else
-			status = 0;
+		}
 
-		return status == 0 ? boolean(value->GetBool()) : defaultVal;
+		return defaultVal;
 	}
 
 	template<typename T, typename Status, typename Index>
-	inline T queryJSON(rstring const& jsonPath, T defaultVal, Status & status, Index const& jsonIndex,
+	inline T getJSONValue(Value * value, T defaultVal, Status & status, Index const& jsonIndex,
 					   typename enable_if< typename mpl::or_<
 					   	   mpl::bool_< is_arithmetic<T>::value>,
 					   	   mpl::bool_< is_same<decimal32, T>::value>,
@@ -489,53 +485,81 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 						   mpl::bool_< is_same<decimal128, T>::value>
 					   >::type, void*>::type t = NULL) {
 
-		Document & json = getDocument<Index, OperatorInstance>();
-		if(json.IsNull())
-			THROW(SPL::SPLRuntimeOperator, "Invalid usage of 'queryJSON' function, 'parseJSON' function must be used before.");
-
-		Value * value = Pointer(jsonPath.c_str()).Get(json);
-
-		if(!value)
-			status = 3;
-		else if(value->IsNull())
-			status = 2;
+		if(!value)					{ status = 4; }
+		else if(value->IsNull())	{ status = 3; }
 		else {
-			if(value->IsInt())		{ status = 0; return static_cast<T>(value->GetInt()); }
-			if(value->IsUint())		{ status = 0; return static_cast<T>(value->GetUint()); }
-			if(value->IsInt64())	{ status = 0; return static_cast<T>(value->GetInt64()); }
-			if(value->IsUint64())	{ status = 0; return static_cast<T>(value->GetUint64()); }
-			if(value->IsFloat())	{ status = 0; return static_cast<T>(value->GetFloat()); }
-			if(value->IsDouble())	{ status = 0; return static_cast<T>(value->GetDouble()); }
+			try {
+				if(value->IsInt())		{ status = 0; return static_cast<T>(value->GetInt()); }
+				if(value->IsUint())		{ status = 0; return static_cast<T>(value->GetUint()); }
+				if(value->IsInt64())	{ status = 0; return static_cast<T>(value->GetInt64()); }
+				if(value->IsUint64())	{ status = 0; return static_cast<T>(value->GetUint64()); }
+				if(value->IsFloat())	{ status = 0; return static_cast<T>(value->GetFloat()); }
+				if(value->IsDouble())	{ status = 0; return static_cast<T>(value->GetDouble()); }
+				if(value->IsString())	{ status = 1; return lexical_cast<T>(value->GetString()); }
+			}
+			catch(bad_lexical_cast const&) {}
 
-			status = 1;
+			status = 2;
 		}
 
 		return defaultVal;
 	}
 
 	template<typename T, typename Status, typename Index>
-	inline T queryJSON(rstring const& jsonPath, T const& defaultVal, Status & status, Index const& jsonIndex,
+	inline T getJSONValue(Value * value, T const& defaultVal, Status & status, Index const& jsonIndex,
 					   typename enable_if< typename mpl::or_<
 					   	   mpl::bool_< is_base_of<RString, T>::value>,
 						   mpl::bool_< is_same<ustring, T>::value>
 					   >::type, void*>::type t = NULL) {
+
+		status = 0;
+
+		if(!value)					status = 4;
+		else if(value->IsNull())	status = 3;
+		else if(!value->IsString())	status = 2;
+		else 						return value->GetString();
+
+		return defaultVal;
+	}
+
+	template<typename T, typename Status, typename Index>
+	inline list<T> getJSONValue(Value * value, list<T> const& defaultVal, Status & status, Index const& jsonIndex) {
+
+		if(!value)					status = 4;
+		else if(value->IsNull())	status = 3;
+		else if(!value->IsArray())	status = 2;
+		else						status = 0;
+
+		if(status == 0) {
+			Value::Array arr = value->GetArray();
+			list<T> result;
+			result.reserve(arr.Size());
+			Status valueStatus = 0;
+
+			for (Value::Array::ValueIterator it = arr.Begin(); it != arr.End(); ++it) {
+				T val = getJSONValue(it, T(), valueStatus, jsonIndex);
+
+				if(valueStatus == 0)
+					result.push_back(val);
+				else if(valueStatus > status)
+					status = valueStatus;
+			}
+
+			return result;
+		}
+
+		return defaultVal;
+	}
+
+	template<typename T, typename Status, typename Index>
+	inline T queryJSON(rstring const& jsonPath, T const& defaultVal, Status & status, Index const& jsonIndex) {
 
 		Document & json = getDocument<Index, OperatorInstance>();
 		if(json.IsNull())
 			THROW(SPL::SPLRuntimeOperator, "Invalid usage of 'queryJSON' function, 'parseJSON' function must be used before.");
 
 		Value * value = Pointer(jsonPath.c_str()).Get(json);
-
-		if(!value)
-			status = 3;
-		else if(value->IsNull())
-			status = 2;
-		else if(!value->IsString())
-			status = 1;
-		else
-			status = 0;
-
-		return status == 0 ? value->GetString() : defaultVal;
+		return getJSONValue(value, defaultVal, status, jsonIndex);
 	}
 
 	template<typename T, typename Index>
