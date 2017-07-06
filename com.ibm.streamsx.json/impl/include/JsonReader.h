@@ -8,6 +8,8 @@
 #ifndef JSON_READER_H_
 #define JSON_READER_H_
 
+#define STREAMS_BOOST_LEXICAL_CAST_ASSUME_C_LOCALE
+
 #include "rapidjson/error/en.h"
 #include "rapidjson/document.h"
 #include "rapidjson/pointer.h"
