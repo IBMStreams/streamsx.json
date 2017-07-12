@@ -1,0 +1,37 @@
+namespace com.ibm.streamsx.json.sample.jtos;
+
+use com.ibm.streamsx.json::*;
+
+/**
+ * This sample shows how to parse and flatten JSON by using extractFromJSON function
+ * 
+ * The following rules apply for extractFromJSON:
+ * 1. Expects 2 arguments - JSON string and a mutable tuple (1)
+ * 2. Returns a result tuple as a reference to the input tuple (1)
+ * 3. If JSON level is missing in a target tuple then flattening occurs
+ * 3. Once all tuple attributes are found the parsing stops and the function returns immediately
+ * 
+ * Limitations:
+ * Nested JSON arrays are not supported:
+ * { arrays1 : [[1], [2]] } - not supported 
+ * { arrays2 : [ { a : [1] }, { a : [2] } ] } - supported 
+ */
+composite ExtractFromJSON {
+type
+	Flattened_t = rstring name, int32 age, list<rstring> relatives, rstring street, rstring city;
+	Nested_t = tuple<rstring name, int32 age, list<rstring> relatives> person, tuple<rstring street, rstring city> address;
+	
+graph
+	() as Test = Custom() {
+		logic
+			onProcess : {
+				rstring jsonString = '{"person" : {"name" : "John", "age" : 42, "relatives" : ["Jane","Mike"]}, "address" : {"street" : "Allen Street", "city" : "New York City"}}';
+
+				mutable Flattened_t flattenedTuple = {};
+				println( extractFromJSON(jsonString, flattenedTuple));
+
+				mutable Nested_t nestedTuple = {};
+				println( extractFromJSON(jsonString, nestedTuple));
+			}
+	}
+}
