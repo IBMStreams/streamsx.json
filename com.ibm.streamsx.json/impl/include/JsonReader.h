@@ -453,7 +453,7 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 	inline uint32_t  parseJSON(rstring const& jsonString, const Index & jsonIndex) {
 		Document & json = getDocument<Index, OperatorInstance>();
 
-		if(json.Parse<kParseIterativeFlag>(jsonString.c_str()).HasParseError()) {
+		if(json.Parse<kParseStopWhenDoneFlag>(jsonString.c_str()).HasParseError()) {
 			SPLAPPLOG(L_ERROR, GetParseError_En(json.GetParseError()), "QUERY_JSON");
 			json.SetObject();
 		}
