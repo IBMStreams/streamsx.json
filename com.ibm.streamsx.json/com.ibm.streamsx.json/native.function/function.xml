@@ -29,6 +29,196 @@ Convert a value to JSON object with a single key encoded as a serialized JSON st
 </function:description>
         <function:prototype>&lt;string S, any T> public rstring toJSON(S key, T value)</function:prototype>
       </function:function>
+      <function:function>
+        <function:description>
+Extract values from JSON string accordingly to a given tuple.
+@param jsonString The input JSON string.
+@param tuple A mutable tuple to save extracted values.
+@return Reference to the input tuple.
+</function:description>
+        <function:prototype>&lt;tuple T> public T extractFromJSON(rstring jsonString, T value)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>
+Parse JSON string (used in conjunction with queryJSON function).
+Threading limitations:
+Call to parseJSON should not be placed in param section or state of the operator (internally a json object is shared via the thread local storage).
+@param jsonString The input JSON string.
+@param jsonIndex Json index of enum type (e.g. enum{_1}).
+@return Error code (0 - no error).
+</function:description>
+        <function:prototype>&lt;enum E> public uint32 parseJSON(rstring jsonString, E jsonIndex)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>
+Query JSON object for boolean value with a given path (parseJSON function should be run before).
+Threading limitations:
+Call to queryJSON should not be placed in param section or state of the operator (internally a json object is shared via the thread local storage).
+@param jsonPath Path to a JSON attribute.
+@param defaultVal Default value to apply when an attribute not found.
+@param jsonIndex Json index of enum type (e.g. enum{_1}).
+@return JSON value.
+</function:description>
+        <function:prototype>&lt;enum E> public boolean queryJSON(rstring jsonPath, boolean defaultVal, E jsonIndex)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>
+Query JSON object value with a given path (parseJSON function should be run before).
+@param jsonPath Path to a JSON attribute.
+@param defaultVal Default value to apply when an attribute not found.
+@param status indicates a status of the query (0: found - type matched, 1: found - type did not matched, 2: found - value is null, 3: not found). 
+@param jsonIndex Json index of enum type (e.g. enum{_1}).
+@return JSON value.
+</function:description>
+        <function:prototype>&lt;enum E> public boolean queryJSON(rstring jsonPath, boolean defaultVal, mutable enum{FOUND, FOUND_CAST, FOUND_WRONG_TYPE, FOUND_NULL, NOT_FOUND} status, E jsonIndex)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>
+Query JSON object for integral value with a given path (parseJSON function should be run before).
+@param jsonPath Path to a JSON attribute.
+@param defaultVal Default value to apply when an attribute not found.
+@param jsonIndex Json index of enum type (e.g. enum{_1}).
+@return JSON value.
+</function:description>
+        <function:prototype>&lt;integral T, enum E> public T queryJSON(rstring jsonPath, T defaultVal, E jsonIndex)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>
+Query JSON object for integral value with a given path (parseJSON function should be run before).
+@param jsonPath Path to a JSON attribute.
+@param defaultVal Default value to apply when an attribute not found.
+@param status indicates a status of the query (0: found - type matched, 1: found - type did not matched, 2: found - value is null, 3: not found). 
+@param jsonIndex Json index of enum type (e.g. enum{_1}).
+@return JSON value.
+</function:description>
+        <function:prototype>&lt;integral T, enum E> public T queryJSON(rstring jsonPath, T defaultVal, mutable enum{FOUND, FOUND_CAST, FOUND_WRONG_TYPE, FOUND_NULL, NOT_FOUND} status, E jsonIndex)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>
+Query JSON object for floatingpoint value with a given path (parseJSON function should be run before).
+@param jsonPath Path to a JSON attribute.
+@param defaultVal Default value to apply when an attribute not found.
+@param jsonIndex Json index of enum type (e.g. enum{_1}).
+@return JSON value.
+</function:description>
+        <function:prototype>&lt;floatingpoint T, enum E> public T queryJSON(rstring jsonPath, T defaultVal, E jsonIndex)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>
+Query JSON object for floatingpoint value with a given path (parseJSON function should be run before).
+@param jsonPath Path to a JSON attribute.
+@param defaultVal Default value to apply when an attribute not found.
+@param status indicates a status of the query (0: found - type matched, 1: found - type did not matched, 2: found - value is null, 3: not found). 
+@param jsonIndex Json index of enum type (e.g. enum{_1}).
+@return JSON value.
+</function:description>
+        <function:prototype>&lt;floatingpoint T, enum E> public T queryJSON(rstring jsonPath, T defaultVal, mutable enum{FOUND, FOUND_CAST, FOUND_WRONG_TYPE, FOUND_NULL, NOT_FOUND} status, E jsonIndex)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>
+Query JSON object for string value with a given path (parseJSON function should be run before).
+@param jsonPath Path to a JSON attribute.
+@param defaultVal Default value to apply when an attribute not found.
+@param jsonIndex Json index of enum type (e.g. enum{_1}).
+@return JSON value.
+</function:description>
+        <function:prototype>&lt;string T, enum E> public T queryJSON(rstring jsonPath, T defaultVal, E jsonIndex)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>
+Query JSON object for string value with a given path (parseJSON function should be run before).
+@param jsonPath Path to a JSON attribute.
+@param defaultVal Default value to apply when an attribute not found.
+@param status indicates a status of the query (0: found - type matched, 1: found - type did not matched, 2: found - value is null, 3: not found). 
+@param jsonIndex Json index of enum type (e.g. enum{_1}).
+@return JSON value.
+</function:description>
+        <function:prototype>&lt;string T, enum E> public T queryJSON(rstring jsonPath, T defaultVal, mutable enum{FOUND, FOUND_CAST, FOUND_WRONG_TYPE, FOUND_NULL, NOT_FOUND} status, E jsonIndex)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>
+Query JSON object for list of booleans with a given path (parseJSON function should be run before).
+@param jsonPath Path to a JSON attribute.
+@param defaultVal Default value to apply when an attribute not found.
+@param jsonIndex Json index of enum type (e.g. enum{_1}).
+@return JSON value.
+</function:description>
+        <function:prototype>&lt;enum E> public list&lt;boolean> queryJSON(rstring jsonPath, list&lt;boolean> defaultVal, E jsonIndex)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>
+Query JSON object for list of booleans with a given path (parseJSON function should be run before).
+@param jsonPath Path to a JSON attribute.
+@param defaultVal Default value to apply when an attribute not found.
+@param status indicates a status of the query (0: found - type matched, 1: found - type did not matched, 2: found - value is null, 3: not found). 
+@param jsonIndex Json index of enum type (e.g. enum{_1}).
+@return JSON value.
+</function:description>
+        <function:prototype>&lt;enum E> public list&lt;boolean> queryJSON(rstring jsonPath, list&lt;boolean> defaultVal, mutable enum{FOUND, FOUND_CAST, FOUND_WRONG_TYPE, FOUND_NULL, NOT_FOUND} status, E jsonIndex)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>
+Query JSON object for list of integrals with a given path (parseJSON function should be run before).
+@param jsonPath Path to a JSON attribute.
+@param defaultVal Default value to apply when an attribute not found.
+@param jsonIndex Json index of enum type (e.g. enum{_1}).
+@return JSON value.
+</function:description>
+        <function:prototype>&lt;integral T, enum E> public list&lt;T> queryJSON(rstring jsonPath, list&lt;T> defaultVal, E jsonIndex)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>
+Query JSON object for list of integrals with a given path (parseJSON function should be run before).
+@param jsonPath Path to a JSON attribute.
+@param defaultVal Default value to apply when an attribute not found.
+@param status indicates a status of the query (0: found - type matched, 1: found - type did not matched, 2: found - value is null, 3: not found). 
+@param jsonIndex Json index of enum type (e.g. enum{_1}).
+@return JSON value.
+</function:description>
+        <function:prototype>&lt;integral T, enum E> public list&lt;T> queryJSON(rstring jsonPath, list&lt;T> defaultVal, mutable enum{FOUND, FOUND_CAST, FOUND_WRONG_TYPE, FOUND_NULL, NOT_FOUND} status, E jsonIndex)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>
+Query JSON object for list of floatingpoint values with a given path (parseJSON function should be run before).
+@param jsonPath Path to a JSON attribute.
+@param defaultVal Default value to apply when an attribute not found.
+@param jsonIndex Json index of enum type (e.g. enum{_1}).
+@return JSON value.
+</function:description>
+        <function:prototype>&lt;floatingpoint T, enum E> public list&lt;T> queryJSON(rstring jsonPath, list&lt;T> defaultVal, E jsonIndex)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>
+Query JSON object for list of floatingpoint values with a given path (parseJSON function should be run before).
+@param jsonPath Path to a JSON attribute.
+@param defaultVal Default value to apply when an attribute not found.
+@param status indicates a status of the query (0: found - type matched, 1: found - type did not matched, 2: found - value is null, 3: not found). 
+@param jsonIndex Json index of enum type (e.g. enum{_1}).
+@return JSON value.
+</function:description>
+        <function:prototype>&lt;floatingpoint T, enum E> public list&lt;T> queryJSON(rstring jsonPath, list&lt;T> defaultVal, mutable enum{FOUND, FOUND_CAST, FOUND_WRONG_TYPE, FOUND_NULL, NOT_FOUND} status, E jsonIndex)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>
+Query JSON object for list of strings with a given path (parseJSON function should be run before).
+@param jsonPath Path to a JSON attribute.
+@param defaultVal Default value to apply when an attribute not found.
+@param jsonIndex Json index of enum type (e.g. enum{_1}).
+@return JSON value.
+</function:description>
+        <function:prototype>&lt;string T, enum E> public list&lt;T> queryJSON(rstring jsonPath, list&lt;T> defaultVal, E jsonIndex)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>
+Query JSON object for list of strings with a given path (parseJSON function should be run before).
+@param jsonPath Path to a JSON attribute.
+@param defaultVal Default value to apply when an attribute not found.
+@param status indicates a status of the query (0: found - type matched, 1: found - type did not matched, 2: found - value is null, 3: not found). 
+@param jsonIndex Json index of enum type (e.g. enum{_1}).
+@return JSON value.
+</function:description>
+        <function:prototype>&lt;string T, enum E> public list&lt;T> queryJSON(rstring jsonPath, list&lt;T> defaultVal, mutable enum{FOUND, FOUND_CAST, FOUND_WRONG_TYPE, FOUND_NULL, NOT_FOUND} status, E jsonIndex)</function:prototype>
+      </function:function>
     </function:functions>
     <function:dependencies>
       <function:library>
