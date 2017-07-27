@@ -1,0 +1,71 @@
+namespace com.ibm.streamsx.json.sample.jtos;
+
+use com.ibm.streamsx.json::*;
+
+/**
+ * This sample shows how to parse and query JSON by using parseJSON/queryJSON functions
+ * 
+ * The following rules apply for parseJSON:
+ * 1. Expects 2 arguments - JSON string and JSON index (1)
+ * 2. Returns rc > 0 if parsing failed
+ * 
+ * The following rules apply for queryJSON:
+ * 1. parseJSON must be called once before calling queryJSON otherwise exception thrown
+ * 2. Expects 3 or 4 arguments - JSON path, default value, status (optional) and JSON index (1)
+ * 3. Status updated with one of {FOUND, FOUND_CAST, FOUND_WRONG_TYPE, FOUND_NULL, NOT_FOUND} values (if present)
+ * 4. Returns JSON value or default value (status not equal FOUND or FOUND_CAST)
+ * 
+ * Type limitations:
+ * Supported primitive types:  boolean, floatingpoint, integral, string - (2)
+ * Supported collection types: list<(2)> (list of supported primitive types)
+ * 
+ * Threading limitations:
+ * Calls to parseJSON or queryJSON should not be placed in param section or state of the operator
+ * (internally json object shared via thread local storage)
+ */
+composite QueryJSONBasic {
+type
+	Relatives_t =  list<rstring>;
+	Person_t = rstring name, int32 age, Relatives_t relatives, rstring street, rstring city;
+	
+graph
+	stream<Json> BStream = Beacon()  {
+        param iterations: 1;
+        output BStream: jsonString = '{"person" : {"name" : "John", "age" : 42, "relatives" : ["Jane","Mike"]}, "address" : {"street" : "Allen Street", "city" : "New York City"}}';
+    }
+	
+	stream<Person_t> Parsed = Functor(BStream) {
+		logic
+			state : mutable uint32 rc = 0u;
+			onTuple BStream : {
+				rc = parseJSON(jsonString, JsonIndex._1);
+				
+				// print all attributes with statuses
+				if(rc == 0u) {
+					mutable JsonStatus.status status = JsonStatus.NOT_FOUND;
+					printString("Person name: " + queryJSON("/person/name", "", status, JsonIndex._1) + " - ");				println(status);
+					printString("Person age: " + (rstring)queryJSON("/person/age", 0, JsonIndex._1) + " - ");				println(status);
+					printString("Person's first relative: " + queryJSON("/person/relatives/0", "", JsonIndex._1) + " - ");	println(status);
+					printString("Street: " + queryJSON("/address/street", "", JsonIndex._1) + " - ");						println(status);
+					printString("City: " + queryJSON("/address/city", "", JsonIndex._1) + " - ");							println(status);
+				}
+			}
+
+		param filter : rc == 0u; // filter a tuple if JSON parsing failed
+
+        output Parsed :
+        	name = queryJSON("/person/name", "", JsonIndex._1),
+        	age = queryJSON("/person/age", 0, JsonIndex._1),
+        	relatives = queryJSON("/person/relatives", (Relatives_t)[], JsonIndex._1),
+        	street = queryJSON("/address/street", "", JsonIndex._1),
+        	city = queryJSON("/address/city", "", JsonIndex._1);
+    }
+    
+    
+	() as Test = Custom(Parsed) {
+		logic
+			onTuple Parsed : {
+				println(Parsed);
+			}
+	}
+}
