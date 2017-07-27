@@ -41,6 +41,8 @@ Extract values from JSON string accordingly to a given tuple.
       <function:function>
         <function:description>
 Parse JSON string (used in conjunction with queryJSON function).
+Threading limitations:
+Call to parseJSON should not be placed in param section or state of the operator (internally a json object is shared via the thread local storage).
 @param jsonString The input JSON string.
 @param jsonIndex Json index of enum type (e.g. enum{_1}).
 @return Error code (0 - no error).
@@ -50,6 +52,8 @@ Parse JSON string (used in conjunction with queryJSON function).
       <function:function>
         <function:description>
 Query JSON object for boolean value with a given path (parseJSON function should be run before).
+Threading limitations:
+Call to queryJSON should not be placed in param section or state of the operator (internally a json object is shared via the thread local storage).
 @param jsonPath Path to a JSON attribute.
 @param defaultVal Default value to apply when an attribute not found.
 @param jsonIndex Json index of enum type (e.g. enum{_1}).
