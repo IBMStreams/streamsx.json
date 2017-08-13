@@ -452,6 +452,7 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 	template<typename Status, typename Index>
 	inline bool parseJSON(rstring const& jsonString, Status & status, uint32_t & offset, const Index & jsonIndex) {
 		Document & json = getDocument<Index, OperatorInstance>();
+		Document(kObjectType).Swap(json);
 
 		if(json.Parse<kParseStopWhenDoneFlag>(jsonString.c_str()).HasParseError()) {
 			json.SetObject();
