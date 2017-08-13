@@ -14,6 +14,8 @@
 #include "rapidjson/document.h"
 #include "rapidjson/pointer.h"
 #include "rapidjson/reader.h"
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/writer.h"
 
 #include <stack>
 #include <streams_boost/lexical_cast.hpp>
@@ -539,8 +541,35 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 
 		if(!value)					status = 4;
 		else if(value->IsNull())	status = 3;
-		else if(!value->IsString())	status = 2;
-		else 						return value->GetString();
+		else {
+			try {
+				switch (value->GetType()) {
+					case kStringType: {
+						status = 0;
+						return value->GetString();
+					}
+					case kFalseType: {
+						status = 1;
+						return "false";
+					}
+					case kTrueType: {
+						status = 1;
+						return "true";
+					}
+					case kNumberType: {
+						status = 1;
+						StringBuffer str;
+						Writer<StringBuffer> writer(str);
+						value->Accept(writer);
+						return str.GetString();
+					}
+					default:;
+				}
+			}
+			catch(bad_lexical_cast const&) {}
+
+			status = 2;
+		}
 
 		return defaultVal;
 	}
