@@ -16,11 +16,14 @@ composite Verifier(input InputS) {
 	graph
 		
 		stream<rstring jsonString> JsonS = 
-			com.ibm.streamsx.json::TupleToJSON(InputS)
-		{}
+			com.ibm.streamsx.json::TupleToJSON(InputS) {
+				param prefixToIgnore: "__";
+			}
+
 		stream<MyType> OutputS = 
-			com.ibm.streamsx.json::JSONToTuple(JsonS)
-		{}
+			com.ibm.streamsx.json::JSONToTuple(JsonS) {
+				param prefixToIgnore: "__";
+			}
 
 		() as SinkOp = Custom(InputS; OutputS) {
 		logic 
@@ -75,8 +78,9 @@ composite VerifierJTOT(input JsonS, ExpectedS) {
 	graph
 		
 		stream<MyType> OutputS = 
-			com.ibm.streamsx.json::JSONToTuple(JsonS)
-		{}
+			com.ibm.streamsx.json::JSONToTuple(JsonS) {
+				param prefixToIgnore: "__";
+			}
 
 		() as SinkOp = Custom(ExpectedS; OutputS) {
 		logic 

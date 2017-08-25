@@ -42,6 +42,8 @@ public class TupleToJSON extends AbstractOperator {
 	TupleAttribute<Tuple,?> rootAttr = null;
 	private String rootAttribute = null;
 	private Type rootAttributeType =null;
+	private boolean wasPrefixToIgnoreSpecified = false;
+	private String prefixToIgnore = null;
 	
 	private static Logger l = Logger.getLogger(TupleToJSON.class.getCanonicalName());
 
@@ -63,6 +65,25 @@ public class TupleToJSON extends AbstractOperator {
 		this.rootAttribute = value;
 	}
 
+	@Parameter(optional=true, description=
+			"Specifies a string that, if present, is removed from the start of an attribute name." +
+			"You can use this method for JSON that contains elements or attributes with SPL or C++ keywords." +
+			"For example:\\n" +
+			"\\n" + 
+			"    stream <rstring jsonString> A = TupleToJSON(Input) {\\n" + 
+			"      param ignorePrefix : \\\"__\\\";\\n" +
+			"    }\\n" +
+			"\\n" +
+			"This example accepts JSON of the following form: \\n" +
+			"\\n" +
+			"    {\\\"graph\\\" : \\\"value\\\"}\\n" +
+			"\\n" +
+			"Since graph is an SPL keyword, stream<rstring graph> as input schema of TupleToJSON is not valid SPL.")
+	public void setPrefixToIgnore(String value) {
+		this.prefixToIgnore = value;
+		wasPrefixToIgnoreSpecified=true;
+	}
+	
 	@Override
 	public void initialize(OperatorContext op) throws Exception {
 		super.initialize(op);
@@ -108,8 +129,7 @@ public class TupleToJSON extends AbstractOperator {
 		}
 		OutputTuple op = ops.newTuple();
 		op.assign(tuple);//copy over all relevant attributes form the source tuple
-        op.setString(jsonStringAttribute, jsonData);
-
+		op.setString(jsonStringAttribute, ((wasPrefixToIgnoreSpecified) ? jsonData.replaceAll("\""+this.prefixToIgnore, "\"") : jsonData));
 		ops.submit(op);
 	}
 
