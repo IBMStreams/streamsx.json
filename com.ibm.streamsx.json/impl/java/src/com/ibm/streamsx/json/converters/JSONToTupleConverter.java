@@ -31,6 +31,12 @@ public class JSONToTupleConverter {
 
 	private static Logger l = Logger.getLogger(JSONToTupleConverter.class.getCanonicalName());
 	
+	private static String prefixToIgnore = null; // null means prefixToIgnore is disabled
+	
+	public static void setPrefixToIgnore (String value) {
+		prefixToIgnore = value;
+	}
+	
 	/**
 	 * Convert JSON value to an SPL tuple attribute value. 
 	 * 
@@ -385,26 +391,28 @@ public class JSONToTupleConverter {
 	public static Map<String, Object> jsonToAtributeMap(JSONObject jbase, StreamSchema schema) throws Exception {
 		Map<String, Object> attrmap = new HashMap<String, Object>();
 		for(Attribute attr : schema) {
-			String name = attr.getName();
+			String nameToSearch = attr.getName();
+			if ((prefixToIgnore != null) && (attr.getName().startsWith(prefixToIgnore))) {
+				nameToSearch = attr.getName().substring(prefixToIgnore.length());
+			}
 			try {
 				if(l.isLoggable(TraceLevel.DEBUG)) {
-					l.log(TraceLevel.DEBUG, "Checking for: " + name); //$NON-NLS-1$
+					l.log(TraceLevel.DEBUG, "Checking for: " + nameToSearch); //$NON-NLS-1$
 				}
-				Object childobj = jbase.get(name);
+				Object childobj = jbase.get(nameToSearch);
 				if(childobj==null) {
 					if(l.isLoggable(TraceLevel.DEBUG)) {
-						l.log(TraceLevel.DEBUG, "Not Found: " + name); //$NON-NLS-1$
+						l.log(TraceLevel.DEBUG, "Not Found: " + nameToSearch); //$NON-NLS-1$
 					}
 					continue;
 				}
-				Object obj = jsonToAttribute(name, attr.getType(), childobj, null);
+				Object obj = jsonToAttribute(attr.getName(), attr.getType(), childobj, null);
 				if(obj!=null)
-					attrmap.put(name, obj);
-			}catch(Exception e) {
-				l.log(TraceLevel.ERROR, "Error converting object: " + name, e); //$NON-NLS-1$
+					attrmap.put(attr.getName(), obj);
+			} catch(Exception e) {
+				l.log(TraceLevel.ERROR, "Error converting object: " + attr.getName(), e); //$NON-NLS-1$
 				throw e;
 			}
-
 		}
 		return attrmap;
 	}

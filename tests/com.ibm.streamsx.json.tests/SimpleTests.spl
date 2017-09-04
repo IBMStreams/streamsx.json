@@ -85,3 +85,27 @@ composite NullBasicTest {
 		
 }
 
+composite ReservedKeywordTest {
+
+	type
+		MyType = rstring __type, rstring b, rstring __graph;
+
+	graph
+		stream<MyType> ExpectedS = Beacon() {
+		param
+			iterations : 1u;
+		output ExpectedS : __type="a", b="b", __graph="c";
+		}
+		stream<rstring jsonString> JsonS = Beacon() {
+		param
+			iterations : 1u;
+		output JsonS : jsonString = "{\"type\" : \"a\", \"b\" : \"b\", \"graph\" : \"c\"}";
+		}
+		() as SinkOp = VerifierJTOT(JsonS; ExpectedS) {} // verify JSONToTuple
+		
+		() as SinkOp1 = Verifier(ExpectedS) {}	// Verify TupleToJSON and JSONToTuple in a sequence
+	config 
+		tracing : debug;
+		
+}
+
