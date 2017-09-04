@@ -449,16 +449,35 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 		return *jsonPtr;
 	}
 
-	template<typename Index>
-	inline uint32_t  parseJSON(rstring const& jsonString, const Index & jsonIndex) {
+	template<typename Status, typename Index>
+	inline bool parseJSON(rstring const& jsonString, Status & status, uint32_t & offset, const Index & jsonIndex) {
 		Document & json = getDocument<Index, OperatorInstance>();
 
 		if(json.Parse<kParseStopWhenDoneFlag>(jsonString.c_str()).HasParseError()) {
-			SPLAPPLOG(L_ERROR, GetParseError_En(json.GetParseError()), "QUERY_JSON");
 			json.SetObject();
-		}
+			status = json.GetParseError();
+			offset = json.GetErrorOffset();
 
-		return json.GetParseError();
+			return false;
+		}
+		return true;
+	}
+
+	template<typename Index>
+	inline uint32_t  parseJSON(rstring const& jsonString, const Index & jsonIndex) {
+
+		ParseErrorCode status = kParseErrorNone;
+		uint32_t offset = 0;
+
+		if(!parseJSON(jsonString, status, offset, jsonIndex))
+			SPLAPPTRC(L_ERROR, GetParseError_En(status), "PARSE_JSON");
+
+		return (uint32_t)status;
+	}
+
+	template<typename Status>
+	inline rstring getParseError(Status const& status) {
+		return GetParseError_En((ParseErrorCode)status.getIndex());
 	}
 
 	template<typename Status, typename Index>
@@ -561,8 +580,17 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 		if(json.IsNull())
 			THROW(SPL::SPLRuntimeOperator, "Invalid usage of 'queryJSON' function, 'parseJSON' function must be used before.");
 
-		Value * value = Pointer(jsonPath.c_str()).Get(json);
-		return getJSONValue(value, defaultVal, status, jsonIndex);
+		const Pointer & pointer = Pointer(jsonPath.c_str());
+		PointerParseErrorCode ec = pointer.GetParseErrorCode();
+
+		if(pointer.IsValid()) {
+			Value * value = pointer.Get(json);
+			return getJSONValue(value, defaultVal, status, jsonIndex);
+		}
+		else {
+			status = ec + 4; // Pointer error codes in SPL enum should be shifted by 4
+			return defaultVal;
+		}
 	}
 
 	template<typename T, typename Index>
