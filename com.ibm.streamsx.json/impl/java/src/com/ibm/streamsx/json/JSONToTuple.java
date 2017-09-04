@@ -56,6 +56,8 @@ public class JSONToTuple extends AbstractOperator
 	private boolean wasTargetSpecified = false;
 	private boolean hasOptionalOut = false;
 	private TupleAttribute<Tuple,String> inputJsonAttribute = null;
+	private boolean wasPrefixToIgnoreSpecified = false;
+	private String prefixToIgnore = null;
 	
 	@Parameter(name=INPUT_JSON_ATTRIBUTE_PARAM,optional=true, description="The input stream attribute (not the name of the attribute) which contains the input JSON string. This attribute must be of `rstring` or `ustring` type. Default is the sole input attribute when the schema has one attribute otherwise `jsonString`. Replaces parameter `jsonStringAttribute`.")
 	public void setInputJson(TupleAttribute<Tuple,String> in) {
@@ -89,6 +91,25 @@ public class JSONToTuple extends AbstractOperator
 	public void setIgnoreParsingError(boolean value) {
 		ignoreParsingError = value;
 	}
+
+	@Parameter(optional=true, description=
+			"Specifies a string that, if present, is removed from the start of an attribute name." +
+			"You can use this method for JSON that contains elements or attributes with SPL or C++ keywords." +
+			"For example:\\n" +
+			"\\n" + 
+			"    stream <rstring __graph> A = JSONToTuple(Input) {\\n" + 
+			"      param ignorePrefix : \\\"__\\\";\\n" +
+			"    }\\n" +
+			"\\n" +
+			"This example accepts JSON of the following form: \\n" +
+			"\\n" +
+			"    {\\\"graph\\\" : \\\"value\\\"}\\n" +
+			"\\n" +
+			"Since graph is an SPL keyword, stream<rstring graph> A = JSONToTuple is not valid SPL.")
+	public void setPrefixToIgnore(String value) {
+		this.prefixToIgnore = value;
+		wasPrefixToIgnoreSpecified=true;
+	}	
 	
 	@ContextCheck
 	public static boolean checkOptionalPortSchema(OperatorContextChecker checker) {
@@ -130,6 +151,9 @@ public class JSONToTuple extends AbstractOperator
 			targetAttrType = TupleTypeVerifier.verifyAttributeType(ssOp0, targetAttribute, 
 	 					Arrays.asList(MetaType.TUPLE, MetaType.LIST, MetaType.BLIST, MetaType.SET, MetaType.BSET));
 			l.log(TraceLevel.INFO, "Will populate target field: " + targetAttribute); //$NON-NLS-1$
+		}
+		if (wasPrefixToIgnoreSpecified) {
+			JSONToTupleConverter.setPrefixToIgnore(this.prefixToIgnore);
 		}
 	}
 
