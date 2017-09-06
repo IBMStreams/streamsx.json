@@ -12,31 +12,16 @@ sidebar:
 {%include editme %}
 
 
-Place here an overview about the functionality of the toolkit.
-Don't repeat work by explaining things which are available in SPLDOC.
-SPLDOC shall be linked in this page 
+## SPLDOC
 
+[SPLDoc for the com.ibm.streamsx.json toolkit](https://ibmstreams.github.io/streamsx.json/com.ibm.streamsx.json/doc/spldoc/html/index.html)
 
-## Overview Sample header level 2
+[SPLDoc for the samples](https://ibmstreams.github.io/streamsx.json/samples/doc/json/html/index.html)
 
-Your text related to this topic 
+## Converter
 
-**ProTip:** This is a Pro-Tip
-{: .notice--info}
+[Package com.ibm.streamsx.json.converters](https://ibmstreams.github.io/streamsx.json/com.ibm.streamsx.json/doc/converters/index.html)
 
-### Overview Sample header level 3
+## Article
 
-Some text in this level
-
-Some shell command description
-
-```bash
-bundle install
-```
-
-### Overview Another Sample header level 3 
-
-**Note:** This is a Notize.
-{: .notice--warning}
-
-
+https://developer.ibm.com/streamsdev/docs/introducing-the-json-toolkit/

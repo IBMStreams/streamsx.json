@@ -11,29 +11,16 @@ sidebar:
 {% include toc %}
 {% include editme %}
 
- Describe in this page the general development process. Refer for build setup and test setup to the appropriate pages
 
+## Build
 
-## Development Heading level 2
+To compile the toolkit, run ant in the toolkit directory.
 
-Your text
+## Utilities
+### Type Helper
+A helper utility to assist in creating SPL tuples from JSON strings.  
 
-**ProTip:** This is a Pro-Tip
-{: .notice--info}
+```streamsx.json/com.ibm.streamsx.json/scripts/createTypes.sh <json file>```  
 
-### Development Heading level 3
-
-Some text
-
-Some shell command description
-
-```bash
-bundle install
-```
-
-### Development Another level 3 Heading
-
-**Note:** This is a Notize.
-{: .notice--warning}
-
-
+This utility expects at least one JSON string in the file. It will print SPL types that closely match the JSON structure. 
+Note that if there are any empty values in the JSON string, an UNKNOWN_TYPE type will be specified.

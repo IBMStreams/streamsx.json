@@ -12,28 +12,8 @@ sidebar:
 {% include editme %}
 
 
-Descripe on this page the general overview about the domain specific knowledge you want to explain further.
-Separate huge topics to own pages.
+With the increasing popularity of cloud-based solutions, the JSON format is becoming ever more ingrained in our applications. Take for example IBM Bluemix. Many of the services in Bluemix have REST APIs that use JSON as the common exchange format when sending or receiving data.
 
-## Knowledge Heading level 2
+This toolkit provides a simple and straight-forward way to convert from SPL-to-JSON and JSON-to-SPL.
 
-
-**ProTip:** This is a Pro-Tip
-{: .notice--info}
-
-### Knowledge Heading level 3
-
-Some text
-
-Some shell command description
-
-```bash
-bundle install
-```
-
-### Knowledge Another level 3 Heading
-
-**Note:** This is a Notize.
-{: .notice--warning}
-
-
+The toolkit contains only 2 operators, appropriately named: TupleToJSON and JSONToTuple. There are also native functions available to allow for converting tuples to JSON when using Custom operators.

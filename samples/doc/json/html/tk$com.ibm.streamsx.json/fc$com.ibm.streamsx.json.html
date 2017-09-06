@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en-us" lang="en-us">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="copyright" content="(C) Copyright 2005"/>
+<meta name="DC.rights.owner" content="(C) Copyright 2005"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="C++ Native Functions: com.ibm.streamsx.json"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="spldoc_functions"/>
+<link rel="stylesheet" type="text/css" href="../../html/commonltr.css"/>
+<link rel="stylesheet" type="text/css" href="../../html/spldoc.css"/>
+<title>C++ Native Functions: com.ibm.streamsx.json</title>
+</head>
+<body id="spldoc_functions">
+
+
+<h1 class="title topictitle1">C++ Native Functions: <tt class="ph tt">com.ibm.streamsx.json</tt></h1>
+
+<div class="body refbody">
+<div class="section">
+<p class="p">
+<a class="xref" href="../toolkits/toolkits.html">IBM Streams com.ibm.streamsx.json Toolkit and samples</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.json.html">com.ibm.streamsx.json 1.2.1.commit_cc3b08f</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.json.html">com.ibm.streamsx.json</a> &gt; C++ Native Functions</p>
+
+</div>
+
+<div class="section">
+This page documents native functions that can be invoked from SPL, including the SPL interfaces that can be used to invoke each of the native functions.
+</div>
+
+<div class="section">
+<p class="p splhead-1"><strong class="ph b"><a class="xref" href="../references/FunctionModel.html#spldoc_reference_function_model__functionset__functions">Functions</a></strong></p>
+<dl class="dl" compact="compact">
+ 
+   <dt class="dt dlterm splpart" id="spldoc_functions__mapToJSON.map:.:S.T:.:"><tt class="ph tt">      &lt;string S, any T&gt; public rstring mapToJSON(map&lt;S, T&gt; m)      </tt>   </dt>
+
+   <dd class="dd">
+<p class="p">Convert a map to JSON object encoded as a serialized JSON string. Blob, complex and xml values are converted to nulls.
+</p>
+
+   <dl class="dl">
+     <dt class="dt dlterm"/>
+<dd class="dd"/>
+
+     
+       <dt class="dt dlterm">Parameters</dt>
+
+       <dd class="dd">
+         <dl class="dl" compact="compact">
+           
+             <dt class="dt dlterm"><tt class="ph tt">m</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">Map containing key-value pairs to be converted to JSON. 
+</p>
+
+             </dd>
+
+           
+         </dl>
+
+       </dd>
+
+     
+     
+       <dt class="dt dlterm">Returns</dt>
+
+       <dd class="dd">
+
+<p class="p">Serialized JSON object containing all name-value pairs in <tt class="ph tt">m</tt>. 
+</p>
+       </dd>
+
+     
+</dl>
+
+   </dd>
+
+ 
+ 
+   <dt class="dt dlterm splpart" id="spldoc_functions__toJSON.S.T"><tt class="ph tt">      &lt;string S, any T&gt; public rstring toJSON(S key, T value)      </tt>   </dt>
+
+   <dd class="dd">
+<p class="p">Convert a value to JSON object with a single key encoded as a serialized JSON string. Blob, complex and xml values are converted to nulls.
+</p>
+
+   <dl class="dl">
+     <dt class="dt dlterm"/>
+<dd class="dd"/>
+
+     
+       <dt class="dt dlterm">Parameters</dt>
+
+       <dd class="dd">
+         <dl class="dl" compact="compact">
+           
+             <dt class="dt dlterm"><tt class="ph tt">key</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">Key for name-value pair to be converted to JSON. 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">value</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">Value for <tt class="ph tt">key</tt>. 
+</p>
+
+             </dd>
+
+           
+         </dl>
+
+       </dd>
+
+     
+     
+       <dt class="dt dlterm">Returns</dt>
+
+       <dd class="dd">
+
+<p class="p">Serialized JSON object containing single name-value pair. 
+</p>
+       </dd>
+
+     
+</dl>
+
+   </dd>
+
+ 
+ 
+   <dt class="dt dlterm splpart" id="spldoc_functions__tupleToJSON.T"><tt class="ph tt">      &lt;tuple T&gt; public rstring tupleToJSON(T t)      </tt>   </dt>
+
+   <dd class="dd">
+<p class="p">Convert a tuple to JSON object encoded as a serialized JSON String. Blob, complex and xml values are converted to nulls.
+</p>
+
+   <dl class="dl">
+     <dt class="dt dlterm"/>
+<dd class="dd"/>
+
+     
+       <dt class="dt dlterm">Parameters</dt>
+
+       <dd class="dd">
+         <dl class="dl" compact="compact">
+           
+             <dt class="dt dlterm"><tt class="ph tt">t</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">Tuple to be converted to JSON. 
+</p>
+
+             </dd>
+
+           
+         </dl>
+
+       </dd>
+
+     
+     
+       <dt class="dt dlterm">Returns</dt>
+
+       <dd class="dd">
+
+<p class="p">Tuple encoded as a serialized JSON object.
+</p>
+       </dd>
+
+     
+</dl>
+
+   </dd>
+
+ 
+</dl>
+
+</div>
+
+</div>
+
+
+</body>
+</html>
