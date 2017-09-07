@@ -514,13 +514,20 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 		else if(value->IsNull())	{ status = 3; }
 		else {
 			try {
-				if(value->IsInt())		{ status = 0; return static_cast<T>(value->GetInt()); }
-				if(value->IsUint())		{ status = 0; return static_cast<T>(value->GetUint()); }
-				if(value->IsInt64())	{ status = 0; return static_cast<T>(value->GetInt64()); }
-				if(value->IsUint64())	{ status = 0; return static_cast<T>(value->GetUint64()); }
-				if(value->IsFloat())	{ status = 0; return static_cast<T>(value->GetFloat()); }
-				if(value->IsDouble())	{ status = 0; return static_cast<T>(value->GetDouble()); }
-				if(value->IsString())	{ status = 1; return lexical_cast<T>(value->GetString()); }
+				if( is_same<SPL::int8, T>::value)		{ status = 0; return static_cast<T>(value->GetInt()); }
+				if( is_same<SPL::int16, T>::value)		{ status = 0; return static_cast<T>(value->GetInt()); }
+				if( is_same<SPL::int32, T>::value)		{ status = 0; return static_cast<T>(value->GetInt()); }
+				if( is_same<SPL::int64, T>::value)		{ status = 0; return static_cast<T>(value->GetInt64()); }
+				if( is_same<SPL::uint8, T>::value)		{ status = 0; return static_cast<T>(value->GetUint()); }
+				if( is_same<SPL::uint16, T>::value)		{ status = 0; return static_cast<T>(value->GetUint()); }
+				if( is_same<SPL::uint32, T>::value)		{ status = 0; return static_cast<T>(value->GetUint()); }
+				if( is_same<SPL::uint64, T>::value)		{ status = 0; return static_cast<T>(value->GetUint64()); }
+				if( is_same<SPL::float32, T>::value)	{ status = 0; return static_cast<T>(value->GetFloat()); }
+				if( is_same<SPL::float64, T>::value)	{ status = 0; return static_cast<T>(value->GetDouble()); }
+				if( is_same<SPL::decimal32, T>::value)	{ status = 0; return static_cast<T>(value->GetFloat()); }
+				if( is_same<SPL::decimal64, T>::value)	{ status = 0; return static_cast<T>(value->GetDouble()); }
+				if( is_same<SPL::decimal128, T>::value)	{ status = 0; return static_cast<T>(value->GetDouble()); }
+				if(value->IsString())					{ status = 1; return lexical_cast<T>(value->GetString()); }
 			}
 			catch(bad_lexical_cast const&) {}
 
