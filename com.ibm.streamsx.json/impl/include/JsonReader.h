@@ -14,6 +14,8 @@
 #include "rapidjson/document.h"
 #include "rapidjson/pointer.h"
 #include "rapidjson/reader.h"
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/writer.h"
 
 #include <stack>
 #include <streams_boost/lexical_cast.hpp>
@@ -452,6 +454,7 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 	template<typename Status, typename Index>
 	inline bool parseJSON(rstring const& jsonString, Status & status, uint32_t & offset, const Index & jsonIndex) {
 		Document & json = getDocument<Index, OperatorInstance>();
+		Document(kObjectType).Swap(json);
 
 		if(json.Parse<kParseStopWhenDoneFlag>(jsonString.c_str()).HasParseError()) {
 			json.SetObject();
@@ -507,23 +510,37 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 						   mpl::bool_< is_same<decimal128, T>::value>
 					   >::type, void*>::type t = NULL) {
 
-		if(!value)					{ status = 4; }
-		else if(value->IsNull())	{ status = 3; }
-		else {
+		if(!value)
+			status = 4;
+		else if(value->IsNull())
+			status = 3;
+		else if(value->IsNumber())	{
+			status = 0;
+
+			if( is_same<SPL::int8, T>::value)		return static_cast<T>(value->GetInt());
+			if( is_same<SPL::int16, T>::value)		return static_cast<T>(value->GetInt());
+			if( is_same<SPL::int32, T>::value)		return static_cast<T>(value->GetInt());
+			if( is_same<SPL::int64, T>::value)		return static_cast<T>(value->GetInt64());
+			if( is_same<SPL::uint8, T>::value)		return static_cast<T>(value->GetUint());
+			if( is_same<SPL::uint16, T>::value)		return static_cast<T>(value->GetUint());
+			if( is_same<SPL::uint32, T>::value)		return static_cast<T>(value->GetUint());
+			if( is_same<SPL::uint64, T>::value)		return static_cast<T>(value->GetUint64());
+			if( is_same<SPL::float32, T>::value)	return static_cast<T>(value->GetFloat());
+			if( is_same<SPL::float64, T>::value)	return static_cast<T>(value->GetDouble());
+			if( is_same<SPL::decimal32, T>::value)	return static_cast<T>(value->GetFloat());
+			if( is_same<SPL::decimal64, T>::value)	return static_cast<T>(value->GetDouble());
+			if( is_same<SPL::decimal128, T>::value)	return static_cast<T>(value->GetDouble());
+		}
+		else if(value->IsString())	{
+			status = 1;
+
 			try {
-				if(value->IsInt())		{ status = 0; return static_cast<T>(value->GetInt()); }
-				if(value->IsUint())		{ status = 0; return static_cast<T>(value->GetUint()); }
-				if(value->IsInt64())	{ status = 0; return static_cast<T>(value->GetInt64()); }
-				if(value->IsUint64())	{ status = 0; return static_cast<T>(value->GetUint64()); }
-				if(value->IsFloat())	{ status = 0; return static_cast<T>(value->GetFloat()); }
-				if(value->IsDouble())	{ status = 0; return static_cast<T>(value->GetDouble()); }
-				if(value->IsString())	{ status = 1; return lexical_cast<T>(value->GetString()); }
+				return lexical_cast<T>(value->GetString());
 			}
 			catch(bad_lexical_cast const&) {}
-
-			status = 2;
 		}
 
+		status = 2;
 		return defaultVal;
 	}
 
@@ -538,8 +555,35 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 
 		if(!value)					status = 4;
 		else if(value->IsNull())	status = 3;
-		else if(!value->IsString())	status = 2;
-		else 						return value->GetString();
+		else {
+			try {
+				switch (value->GetType()) {
+					case kStringType: {
+						status = 0;
+						return value->GetString();
+					}
+					case kFalseType: {
+						status = 1;
+						return "false";
+					}
+					case kTrueType: {
+						status = 1;
+						return "true";
+					}
+					case kNumberType: {
+						status = 1;
+						StringBuffer str;
+						Writer<StringBuffer> writer(str);
+						value->Accept(writer);
+						return str.GetString();
+					}
+					default:;
+				}
+			}
+			catch(bad_lexical_cast const&) {}
+
+			status = 2;
+		}
 
 		return defaultVal;
 	}
