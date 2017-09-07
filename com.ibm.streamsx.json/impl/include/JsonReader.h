@@ -510,30 +510,37 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 						   mpl::bool_< is_same<decimal128, T>::value>
 					   >::type, void*>::type t = NULL) {
 
-		if(!value)					{ status = 4; }
-		else if(value->IsNull())	{ status = 3; }
-		else {
+		if(!value)
+			status = 4;
+		else if(value->IsNull())
+			status = 3;
+		else if(value->IsNumber())	{
+			status = 0;
+
+			if( is_same<SPL::int8, T>::value)		return static_cast<T>(value->GetInt());
+			if( is_same<SPL::int16, T>::value)		return static_cast<T>(value->GetInt());
+			if( is_same<SPL::int32, T>::value)		return static_cast<T>(value->GetInt());
+			if( is_same<SPL::int64, T>::value)		return static_cast<T>(value->GetInt64());
+			if( is_same<SPL::uint8, T>::value)		return static_cast<T>(value->GetUint());
+			if( is_same<SPL::uint16, T>::value)		return static_cast<T>(value->GetUint());
+			if( is_same<SPL::uint32, T>::value)		return static_cast<T>(value->GetUint());
+			if( is_same<SPL::uint64, T>::value)		return static_cast<T>(value->GetUint64());
+			if( is_same<SPL::float32, T>::value)	return static_cast<T>(value->GetFloat());
+			if( is_same<SPL::float64, T>::value)	return static_cast<T>(value->GetDouble());
+			if( is_same<SPL::decimal32, T>::value)	return static_cast<T>(value->GetFloat());
+			if( is_same<SPL::decimal64, T>::value)	return static_cast<T>(value->GetDouble());
+			if( is_same<SPL::decimal128, T>::value)	return static_cast<T>(value->GetDouble());
+		}
+		else if(value->IsString())	{
+			status = 1;
+
 			try {
-				if( is_same<SPL::int8, T>::value)		{ status = 0; return static_cast<T>(value->GetInt()); }
-				if( is_same<SPL::int16, T>::value)		{ status = 0; return static_cast<T>(value->GetInt()); }
-				if( is_same<SPL::int32, T>::value)		{ status = 0; return static_cast<T>(value->GetInt()); }
-				if( is_same<SPL::int64, T>::value)		{ status = 0; return static_cast<T>(value->GetInt64()); }
-				if( is_same<SPL::uint8, T>::value)		{ status = 0; return static_cast<T>(value->GetUint()); }
-				if( is_same<SPL::uint16, T>::value)		{ status = 0; return static_cast<T>(value->GetUint()); }
-				if( is_same<SPL::uint32, T>::value)		{ status = 0; return static_cast<T>(value->GetUint()); }
-				if( is_same<SPL::uint64, T>::value)		{ status = 0; return static_cast<T>(value->GetUint64()); }
-				if( is_same<SPL::float32, T>::value)	{ status = 0; return static_cast<T>(value->GetFloat()); }
-				if( is_same<SPL::float64, T>::value)	{ status = 0; return static_cast<T>(value->GetDouble()); }
-				if( is_same<SPL::decimal32, T>::value)	{ status = 0; return static_cast<T>(value->GetFloat()); }
-				if( is_same<SPL::decimal64, T>::value)	{ status = 0; return static_cast<T>(value->GetDouble()); }
-				if( is_same<SPL::decimal128, T>::value)	{ status = 0; return static_cast<T>(value->GetDouble()); }
-				if(value->IsString())					{ status = 1; return lexical_cast<T>(value->GetString()); }
+				return lexical_cast<T>(value->GetString());
 			}
 			catch(bad_lexical_cast const&) {}
-
-			status = 2;
 		}
 
+		status = 2;
 		return defaultVal;
 	}
 
