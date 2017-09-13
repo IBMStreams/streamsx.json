@@ -478,6 +478,14 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 		return (uint32_t)status;
 	}
 
+	template<typename T>
+	inline T parseNumber(Value * value) {
+		StringBuffer str;
+		Writer<StringBuffer> writer(str);
+		value->Accept(writer);
+		return spl_cast<T,SPL::rstring>::cast( SPL::rstring(str.GetString()));
+	}
+
 	template<typename Status>
 	inline rstring getParseError(Status const& status) {
 		return GetParseError_En((ParseErrorCode)status.getIndex());
@@ -527,9 +535,9 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 			if( is_same<SPL::uint64, T>::value)		return static_cast<T>(value->GetUint64());
 			if( is_same<SPL::float32, T>::value)	return static_cast<T>(value->GetFloat());
 			if( is_same<SPL::float64, T>::value)	return static_cast<T>(value->GetDouble());
-			if( is_same<SPL::decimal32, T>::value)	return static_cast<T>(value->GetFloat());
-			if( is_same<SPL::decimal64, T>::value)	return static_cast<T>(value->GetDouble());
-			if( is_same<SPL::decimal128, T>::value)	return static_cast<T>(value->GetDouble());
+			if( is_same<SPL::decimal32, T>::value)	return parseNumber<T>(value);
+			if( is_same<SPL::decimal64, T>::value)	return parseNumber<T>(value);
+			if( is_same<SPL::decimal128, T>::value)	return parseNumber<T>(value);
 		}
 		else if(value->IsString())	{
 			status = 1;
@@ -537,10 +545,13 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 			try {
 				return lexical_cast<T>(value->GetString());
 			}
-			catch(bad_lexical_cast const&) {}
+			catch(bad_lexical_cast const&) {
+				status = 2;
+			}
 		}
+		else
+			status = 2;
 
-		status = 2;
 		return defaultVal;
 	}
 
@@ -572,10 +583,7 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 					}
 					case kNumberType: {
 						status = 1;
-						StringBuffer str;
-						Writer<StringBuffer> writer(str);
-						value->Accept(writer);
-						return str.GetString();
+						return parseNumber<T>(value);
 					}
 					default:;
 				}
