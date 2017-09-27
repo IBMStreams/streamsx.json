@@ -24,4 +24,4 @@ sidebar:
 
 ## Article
 
-https://developer.ibm.com/streamsdev/docs/introducing-the-json-toolkit/
+[https://developer.ibm.com/streamsdev/docs/introducing-the-json-toolkit/](https://developer.ibm.com/streamsdev/docs/introducing-the-json-toolkit/)
