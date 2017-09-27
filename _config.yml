@@ -16,6 +16,8 @@ baseurl                  : "/streamsx.json" # the subpath of your site, e.g. "/b
 repository               : "IBMStreams/streamsx.json" # GitHub username/repo-name
 github_base_url          : "https://github.com" # your github server, will differ when enterprise github
 github_editme_path       : https://github.com/IBMStreams/streamsx.json/blob/gh-pages
+spldoc_path              : &default_cta_url "/doc/spldoc/html"
+toolkit_excerpt          : &default_excerpt "The JSON toolkit allows you to convert data from JSON to Streams tuples format, and vice versa."
 teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
 # breadcrumbs            : false # true, false (default)
 words_per_minute         : 200
