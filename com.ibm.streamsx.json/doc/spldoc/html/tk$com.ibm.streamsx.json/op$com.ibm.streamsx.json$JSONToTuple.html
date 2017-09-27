@@ -22,12 +22,12 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBM Streams com.ibm.streamsx.json Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.json.html">com.ibm.streamsx.json 1.2.1.commit_cc3b08f</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.json.html">com.ibm.streamsx.json</a> &gt; JSONToTuple</p>
+<a class="xref" href="../toolkits/toolkits.html">IBM Streams com.ibm.streamsx.json Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.json.html">com.ibm.streamsx.json 1.4.3.commit_b028245</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.json.html">com.ibm.streamsx.json</a> &gt; JSONToTuple</p>
 
 </div>
 
 <div class="section splprimop">
-  <embed class="image" src="../../image/tk$com.ibm.streamsx.json/op$com.ibm.streamsx.json$JSONToTuple.svg" width="672" height="112"/>
+  <embed class="image" src="../../image/tk$com.ibm.streamsx.json/op$com.ibm.streamsx.json$JSONToTuple.svg" width="872" height="112"/>
 </div>
 
 <div class="section">
@@ -55,7 +55,11 @@
  
   <dt class="dt dlterm">Parameters</dt>
 
-  <dd class="dd">This operator supports 5 parameters. (<tt class="ph tt">ignoreParsingError, inputAttribute, jsonStringAttribute, jsonStringOutputAttribute, targetAttribute</tt>)
+  <dd class="dd">This operator supports 6 parameters.
+<p class="p"> Optional: 
+<a class="xref" href="#spldoc_operator__parameter__ignoreParsingError">ignoreParsingError</a>, <a class="xref" href="#spldoc_operator__parameter__inputAttribute">inputAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__jsonStringAttribute">jsonStringAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__jsonStringOutputAttribute">jsonStringOutputAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__prefixToIgnore">prefixToIgnore</a>, <a class="xref" href="#spldoc_operator__parameter__targetAttribute">targetAttribute</a>
+
+</p>
 </dd>
 
  
@@ -207,9 +211,14 @@
 
 <div class="section">
 <p class="p splhead-1"><strong class="ph b"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters">Parameters</a></strong></p>
-This operator supports 5 parameters.<dl class="dl">
+This operator supports 6 parameters.
+<p class="p"> Optional: 
+<a class="xref" href="#spldoc_operator__parameter__ignoreParsingError">ignoreParsingError</a>, <a class="xref" href="#spldoc_operator__parameter__inputAttribute">inputAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__jsonStringAttribute">jsonStringAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__jsonStringOutputAttribute">jsonStringOutputAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__prefixToIgnore">prefixToIgnore</a>, <a class="xref" href="#spldoc_operator__parameter__targetAttribute">targetAttribute</a>
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_ignoreParsingError"><tt class="ph tt">ignoreParsingError</tt></dt>
+</p>
+<dl class="dl">
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__ignoreParsingError"><!-- --></a><tt class="ph tt">ignoreParsingError</tt></dt>
 
 <dd class="dd">
 <p class="p">Ignore any JSON parsing errors.If the optional output port is enabled, then this parameter is ignored. JSON that cannot be parsed is sent on the optional output port. Default is false where the operator will fail if the JSON cannot be parsed.
@@ -240,7 +249,7 @@ This operator supports 5 parameters.<dl class="dl">
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_inputAttribute"><tt class="ph tt">inputAttribute</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__inputAttribute"><!-- --></a><tt class="ph tt">inputAttribute</tt></dt>
 
 <dd class="dd">
 <p class="p">The input stream attribute (not the name of the attribute) which contains the input JSON string. This attribute must be of <tt class="ph tt">rstring</tt> or <tt class="ph tt">ustring</tt> type. Default is the sole input attribute when the schema has one attribute otherwise <tt class="ph tt">jsonString</tt>. Replaces parameter <tt class="ph tt">jsonStringAttribute</tt>.
@@ -274,7 +283,7 @@ This operator supports 5 parameters.<dl class="dl">
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_jsonStringAttribute"><tt class="ph tt">jsonStringAttribute</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__jsonStringAttribute"><!-- --></a><tt class="ph tt">jsonStringAttribute</tt></dt>
 
 <dd class="dd">
 <p class="p">Deprecated.  Use <tt class="ph tt">inputAttribute</tt> instead. Name of the input stream attribute which contains the JSON string. This attribute must be of <tt class="ph tt">rstring</tt> or <tt class="ph tt">ustring</tt> type. Default is the sole input attribute when the schema has one attribute otherwise <tt class="ph tt">jsonString</tt>.
@@ -305,7 +314,7 @@ This operator supports 5 parameters.<dl class="dl">
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_jsonStringOutputAttribute"><tt class="ph tt">jsonStringOutputAttribute</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__jsonStringOutputAttribute"><!-- --></a><tt class="ph tt">jsonStringOutputAttribute</tt></dt>
 
 <dd class="dd">
 <p class="p">Name of the output stream attribute which should be populated with the incoming JSON string. This attribute must be of <tt class="ph tt">rstring</tt> or <tt class="ph tt">ustring</tt> type. Default is to ignore.
@@ -336,7 +345,62 @@ This operator supports 5 parameters.<dl class="dl">
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_targetAttribute"><tt class="ph tt">targetAttribute</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__prefixToIgnore"><!-- --></a><tt class="ph tt">prefixToIgnore</tt></dt>
+
+<dd class="dd">
+<p class="p">Specifies a string that, if present, is removed from the start of an attribute name.You can use this method for JSON that contains elements or attributes with SPL or C++ keywords.For example:
+</p>
+
+<div class="p">
+<pre class="pre codeblock">
+stream &lt;rstring __graph&gt; A = JSONToTuple(Input) {
+  param ignorePrefix : "__";
+}
+</pre>
+
+
+</div>
+
+<p class="p">This example accepts JSON of the following form: 
+</p>
+
+<div class="p">
+<pre class="pre codeblock">
+{"graph" : "value"}
+</pre>
+
+
+</div>
+
+<p class="p">Since graph is an SPL keyword, stream&lt;rstring graph&gt; A = JSONToTuple is not valid SPL.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__targetAttribute"><!-- --></a><tt class="ph tt">targetAttribute</tt></dt>
 
 <dd class="dd">
 <p class="p">Name of the output stream attribute which should be considered as the root of the JSON tuple to be populated. Note that this can only point to a tuple type or collection type attributes (list, set etc). If it points to a list, set etc type attribute, the input JSON is expected to be an array. Default is the output tuple root.

@@ -22,7 +22,7 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBM Streams com.ibm.streamsx.json Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.json.html">com.ibm.streamsx.json 1.2.1.commit_cc3b08f</a> &gt; com.ibm.streamsx.json</p>
+<a class="xref" href="../toolkits/toolkits.html">IBM Streams com.ibm.streamsx.json Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.json.html">com.ibm.streamsx.json 1.4.3.commit_b028245</a> &gt; com.ibm.streamsx.json</p>
 
 </div>
 
@@ -52,7 +52,67 @@
 <div class="section"><h2 class="title sectiontitle splhead-1">Functions</h2>
   
 <ul class="sl simple">
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__extractFromJSON.rstring.T">extractFromJSON(rstring, T)</a></strong>: Extract values from JSON string accordingly to a given tuple.
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__getParseError.JsonParseStatus.status">getParseError(JsonParseStatus.status)</a></strong>: Get parse error string.
+</li>
+
 <li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__mapToJSON.map:.:S.T:.:">mapToJSON(map&lt;S, T&gt;)</a></strong>: Convert a map to JSON object encoded as a serialized JSON string.
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__parseJSON.rstring.E">parseJSON(rstring, E)</a></strong>: Parse JSON string (used in conjunction with queryJSON function).
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__parseJSON.rstring.JsonParseStatus.status.uint32.E">parseJSON(rstring, JsonParseStatus.status, uint32, E)</a></strong>: Parse JSON string (used in conjunction with queryJSON function).
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.T.E">queryJSON(rstring, T, E)</a></strong>: Query JSON object for integral value with a given path (parseJSON function should be run before).
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.T.E">queryJSON(rstring, T, E)</a></strong>: Query JSON object for floatingpoint value with a given path (parseJSON function should be run before).
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.T.E">queryJSON(rstring, T, E)</a></strong>: Query JSON object for string value with a given path (parseJSON function should be run before).
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.T.JsonStatus.status.E">queryJSON(rstring, T, JsonStatus.status, E)</a></strong>: Query JSON object for integral value with a given path (parseJSON function should be run before).
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.T.JsonStatus.status.E">queryJSON(rstring, T, JsonStatus.status, E)</a></strong>: Query JSON object for floatingpoint value with a given path (parseJSON function should be run before).
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.T.JsonStatus.status.E">queryJSON(rstring, T, JsonStatus.status, E)</a></strong>: Query JSON object for string value with a given path (parseJSON function should be run before).
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.boolean.E">queryJSON(rstring, boolean, E)</a></strong>: Query JSON object for boolean value with a given path (parseJSON function should be run before).
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.boolean.JsonStatus.status.E">queryJSON(rstring, boolean, JsonStatus.status, E)</a></strong>: Query JSON object value with a given path (parseJSON function should be run before).
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.list:.:T:.:.E">queryJSON(rstring, list&lt;T&gt;, E)</a></strong>: Query JSON object for list of integrals with a given path (parseJSON function should be run before).
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.list:.:T:.:.E">queryJSON(rstring, list&lt;T&gt;, E)</a></strong>: Query JSON object for list of floatingpoint values with a given path (parseJSON function should be run before).
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.list:.:T:.:.E">queryJSON(rstring, list&lt;T&gt;, E)</a></strong>: Query JSON object for list of strings with a given path (parseJSON function should be run before).
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.list:.:T:.:.JsonStatus.status.E">queryJSON(rstring, list&lt;T&gt;, JsonStatus.status, E)</a></strong>: Query JSON object for list of integrals with a given path (parseJSON function should be run before).
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.list:.:T:.:.JsonStatus.status.E">queryJSON(rstring, list&lt;T&gt;, JsonStatus.status, E)</a></strong>: Query JSON object for list of floatingpoint values with a given path (parseJSON function should be run before).
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.list:.:T:.:.JsonStatus.status.E">queryJSON(rstring, list&lt;T&gt;, JsonStatus.status, E)</a></strong>: Query JSON object for list of strings with a given path (parseJSON function should be run before).
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.list:.:boolean:.:.E">queryJSON(rstring, list&lt;boolean&gt;, E)</a></strong>: Query JSON object for list of booleans with a given path (parseJSON function should be run before).
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.list:.:boolean:.:.JsonStatus.status.E">queryJSON(rstring, list&lt;boolean&gt;, JsonStatus.status, E)</a></strong>: Query JSON object for list of booleans with a given path (parseJSON function should be run before).
 </li>
 
 <li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__toJSON.S.T">toJSON(S, T)</a></strong>: Convert a value to JSON object with a single key encoded as a serialized JSON string.
@@ -69,6 +129,72 @@
   
 <ul class="sl simple">
 <li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__type__Json">Json</a></strong>: Default tuple type for representing JSON object.
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_1">JsonIndex.type_1</a></strong>
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_10">JsonIndex.type_10</a></strong>
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_11">JsonIndex.type_11</a></strong>
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_12">JsonIndex.type_12</a></strong>
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_13">JsonIndex.type_13</a></strong>
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_14">JsonIndex.type_14</a></strong>
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_15">JsonIndex.type_15</a></strong>
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_16">JsonIndex.type_16</a></strong>
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_17">JsonIndex.type_17</a></strong>
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_18">JsonIndex.type_18</a></strong>
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_19">JsonIndex.type_19</a></strong>
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_2">JsonIndex.type_2</a></strong>
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_20">JsonIndex.type_20</a></strong>
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_3">JsonIndex.type_3</a></strong>
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_4">JsonIndex.type_4</a></strong>
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_5">JsonIndex.type_5</a></strong>
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_6">JsonIndex.type_6</a></strong>
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_7">JsonIndex.type_7</a></strong>
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_8">JsonIndex.type_8</a></strong>
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_9">JsonIndex.type_9</a></strong>
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonParseStatus.status">JsonParseStatus.status</a></strong>
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonStatus.status">JsonStatus.status</a></strong>
 </li>
 
 </ul>
