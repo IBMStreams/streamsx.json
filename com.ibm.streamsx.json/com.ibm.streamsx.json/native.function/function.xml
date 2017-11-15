@@ -36,7 +36,7 @@ Extract values from JSON string accordingly to a given tuple.
 @param tuple A mutable tuple to save extracted values.
 @return Reference to the input tuple.
 </function:description>
-        <function:prototype>&lt;tuple T> public T extractFromJSON(rstring jsonString, T value)</function:prototype>
+        <function:prototype>&lt;tuple T> public T extractFromJSON(rstring jsonString, mutable T value)</function:prototype>
       </function:function>
       <function:function>
         <function:description>
