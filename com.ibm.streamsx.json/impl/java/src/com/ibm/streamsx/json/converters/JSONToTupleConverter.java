@@ -16,9 +16,11 @@ import com.ibm.streams.operator.Attribute;
 import com.ibm.streams.operator.StreamSchema;
 import com.ibm.streams.operator.Tuple;
 import com.ibm.streams.operator.Type;
+import com.ibm.streams.operator.Type.MetaType;
 import com.ibm.streams.operator.logging.LogLevel;
 import com.ibm.streams.operator.logging.TraceLevel;
 import com.ibm.streams.operator.meta.CollectionType;
+import com.ibm.streams.operator.meta.OptionalType;
 import com.ibm.streams.operator.meta.TupleType;
 import com.ibm.streams.operator.types.RString;
 import com.ibm.streams.operator.types.Timestamp;
@@ -54,7 +56,18 @@ public class JSONToTupleConverter {
           l.log(TraceLevel.DEBUG, "Converting Java value '" + jsonObj.toString() + "' of type " + jsonObj.getClass().getSimpleName() + " to SPL attribute " + name + " of type " + type.toString()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		}
 		try {
-			switch(type.getMetaType()) {
+			/* as elements with 'null' values in JSON input are not existing 
+			 * in the resulting parsed JSON object, which is source for all objects passed to this function,
+			 * we never reach here with jsonObj of 'null' value.
+			 * We handle the valid value of an optional element is for the 
+			 * base type. Assignment of base types to optional SPL type is supported implicit. */
+			MetaType attributeMetaType = type.getMetaType();
+			Boolean isOptional = false;
+			if (attributeMetaType == MetaType.OPTIONAL ) {
+				attributeMetaType = ((OptionalType)type).getValueType().getMetaType();
+				isOptional = true;
+			}
+			switch(attributeMetaType) {
 			case BOOLEAN:
 				if(jsonObj instanceof Boolean)
 					return (Boolean)jsonObj;
@@ -102,22 +115,49 @@ public class JSONToTupleConverter {
 			case BLIST:
 			{
 				//depending on the case, the java types for lists can be arrays or collections. 
-				if(!(((CollectionType)type).getElementType()).getMetaType().isCollectionType() &&
-						(parentType == null || !parentType.getMetaType().isCollectionType())) {
-					return arrayToSPLArray(name, (JSONArray) jsonObj, type);
+				/*
+				 * In case of optional LIST type we have first to get the ValueType of the optional before
+				 * getting its List BaseType.
+				 */
+				if (!isOptional) {
+					if(!(((CollectionType)type).getElementType()).getMetaType().isCollectionType() &&
+							(parentType == null || !parentType.getMetaType().isCollectionType())) {
+						return arrayToSPLArray(name, (JSONArray) jsonObj, type);
+					}
+					else {
+						List<Object> lst = new ArrayList<Object>();
+						arrayToCollection(name, lst, (JSONArray) jsonObj, type);
+						return lst;
+					}
 				}
 				else {
-					List<Object> lst = new ArrayList<Object>();
-					arrayToCollection(name, lst, (JSONArray) jsonObj, type);
-					return lst;
+					Type optionalBaseType = ((OptionalType)type).getValueType();
+					if (!((CollectionType)optionalBaseType).getElementType().getMetaType().isCollectionType() &&
+							(parentType == null || !parentType.getMetaType().isCollectionType())) {
+						return arrayToSPLArray(name, (JSONArray) jsonObj, optionalBaseType);
+					}
+					else {
+						List<Object> lst = new ArrayList<Object>();
+						arrayToCollection(name, lst, (JSONArray) jsonObj, optionalBaseType);
+						return lst;
+					}
 				}
 			}
-
 			case SET:
 			case BSET:
 			{
 				Set<Object> lst = new HashSet<Object>();
-				arrayToCollection(name, lst, (JSONArray) jsonObj, type);
+				/*
+				 * In case of optional LIST type we have first to get the ValueType of the optional before
+				 * getting its List BaseType.
+				 */
+				if (!isOptional) {
+					arrayToCollection(name, lst, (JSONArray) jsonObj, type);
+				}
+				else {
+					Type optionalBaseType = ((OptionalType)type).getValueType();
+					arrayToCollection(name, lst, (JSONArray) jsonObj, optionalBaseType);
+				}
 				return lst;
 			}
 
@@ -135,6 +175,8 @@ public class JSONToTupleConverter {
 			case BMAP:
 			case COMPLEX32:
 			case COMPLEX64:
+			case XML:
+			case ENUM:
 			default:
 				if(l.isLoggable(TraceLevel.DEBUG))
 					l.log(TraceLevel.DEBUG, "Ignoring unsupported field: " + name + ", of type: " + type); //$NON-NLS-1$ //$NON-NLS-2$
@@ -168,20 +210,56 @@ public class JSONToTupleConverter {
 		int cnt=0;
 		String cname = "List: " + name; //$NON-NLS-1$
 
-		switch(ctype.getElementType().getMetaType()) {
+		/* at this point we get anytime a collection type (no optionalType) 
+		 * but the element may be optional 
+		 * so element type has to be handled regarding optionalType */
+		Type collectionElementType = ctype.getElementType();
+		MetaType collectionElementMetaType = collectionElementType.getMetaType();
+		Boolean isOptional = false;
+		if (collectionElementMetaType  == MetaType.OPTIONAL ) {
+			collectionElementMetaType = ((OptionalType)collectionElementType).getValueType().getMetaType();
+			isOptional = true;
+		}
+
+		switch(collectionElementMetaType) {
 		case INT8:
 		case UINT8: 
 		{
 			List<Object> lst = new ArrayList<Object>();
 			for(Object jsonObj : jarr) {
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
-				if(obj!=null) lst.add(obj);
+				if(obj!=null) 
+					lst.add(obj);
+				else 
+					/* as JSON array has to be seen as ordered elements
+					 * existing null values in array have to be kept and not
+					 * silently suppressed as without optionalType  
+					 */
+					if (isOptional)
+						lst.add(null);
 			}
-
-			byte[] arr= new byte[lst.size()];
-			for(Object val : lst)
-				arr[cnt++] = (Byte)val;
-			return arr;
+			/* It's not quite obvious, but is is as it is:
+			 * 
+			 * SPL list<int16> attribute
+			 * expects assignment of java array type int[]
+			 * 
+			 * SPL list<uint16> attribute
+			 * expects assignment of java collection type arrayList<Object>
+			 * were Object is expected to be java.lang.Byte object
+			 * which is returned from jsonToAttribute()
+			 * 
+			 * When having List of OptionalType we need anyway to return
+			 * a ArrayList<Object>
+			 * */
+			if (collectionElementMetaType == MetaType.INT8 && !isOptional){
+				byte[] arr= new byte[lst.size()];
+				for(Object val : lst)
+					arr[cnt++] = (Byte)val;
+				return arr;
+				}
+			else {
+				return lst;
+			}
 		} 
 		case INT16:
 		case UINT16:
@@ -189,13 +267,39 @@ public class JSONToTupleConverter {
 			List<Object> lst = new ArrayList<Object>();
 			for(Object jsonObj : jarr) {
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
-				if(obj!=null) lst.add(obj);
+				if(obj!=null) 
+					lst.add(obj);
+				else 
+					/* as JSON array has to be seen as ordered elements
+					 * existing null values in array have to be kept and not
+					 * silently suppressed as without optionalType  
+					 */
+					if (isOptional)
+						lst.add(null);
+				
 			}
-
-			short[] arr= new short[lst.size()];
-			for(Object val : lst)
-				arr[cnt++] = (Short)val;
-			return arr;
+			/* It's not quite obvious, but is is as it is:
+			 * 
+			 * SPL list<int16> attribute
+			 * expects assignment of java array type int[]
+			 * 
+			 * SPL list<uint16> attribute
+			 * expects assignment of java collection type arrayList<Object>
+			 * were Object is expected to be java.lang.Short object
+			 * which is returned from jsonToAttribute()
+			 * 
+			 * When having List of OptionalType we need anyway to return
+			 * a ArrayList<Object>
+			 * */
+			if (collectionElementMetaType == MetaType.INT16 && !isOptional){
+				short[] arr= new short[lst.size()];
+				for(Object val : lst)
+					arr[cnt++] = (Short)val;
+				return arr;
+				}
+			else {
+				return lst;
+			}
 		} 
 		case INT32:
 		case UINT32:
@@ -203,13 +307,38 @@ public class JSONToTupleConverter {
 			List<Object> lst = new ArrayList<Object>();
 			for(Object jsonObj : jarr) {
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
-				if(obj!=null) lst.add(obj);
+				if(obj!=null) 
+					lst.add(obj);
+				else 
+					/* as JSON array has to be seen as ordered elements
+					 * existing null values in array have to be kept and not
+					 * silently suppressed as without optionalType  
+					 */
+					if (isOptional)
+						lst.add(null);
 			}
-
-			int[] arr= new int[lst.size()];
-			for(Object val : lst)
-				arr[cnt++] = (Integer)val;
-			return arr;
+			/* It's not quite obvious, but is is as it is:
+			 * 
+			 * SPL list<int32> attribute
+			 * expects assignment of java array int[]
+			 * 
+			 * SPL list<uint32> attribute
+			 * expects assignment of java collection type arrayList<Object>
+			 * were Object is expected to be java.lang.Integer object
+			 * which is returned from jsonToAttribute()
+			 * 
+			 * When having List of OptionalType we need anyway to return
+			 * a ArrayList<Object>
+			 * */
+			if (collectionElementMetaType == MetaType.INT32 && !isOptional){
+				int[] arr= new int[lst.size()];
+				for(Object val : lst)
+					arr[cnt++] = (Integer)val;
+				return arr;
+				}
+			else {
+				return lst;
+			}
 		} 
 
 		case INT64:
@@ -218,13 +347,39 @@ public class JSONToTupleConverter {
 			List<Object> lst = new ArrayList<Object>();
 			for(Object jsonObj : jarr) {
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
-				if(obj!=null) lst.add(obj);
-			}
+				if(obj!=null) 
+					lst.add(obj);
+				else 
+					/* as JSON array has to be seen as ordered elements
+					 * existing null values in array have to be kept and not
+					 * silently suppressed as without optionalType  
+					 */
+					if (isOptional)
+						lst.add(null);
 
-			long[] arr= new long[lst.size()];
-			for(Object val : lst)
-				arr[cnt++] = (Long)val;
-			return arr;
+			}
+			/* It's not quite obvious, but is is as it is:
+			 * 
+			 * SPL list<int16> attribute
+			 * expects assignment of java array type int[]
+			 * 
+			 * SPL list<uint16> attribute
+			 * expects assignment of java collection type arrayList<Object>
+			 * were Object is expected to be java.lang.Byte object
+			 * which is returned from jsonToAttribute()
+			 * 
+			 * When having List of OptionalType we need anyway to return
+			 * a ArrayList<Object>
+			 * */
+			if (collectionElementMetaType == MetaType.INT64 && !isOptional){
+				long[] arr= new long[lst.size()];
+				for(Object val : lst)
+					arr[cnt++] = (Long)val;
+				return arr;
+				}
+			else {
+				return lst;
+			}
 		} 
 
 		case BOOLEAN:
@@ -232,13 +387,27 @@ public class JSONToTupleConverter {
 			List<Object> lst = new ArrayList<Object>();
 			for(Object jsonObj : jarr) {
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
-				if(obj!=null) lst.add(obj);
+				if(obj!=null) 
+					lst.add(obj);
+				else 
+					/* as JSON array has to be seen as ordered elements
+					 * existing null values in array have to be kept and not
+					 * silently suppressed as without optionalType  
+					 */
+					if (isOptional)
+						lst.add(null);
 			}
 
-			boolean[] arr= new boolean[lst.size()];
-			for(Object val : lst)
-				arr[cnt++] = (Boolean)val;
-			return arr;
+			if (!isOptional){
+				boolean[] arr= new boolean[lst.size()];
+				for(Object val : lst)
+					arr[cnt++] = (Boolean)val;
+				return arr;
+				}
+			else {
+				return lst;
+			}
+
 		} 
 
 		case FLOAT32:
@@ -246,13 +415,30 @@ public class JSONToTupleConverter {
 			List<Object> lst = new ArrayList<Object>();
 			for(Object jsonObj : jarr) {
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
-				if(obj!=null) lst.add(obj);
+				if(obj!=null) 
+					lst.add(obj);
+				else 
+					/* as JSON array has to be seen as ordered elements
+					 * existing null values in array have to be kept and not
+					 * silently suppressed as without optionalType  
+					 */
+					if (isOptional)
+						lst.add(null);
 			}
 
-			float[] arr= new float[lst.size()];
-			for(Object val : lst)
-				arr[cnt++] = (Float)val;
-			return arr;
+			/*
+			 * When having List of OptionalType we need anyway to return
+			 * a ArrayList<Object>
+			 */
+			if (!isOptional){
+				float[] arr= new float[lst.size()];
+				for(Object val : lst)
+					arr[cnt++] = (Float)val;
+				return arr;
+				}
+			else {
+				return lst;
+			}
 		} 
 
 		case FLOAT64:
@@ -260,13 +446,29 @@ public class JSONToTupleConverter {
 			List<Object> lst = new ArrayList<Object>();
 			for(Object jsonObj : jarr) {
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
-				if(obj!=null) lst.add(obj);
+				if(obj!=null) 
+					lst.add(obj);
+				else 
+					/* as JSON array has to be seen as ordered elements
+					 * existing null values in array have to be kept and not
+					 * silently suppressed as without optionalType  
+					 */
+					if (isOptional)
+						lst.add(null);
 			}
 
-			double[] arr= new double[lst.size()];
-			for(Object val : lst)
-				arr[cnt++] = (Double)val;
-			return arr;
+			/*
+			 * When having List of OptionalType we need anyway to return
+			 * a ArrayList<Object>
+			 */
+			if (!isOptional){
+				double[] arr= new double[lst.size()];
+				for(Object val : lst)
+					arr[cnt++] = (Double)val;
+				return arr;
+			} else {
+				return lst;
+			}
 		} 
 
 		case USTRING:
@@ -276,18 +478,40 @@ public class JSONToTupleConverter {
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
 				if(obj != null) 
 					lst.add((String)obj);
+				else 
+					/* as JSON array has to be seen as ordered elements
+					 * existing null values in array have to be kept and not
+					 * silently suppressed as without optionalType  
+					 */
+					if (isOptional)
+						lst.add(null);
 			}
-			return lst.toArray(new String[lst.size()]);
+			/*
+			 * When having List of OptionalType we need anyway to return
+			 * a ArrayList<Object>
+			 */
+			if (!isOptional){
+				return lst.toArray(new String[lst.size()]);
+			} else {
+				return lst;
+			}
 		} 
 
 		case BSTRING:
 		case RSTRING:
 		{
-			List<RString> lst = new ArrayList<RString>(); 
+			List<RString> lst = new ArrayList<RString>();
 			for(Object jsonObj : jarr) {
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
-				if(obj != null) 
+				if(obj != null)  
 					lst.add((RString)obj);
+				else 
+					/* as JSON array has to be seen as ordered elements
+					 * existing null values in array have to be kept and not
+					 * silently suppressed as without optionalType  
+					 */
+					if (isOptional)
+						lst.add(null);
 			}
 			return lst;
 		}
@@ -299,6 +523,13 @@ public class JSONToTupleConverter {
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
 				if(obj != null) 
 					lst.add((Tuple)obj);
+				else 
+					/* as JSON array has to be seen as ordered elements
+					 * existing null values in array have to be kept and not
+					 * silently suppressed as without optionalType  
+					 */
+					if (isOptional)
+						lst.add(null);
 			}
 			return lst;
 		}
@@ -311,6 +542,13 @@ public class JSONToTupleConverter {
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
 				if(obj != null) 
 					lst.add(obj);
+				else 
+					/* as JSON array has to be seen as ordered elements
+					 * existing null values in array have to be kept and not
+					 * silently suppressed as without optionalType  
+					 */
+					if (isOptional)
+						lst.add(null);
 			}
 			return lst;
 		}
@@ -320,6 +558,19 @@ public class JSONToTupleConverter {
 			Set<Object> lst = new HashSet<Object>(); 
 			for(Object jsonObj : jarr) {
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
+
+				/*
+				 * For Set it doesn't make sense to add null values as they are unordered.
+				 * There is no information deriveable from a NULL in a set, in contrast 
+				 * to a List which is an ordered collection where even the position of a
+				 * NULL can give an information about just the element expected on this position
+				 * in the List. 
+				 * So we don't add a null value to the Set on logical reason. 
+				 * But even the Java HashSet wouldn't support adding NULL.
+				 * 
+				 * So a JSON array mapped to a SPL Set attribute will loose any NULL values
+				 * and the Set may be empty if the was only NULL in the JSON array.  
+				 * */
 				if(obj != null) 
 					lst.add(obj);
 			}
@@ -334,6 +585,13 @@ public class JSONToTupleConverter {
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
 				if(obj != null) 
 					lst.add((BigDecimal)obj);
+				else 
+					/* as JSON array has to be seen as ordered elements
+					 * existing null values in array have to be kept and not
+					 * silently suppressed as without optionalType  
+					 */
+					if (isOptional)
+						lst.add(null);
 			}
 			return lst;
 		}
@@ -344,6 +602,13 @@ public class JSONToTupleConverter {
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
 				if(obj != null) 
 					lst.add((Timestamp)obj);
+				else 
+					/* as JSON array has to be seen as ordered elements
+					 * existing null values in array have to be kept and not
+					 * silently suppressed as without optionalType  
+					 */
+					if (isOptional)
+						lst.add(null);
 			}
 			return lst;
 		}
@@ -355,6 +620,8 @@ public class JSONToTupleConverter {
 		case BMAP:
 		case COMPLEX32:
 		case COMPLEX64:
+		case ENUM:
+		case XML:
 		default:
 		{
 			l.log(LogLevel.ERROR, Messages.getString("UNHANDLED_ARRAY_TYPE"), new Object[]{ctype.getElementType().getMetaType()});	//$NON-NLS-1$
