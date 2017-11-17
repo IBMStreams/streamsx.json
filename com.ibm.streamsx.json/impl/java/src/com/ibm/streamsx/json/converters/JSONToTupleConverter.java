@@ -162,7 +162,13 @@ public class JSONToTupleConverter {
 			}
 
 			case TUPLE:
-				return jsonToTuple((JSONObject)jsonObj, ((TupleType)type).getTupleSchema());
+				if (!isOptional) {
+					return jsonToTuple((JSONObject)jsonObj, ((TupleType)type).getTupleSchema());
+				}
+				else {
+					Type optionalBaseType = ((OptionalType)type).getValueType();
+					return jsonToTuple((JSONObject)jsonObj, ((TupleType)optionalBaseType).getTupleSchema());
+				}
 
 			case TIMESTAMP:
 				if(jsonObj instanceof Number)
