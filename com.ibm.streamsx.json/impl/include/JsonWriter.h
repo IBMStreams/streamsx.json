@@ -86,6 +86,81 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 				writeTuple(writer, valueHandle);
 				break;
 			}
+			case Meta::Type::OPTIONAL : {
+				/*
+				 * optional meta type needs to be checked first if a value is present
+				 * if it is present the value meta type has to be detected and the value itself
+				 * will be handled as it's non-optional
+				 * - primitive types will be handled by writePrimitive
+				 * - composite types by their appropriate write... function
+				 * if it is not present a null value should be written
+				 */
+				if (((const SPL::Optional&)valueHandle).isPresent())
+				{
+					switch (((const SPL::Optional&)valueHandle).getValueMetaType()) {
+						case Meta::Type::BOOLEAN :
+						case Meta::Type::ENUM :
+						case Meta::Type::INT8 :
+						case Meta::Type::INT16 :
+						case Meta::Type::INT32 :
+						case Meta::Type::INT64 :
+						case Meta::Type::UINT8 :
+						case Meta::Type::UINT16 :
+						case Meta::Type::UINT32 :
+						case Meta::Type::UINT64 :
+						case Meta::Type::FLOAT32 :
+						case Meta::Type::FLOAT64 :
+						case Meta::Type::DECIMAL32 :
+						case Meta::Type::DECIMAL64 :
+						case Meta::Type::DECIMAL128 :
+						case Meta::Type::COMPLEX32 :
+						case Meta::Type::COMPLEX64 :
+						case Meta::Type::TIMESTAMP :
+						case Meta::Type::BSTRING :
+						case Meta::Type::RSTRING :
+						case Meta::Type::USTRING :
+						case Meta::Type::BLOB :
+						case Meta::Type::XML : {
+							writePrimitive(writer, ((const SPL::Optional&)valueHandle).getValue());
+							break;
+						}
+						case Meta::Type::LIST : {
+							writeArray<List,ConstListIterator>(writer, ((const SPL::Optional&)valueHandle).getValue());
+							break;
+						}
+						case Meta::Type::BLIST : {
+							writeArray<BList,ConstListIterator>(writer, ((const SPL::Optional&)valueHandle).getValue());
+							break;
+						}
+						case Meta::Type::SET : {
+							writeArray<Set,ConstSetIterator>(writer, ((const SPL::Optional&)valueHandle).getValue());
+							break;
+						}
+						case Meta::Type::BSET : {
+							writeArray<BSet,ConstSetIterator>(writer, ((const SPL::Optional&)valueHandle).getValue());
+							break;
+						}
+						case Meta::Type::MAP :
+							writeMap<Map,ConstMapIterator>(writer, ((const SPL::Optional&)valueHandle).getValue());
+							break;
+						case Meta::Type::BMAP : {
+							writeMap<BMap,ConstMapIterator>(writer, ((const SPL::Optional&)valueHandle).getValue());
+							break;
+						}
+						case Meta::Type::TUPLE : {
+							writeTuple(writer, ((const SPL::Optional&)valueHandle).getValue());
+							break;
+						}
+						default:
+							writer.Null();
+					}
+				}
+				else {
+					// write null if optional is not present
+					writer.Null();
+				}
+				break;
+			} //end case optional
 			default:
 				writePrimitive(writer, valueHandle);
 		}
@@ -272,6 +347,33 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 
 		return s.GetString();
 	}
+
+	/*
+	 * overwrite the mapToJSON for optional map types
+	 *
+	 * works exactly as mapToJSON except the case where the
+	 * the parameter value is null. In this case an empty object
+	 * represented by {} will be generated, to get a valid JSON
+	 * string. It is the same as for an empty map. SO one can
+	 * never reinterpret this one to a map type with NULL value.
+	 */
+	template<class MAP>
+	inline SPL::rstring mapToJSON(SPL::optional<MAP> const& map) {
+
+	    StringBuffer s;
+	    Writer<StringBuffer> writer(s);
+
+		if (((const SPL::Optional&)ConstValueHandle(map)).isPresent()) {
+			writeAny(writer, ConstValueHandle(map));
+		}
+		else {
+			writer.StartObject();
+			writer.EndObject();
+		}
+
+		return s.GetString();
+	}
+
 
 	template<class String, class SPLAny>
 	inline SPL::rstring toJSON(String const& key, SPLAny const& splAny) {

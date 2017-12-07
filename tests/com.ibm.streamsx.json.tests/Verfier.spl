@@ -198,3 +198,59 @@ composite VerifierArray(input InputS) {
 		}
 	
 }
+
+//utility class
+/*
+* Just compare two input streams of same type.
+*/
+composite TupleVerifier(input InputS1,InputS2) {
+
+
+	type
+		MyType = InputS1;
+
+	graph
+		
+		() as SinkOp = Custom(InputS1; InputS2) {
+		logic 
+			state : {
+			mutable list<MyType> inputs1 ;
+			mutable list<MyType> inputs2 ;
+			}
+			onTuple InputS1 : {
+				if(size(inputs2) > 0) {	
+				log(Sys.info,(rstring)InputS1);
+					MyType val = inputs2[0];
+					remove(inputs2, 0);
+					
+					if(val != InputS1) {
+						log(Sys.error,"ERROR Does not match: " + (rstring)InputS1 + " and " + (rstring)val);
+						shutdownPE();
+					}
+				}
+				else {
+					log(Sys.info,"Appending: "+ (rstring)InputS1);
+					appendM(inputs1, InputS1);
+				}
+			}
+			onTuple InputS2 : {
+				if(size(inputs1) > 0) {					
+				log(Sys.info,(rstring)InputS2);
+					MyType val = inputs1[0];
+					remove(inputs1, 0);
+					
+					if(val != InputS2) {
+						log(Sys.error,"ERROR Does not match: " + (rstring)(rstring)InputS2 + " and " + (rstring)val);
+						shutdownPE();
+					}
+				}
+				else {
+					log(Sys.info,"Appending: "+ (rstring)InputS2);
+					appendM(inputs2, InputS2);
+				}
+			}
+			
+		}
+	
+}
+
