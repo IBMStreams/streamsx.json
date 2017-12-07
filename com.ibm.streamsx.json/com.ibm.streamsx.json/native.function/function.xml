@@ -26,7 +26,7 @@ Timestamp is converted to a date string representation.
       <function:function>
         <function:description>
 Convert a map to JSON object. Blob, complex and xml values are converted to nulls.
-An optional map having a null value will give an empty JSON object {}.  
+An optional map having a null value will give an empty JSON object \{\}.  
 @param m Map containing key-value pairs to be converted to JSON.
 @return Serialized JSON object containing all name-value pairs in `m`.
 </function:description>
