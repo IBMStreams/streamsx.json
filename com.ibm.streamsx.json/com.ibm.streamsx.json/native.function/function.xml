@@ -48,7 +48,7 @@ Extract values from JSON string accordingly to a given tuple.  Blob, complex, xm
 Collections don't support nesting. 
 Optional types are supported for primitive types and list and set of primitive types only. Optional bounded types are not supported. 
 @param jsonString The input JSON string.
-@param tuple A mutable tuple to save extracted values.
+@param value A mutable tuple to save extracted values.
 @return Reference to the input tuple.
 </function:description>
         <function:prototype>&lt;tuple T> public T extractFromJSON(rstring jsonString, mutable T value)</function:prototype>
