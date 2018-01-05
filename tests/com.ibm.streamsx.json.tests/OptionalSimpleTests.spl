@@ -13,7 +13,7 @@ composite Optional_BasicTest {
 		MyType =
 		 	rstring rstringAtt, optional<rstring> rstringAttOptNull, optional<rstring> rstringAttOptVal,
 			ustring ustringAtt, optional<ustring> ustringAttOptNull, optional<ustring> ustringAttOptVal,
-//			rstring[10] bstringAtt, optional<rstring[10]> bstringAttOptNull, optional<rstring[10]> bstringAttOptVal,
+			rstring[10] bstringAtt, optional<rstring[10]> bstringAttOptNull, optional<rstring[10]> bstringAttOptVal,
 			int8 int8Att, optional<int8> int8AttOptNull, optional<int8> int8AttOptVal,
 			int16 int16Att, optional<int16> int16AttOptNull, optional<int16> int16AttOptVal,
 			int32 int32Att, optional<int32> int32AttOptNull, optional<int32> int32AttOptVal,
@@ -38,7 +38,7 @@ composite Optional_BasicTest {
 		output InputS : 
 			rstringAtt = "rStringValue", rstringAttOptNull = null, rstringAttOptVal = "rStringValue",
 			ustringAtt = "uStringValue"u, ustringAttOptNull = null, ustringAttOptVal = "uStringValue"u,
-//			bstringAtt = (rstring[10])"0123456789", bstringAttOptNull = null, bstringAttOptVal = null,
+			bstringAtt = (rstring[10])"0123456789", bstringAttOptNull = null, bstringAttOptVal = (rstring[10])"0123456789",
 			int8Att=10bs , int8AttOptNull=null , int8AttOptVal=-99bs,
 			int16Att=10hs , int16AttOptNull=null , int16AttOptVal=-99hs,
 			int32Att=10ws , int32AttOptNull=null , int32AttOptVal=-99ws,
@@ -68,7 +68,7 @@ composite Optional_OptionalListTest {
 		MyType = 
 			list<rstring> rstringList, optional<list<rstring>> rstringListOptNull,  optional<list<rstring>> rstringListOptVal,
 			list<ustring> ustringList, optional<list<ustring>> ustringListOptNull,  optional<list<ustring>> ustringListOptVal,
-//			list<rstring[10]> bstringList, optional<list<rstring[10]>> bstringListOptNull,  optional<list<rstring[10]>> bstringListOptVal,
+			list<rstring[10]> bstringList, optional<list<rstring[10]>> bstringListOptNull,  optional<list<rstring[10]>> bstringListOptVal,
 			list<int8> int8List,  optional<list<int8>> int8ListOptNull, optional<list<int8>> int8ListOptVal,
 			list<int16> int16List,  optional<list<int16>> int16ListOptNull, optional<list<int16>> int16ListOptVal,
 			list<int32> int32List,  optional<list<int32>> int32ListOptNull, optional<list<int32>> int32ListOptVal,
@@ -92,7 +92,7 @@ composite Optional_OptionalListTest {
 		output InputS : 
 			rstringList=[ "a", "b", "c"] , rstringListOptNull=null, rstringListOptVal=[ "a", "b", "c"],
 			ustringList=[ "a"u, "b"u, "c"u] , ustringListOptNull=null, ustringListOptVal=[ "a"u, "b"u, "c"u],
-//			bstringList=[ "a", "b", "0123456789"] , bstringListOptNull=null, bstringListOptVal=[ "a", "b", "0123456789"],
+			bstringList=[ (rstring[10])"a", (rstring[10])"b", (rstring[10])"0123456789"] , bstringListOptNull=null, bstringListOptVal=[ (rstring[10])"a", (rstring[10])"b", (rstring[10])"0123456789"],
 			int8List=[1bs,2bs,3bs],  int8ListOptNull=null, int8ListOptVal=[1bs,2bs,3bs],
 			int16List=[1hs,2hs,3hs], int16ListOptNull=null, int16ListOptVal=[1hs,2hs,3hs],
 			int32List=[1ws,2ws,3ws], int32ListOptNull=null, int32ListOptVal=[1ws,2ws,3ws],
@@ -122,7 +122,7 @@ composite Optional_OptionalSetTest {
 		MyType = 
 			set<rstring> rstringSet, optional<set<rstring>> rstringSetOptNull,  optional<set<rstring>> rstringSetOptVal,
 			set<ustring> ustringSet, optional<set<ustring>> ustringSetOptNull,  optional<set<ustring>> ustringSetOptVal,
-//			set<rstring[10]> bstringSet, optional<set<rstring[10]>> bstringSetOptNull,  optional<set<rstring[10]>> bstringSetOptVal,
+			set<rstring[10]> bstringSet, optional<set<rstring[10]>> bstringSetOptNull,  optional<set<rstring[10]>> bstringSetOptVal,
 			set<int8> int8Set,  optional<set<int8>> int8SetOptNull, optional<set<int8>> int8SetOptVal,
 			set<int16> int16Set,  optional<set<int16>> int16SetOptNull, optional<set<int16>> int16SetOptVal,
 			set<int32> int32Set,  optional<set<int32>> int32SetOptNull, optional<set<int32>> int32SetOptVal,
@@ -146,7 +146,7 @@ composite Optional_OptionalSetTest {
 		output InputS : 
 			rstringSet={ "a", "b", "c"} , rstringSetOptNull=null, rstringSetOptVal={ "a", "b", "c"},
 			ustringSet={ "a"u, "b"u, "c"u} , ustringSetOptNull=null, ustringSetOptVal={ "a"u, "b"u, "c"u},
-//			bstringSet={ "a", "b", "0123456789"} , bstringSetOptNull=null, bstringSetOptVal={ "a", "b", "0123456789"},
+			bstringSet={ (rstring[10])"a", (rstring[10])"b", (rstring[10])"0123456789"} , bstringSetOptNull=null, bstringSetOptVal={ (rstring[10])"a", (rstring[10])"b", (rstring[10])"0123456789"},
 			int8Set={1bs,2bs,3bs},  int8SetOptNull=null, int8SetOptVal={1bs,2bs,3bs},
 			int16Set={1hs,2hs,3hs}, int16SetOptNull=null, int16SetOptVal={1hs,2hs,3hs},
 			int32Set={1ws,2ws,3ws}, int32SetOptNull=null, int32SetOptVal={1ws,2ws,3ws},
@@ -177,6 +177,7 @@ composite Optional_ListOfOptionalTest {
 		MyType = 
 			list<rstring> rstringList, list<optional<rstring>> rstringListOptNull, list<optional<rstring>> rstringListOptVal, list<optional<rstring>> rstringListOptValMix,
 			list<ustring> ustringList, list<optional<ustring>> ustringListOptNull, list<optional<ustring>> ustringListOptVal,list<optional<ustring>> ustringListOptValMix,
+			list<rstring[10]> bstringList, list<optional<rstring[10]>> bstringListOptNull, list<optional<rstring[10]>> bstringListOptVal, list<optional<rstring[10]>> bstringListOptValMix,
 			list<int8> int8List, list<optional<int8>> int8ListOptNull, list<optional<int8>> int8ListOptVal,list<optional<int8>> int8ListOptValMix,
 			list<int16> int16List, list<optional<int16>> int16ListOptNull, list<optional<int16>> int16ListOptVal,list<optional<int16>> int16ListOptValMix,
 			list<int32> int32List, list<optional<int32>> int32ListOptNull, list<optional<int32>> int32ListOptVal,list<optional<int32>> int32ListOptValMix,
@@ -201,6 +202,7 @@ composite Optional_ListOfOptionalTest {
 		output InputS : 
 			rstringList=[ "a", "b", "c"] , rstringListOptNull=[null,null,null], rstringListOptVal=[ "a", "b", "c"],  rstringListOptValMix=[ "a", null, "c"],
 			ustringList=[ "a"u, "b"u, "c"u] , ustringListOptNull=[null,null,null], ustringListOptVal=[ "a"u, "b"u, "c"u], ustringListOptValMix=[ "a"u, null, "c"u],
+			bstringList=[ (rstring[10])"a", (rstring[10])"b", (rstring[10])"c"] , bstringListOptNull=[null,null,null], bstringListOptVal=[ (rstring[10])"a", (rstring[10])"b", (rstring[10])"c"],  bstringListOptValMix=[ (rstring[10])"a", null, (rstring[10])"c"],
 			int8List=[1bs,2bs,3bs],  int8ListOptNull=[null,null,null], int8ListOptVal=[1bs,2bs,3bs], int8ListOptValMix=[ 1bs, null, 2bs],
 			int16List=[1hs,2hs,3hs], int16ListOptNull=[null,null,null], int16ListOptVal=[1hs,2hs,3hs], int16ListOptValMix=[ 1hs, null, 2hs],
 			int32List=[1ws,2ws,3ws], int32ListOptNull=[null,null,null], int32ListOptVal=[1ws,2ws,3ws], int32ListOptValMix=[ 1ws, null, 2ws],
@@ -242,6 +244,7 @@ composite Optional_SetOfOptionalTest {
 		MyType = 
 			set<rstring> rstringSet, set<optional<rstring>> rstringSetOptNull, set<optional<rstring>> rstringSetOptVal, set<optional<rstring>> rstringSetOptValMix,
 			set<ustring> ustringSet, set<optional<ustring>> ustringSetOptNull, set<optional<ustring>> ustringSetOptVal,set<optional<ustring>> ustringSetOptValMix,
+			set<rstring[10]> bstringSet, set<optional<rstring[10]>> bstringSetOptNull, set<optional<rstring[10]>> bstringSetOptVal, set<optional<rstring[10]>> bstringSetOptValMix,
 			set<int8> int8Set, set<optional<int8>> int8SetOptNull, set<optional<int8>> int8SetOptVal,set<optional<int8>> int8SetOptValMix,
 			set<int16> int16Set, set<optional<int16>> int16SetOptNull, set<optional<int16>> int16SetOptVal,set<optional<int16>> int16SetOptValMix,
 			set<int32> int32Set, set<optional<int32>> int32SetOptNull, set<optional<int32>> int32SetOptVal,set<optional<int32>> int32SetOptValMix,
@@ -266,6 +269,7 @@ composite Optional_SetOfOptionalTest {
 		output InputS : 
 			rstringSet= {"a","b","c"} , rstringSetOptNull=(set<optional<rstring>>){}, rstringSetOptVal={ "a", "b", "c"},  rstringSetOptValMix={ "a", "c"},
 			ustringSet={ "a"u, "b"u, "c"u} , ustringSetOptNull=(set<optional<ustring>>){}, ustringSetOptVal={ "a"u, "b"u, "c"u}, ustringSetOptValMix={ "a"u, "c"u},
+			bstringSet= {(rstring[10])"a",(rstring[10])"b",(rstring[10])"c"} , bstringSetOptNull=(set<optional<rstring[10]>>){}, bstringSetOptVal={ (rstring[10])"a", (rstring[10])"b", (rstring[10])"c"},  bstringSetOptValMix={ (rstring[10])"a", (rstring[10])"c"},
 			int8Set={1bs,2bs,3bs},  int8SetOptNull=(set<optional<int8>>){}, int8SetOptVal={1bs,2bs,3bs}, int8SetOptValMix={ 1bs, 2bs},
 			int16Set={1hs,2hs,3hs}, int16SetOptNull=(set<optional<int16>>){}, int16SetOptVal={1hs,2hs,3hs}, int16SetOptValMix={ 1hs, 2hs},
 			int32Set={1ws,2ws,3ws}, int32SetOptNull=(set<optional<int32>>){}, int32SetOptVal={1ws,2ws,3ws}, int32SetOptValMix={ 1ws, 2ws},
@@ -296,6 +300,7 @@ composite Optional_BasicTupleTest {
 			tuple <
 		 	rstring rstringAtt, optional<rstring> rstringAttOptNull, optional<rstring> rstringAttOptVal,
 			ustring ustringAtt, optional<ustring> ustringAttOptNull, optional<ustring> ustringAttOptVal,
+		 	rstring[10] bstringAtt, optional<rstring[10]> bstringAttOptNull, optional<rstring[10]> bstringAttOptVal,
 			int8 int8Att, optional<int8> int8AttOptNull, optional<int8> int8AttOptVal,
 			int16 int16Att, optional<int16> int16AttOptNull, optional<int16> int16AttOptVal,
 			int32 int32Att, optional<int32> int32AttOptNull, optional<int32> int32AttOptVal,
@@ -326,6 +331,7 @@ composite Optional_BasicTupleTest {
 			mutable MyType myTupleVal = {
 				rstringAtt = "rStringValue", rstringAttOptNull = null, rstringAttOptVal = "rStringValue",
 				ustringAtt = "uStringValue"u, ustringAttOptNull = null, ustringAttOptVal = "uStringValue"u,
+				bstringAtt = (rstring[10])"bStringValue", bstringAttOptNull = null, bstringAttOptVal = (rstring[10])"bStringValue",
 				int8Att=10bs , int8AttOptNull=null , int8AttOptVal=-99bs,
 				int16Att=10hs , int16AttOptNull=null , int16AttOptVal=-99hs,
 				int32Att=10ws , int32AttOptNull=null , int32AttOptVal=-99ws,
@@ -364,6 +370,7 @@ composite Optional_OptionalListOfTupleTest {
 			tuple <
 		 	rstring rstringAtt, optional<rstring> rstringAttOptNull, optional<rstring> rstringAttOptVal,
 			ustring ustringAtt, optional<ustring> ustringAttOptNull, optional<ustring> ustringAttOptVal,
+		 	rstring[10] bstringAtt, optional<rstring[10]> bstringAttOptNull, optional<rstring[10]> bstringAttOptVal,
 			int8 int8Att, optional<int8> int8AttOptNull, optional<int8> int8AttOptVal,
 			int16 int16Att, optional<int16> int16AttOptNull, optional<int16> int16AttOptVal,
 			int32 int32Att, optional<int32> int32AttOptNull, optional<int32> int32AttOptVal,
@@ -394,6 +401,7 @@ composite Optional_OptionalListOfTupleTest {
 			mutable MyType myTupleVal = {
 				rstringAtt = "rStringValue", rstringAttOptNull = null, rstringAttOptVal = "rStringValue",
 				ustringAtt = "uStringValue"u, ustringAttOptNull = null, ustringAttOptVal = "uStringValue"u,
+				bstringAtt = (rstring[10])"bStringValue", bstringAttOptNull = null, bstringAttOptVal = (rstring[10])"bStringValue",
 				int8Att=10bs , int8AttOptNull=null , int8AttOptVal=-99bs,
 				int16Att=10hs , int16AttOptNull=null , int16AttOptVal=-99hs,
 				int32Att=10ws , int32AttOptNull=null , int32AttOptVal=-99ws,
