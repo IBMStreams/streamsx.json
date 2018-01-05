@@ -31,82 +31,6 @@ using namespace streams_boost;
 using namespace SPL;
 
 
-/*
- * This macro is used in StartArray assign an empty collection to an optional collection
- * Afterwards this empty collection can be used via the valueHandle got from getValue()
- * To assign the empty collection one need the exact type to cast the (Optional &) reference
- * to an optional<your_type> object on which you can use the '=' operator
- * This is the problem on reflective interface with nested types.
- */
-#define	Macro_generateNonPresentCollectionValue(B,T) \
-do { \
-			if (!refOptional.isPresent()) { \
-				ValueHandle newCollection = refOptional.createValue(); \
-				switch (((B&)newCollection).getElementMetaType()) { \
-					case Meta::Type::RSTRING:{ \
-						static_cast<optional<T<rstring> > & >(refOptional)=(B&) newCollection; \
-						break; \
-					} \
-					case Meta::Type::USTRING:{ \
-						static_cast<optional<T<ustring> > & >(refOptional)=(B&) newCollection; \
-						break; \
-					} \
-					case Meta::Type::BOOLEAN : { \
-						static_cast<optional<T<boolean> > & >(refOptional)=(B&) newCollection; \
-						break; \
-					} \
-					case Meta::Type::INT8 : { \
-						static_cast<optional<T<int8> > & >(refOptional)=(B&) newCollection; \
-						break; \
-					} \
-					case Meta::Type::INT16 : { \
-						static_cast<optional<T<int16> > & >(refOptional)=(B&) newCollection; \
-						break; \
-					} \
-					case Meta::Type::INT32 : { \
-						static_cast<optional<T<int32> > & >(refOptional)=(B&) newCollection; \
-						break; \
-					} \
-					case Meta::Type::INT64 : { \
-						static_cast<optional<T<int64> > & >(refOptional)=(B&) newCollection; \
-						break; \
-					} \
-					case Meta::Type::UINT8 : { \
-						static_cast<optional<T<uint8> > & >(refOptional)=(B&) newCollection; \
-						break; \
-					} \
-					case Meta::Type::UINT16 : { \
-						static_cast<optional<T<uint16> > & >(refOptional)=(B&) newCollection; \
-						break; \
-					} \
-					case Meta::Type::UINT32 : { \
-						static_cast<optional<T<uint32> > & >(refOptional)=(B&) newCollection; \
-						break; \
-					} \
-					case Meta::Type::UINT64 : { \
-						static_cast<optional<T<uint64> > & >(refOptional)=(B&) newCollection; \
-						break; \
-					} \
-					case Meta::Type::FLOAT32 : { \
-						static_cast<optional<T<float32> > & >(refOptional)=(B&) newCollection; \
-						break; \
-					} \
-					case Meta::Type::FLOAT64 : { \
-						static_cast<optional<T<float64> > & >(refOptional)=(B&) newCollection; \
-						break; \
-					} \
-					 \
-					default: { \
-						SPLAPPTRC(L_DEBUG, "not matched", "EXTRACT_FROM_JSON"); \
-						state.attrIter = endIter; \
-					} \
-				} \
-				newCollection.deleteValue(); \
-			} \
-} while(0)
-
-
-
 
 
 namespace com { namespace ibm { namespace streamsx { namespace json {
@@ -169,7 +93,89 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 			return true;
 		}
 
-		bool Null() { return true; }
+		/*
+		 * an JSON null value is ignored by non-optional attributes, as there is no SPL equivalent
+		 * optional attributes have to be set to not present
+		 * list and map collection elements have to be created and added with set to not-present
+		 * Set elements will not be added as null gives no information in a set*/
+		bool Null() {
+			TupleState & state = objectStack.top();
+
+			if(state.attrIter == state.tuple.getEndIterator()) {
+				SPLAPPTRC(L_DEBUG, "not matched, dropped value: null", "EXTRACT_FROM_JSON");
+			}
+			else {
+				SPLAPPTRC(L_DEBUG, "extracted value: null" , "EXTRACT_FROM_JSON");
+
+				ValueHandle valueHandle = (*state.attrIter).getValue();
+
+				if (state.inCollection == NO) {
+					if (valueHandle.getMetaType() == Meta::Type::OPTIONAL)	{
+						/* the null received in this stage is the direct value of the
+						 * open attribute, regardless if being a collection attribute
+						 * or primitive attribute
+						 * set it just to not-present
+						 */
+						//todo we need a clear() on Optional base class
+						((Optional &)valueHandle).clear();
+					}
+				}
+				else {
+					/* the JSON null received at this stage means a collection element is
+					 * null
+					 * only List, Blist, Map, BMap are supported
+					 * if the collection element valueType is optional
+					 *   create an element of the collection, set to not-present
+					 * for non-optional collection element types the null is ignored
+					 */
+						//handle of the collection
+					ValueHandle collectionHandle = valueHandle;
+					if (valueHandle.getMetaType() == Meta::Type::OPTIONAL)
+						collectionHandle = ((Optional&)valueHandle).getValue();
+
+					switch (collectionHandle.getMetaType()) {
+						case Meta::Type::MAP: {
+							if (((Map &)collectionHandle).getValueMetaType() == Meta::Type::OPTIONAL) {
+								//new optionals are initially null
+								ValueHandle collectionElementValue = ((Map &)collectionHandle).createValue();
+								//insert this null into the collection
+								InsertValue(valueHandle, collectionElementValue);
+								collectionElementValue.deleteValue();
+								}
+							break;}
+						case Meta::Type::BMAP: {
+							if (((BMap &)collectionHandle).getValueMetaType() == Meta::Type::OPTIONAL) {
+								//new optionals are initially null
+								ValueHandle collectionElementValue = ((BMap &)collectionHandle).createValue();
+								//insert this null into the collection
+								InsertValue(valueHandle, collectionElementValue);
+								collectionElementValue.deleteValue();
+								}
+							break;}
+						case Meta::Type::LIST: {
+							if (((List &)collectionHandle).getElementMetaType() == Meta::Type::OPTIONAL) {
+								//new optionals are initially null
+								ValueHandle collectionElementValue = ((List &)collectionHandle).createElement();
+								//insert this null into the collection
+								InsertValue(valueHandle, collectionElementValue);
+								collectionElementValue.deleteValue();
+								}
+							break;}
+						case Meta::Type::BLIST: {
+							if (((BList &)collectionHandle).getElementMetaType() == Meta::Type::OPTIONAL) {
+								//new optionals are initially null
+								ValueHandle collectionElementValue = ((BList &)collectionHandle).createElement();
+								//insert this null into the collection
+								InsertValue(valueHandle, collectionElementValue);
+								collectionElementValue.deleteValue();
+								}
+							break; }
+						default : SPLAPPTRC(L_DEBUG, "not matched", "EXTRACT_FROM_JSON");
+					}
+				}
+			}
+			return true;
+		}
 
 		bool Bool(bool b) {
 
@@ -268,6 +274,9 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 					}
 				}
 				else {
+					/*
+					 * we are in a collection, the valueHandle is the handle to the collection attribute
+					 * in case of optional it should be present at this point!!!*/
 					if (valueHandle.getMetaType() == Meta::Type::OPTIONAL){
 						Optional&  refOptional = (Optional&) valueHandle;
 						if (refOptional.isPresent()) {
@@ -287,7 +296,7 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 							}
 						}
 						else
-							SPLAPPTRC(L_DEBUG, "not matched", "EXTRACT_FROM_JSON");
+							SPLAPPTRC(L_DEBUG, "optional collection attribute not present, but should", "EXTRACT_FROM_JSON");
 					}
 					else {
 						switch(valueType) {
@@ -330,14 +339,14 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 					if (valueHandle.getMetaType() == Meta::Type::OPTIONAL){
 						Optional&  refOptional = (Optional&) valueHandle;
 						switch(refOptional.getValueMetaType()) {
-//todo	optional bstring handling
-//getting the concrete bstring<n> type is not possible for optional
-//and we can't use base BString for assignment
-//							case Meta::Type::BSTRING : {
-//								SPLAPPTRC(L_DEBUG, "BSTRING attribute input " << s, "EXTRACT_FROM_JSON");
-//								(optional<bstring<1024> >)tmpOpt = bstring<1024>(s, length); break; }
-//								static_cast<optional<BString> &>(refOptional) = rstring(s,length);
-//								break; }
+							case Meta::Type::BSTRING : {
+								//use the way via valueHandle to assign value
+								//as no cast is possible for optional<bstring<n>> as we don't have n
+								SetOptionalValueToDefault(refOptional);
+								ValueHandle tmpValueHandle = refOptional.getValue();
+								static_cast<BString &>(tmpValueHandle) = rstring(s,length);
+								refOptional.setValue(tmpValueHandle);
+								break; }
 							case Meta::Type::RSTRING : {
 								static_cast<optional<rstring> &>(refOptional) = rstring(s,length);
 								break; }
@@ -359,13 +368,11 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 				else {
 					if (valueHandle.getMetaType() == Meta::Type::OPTIONAL){
 						Optional&  refOptional = (Optional&) valueHandle;
-						SPLAPPTRC(L_DEBUG, "ADD string to collection: is present " << refOptional.isPresent(), "EXTRACT_FROM_JSON");
+						//collection should be present anytime
 						if (refOptional.isPresent()) {
 							valueHandle = refOptional.getValue();
-							SPLAPPTRC(L_DEBUG, "ADD string to collection: collection value type " << valueType, "EXTRACT_FROM_JSON");
 							switch(valueType) {
-//todo actual not support needs detailed check
-//								case Meta::Type::BSTRING : { InsertValue(valueHandle, ConstValueHandle(bstring<1024>(s, length))); break; }
+								case Meta::Type::BSTRING : { InsertValue(valueHandle, ConstValueHandle(bstring<1024>(s, length))); break; }
 								case Meta::Type::RSTRING : { InsertValue(valueHandle, ConstValueHandle(rstring(s, length))); break; }
 								case Meta::Type::USTRING : { InsertValue(valueHandle, ConstValueHandle(ustring(s, length))); break; }
 								default : SPLAPPTRC(L_DEBUG, "not matched", "EXTRACT_FROM_JSON");
@@ -373,7 +380,7 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 
 						}
 						else
-							SPLAPPTRC(L_DEBUG, "not matched", "EXTRACT_FROM_JSON");
+							SPLAPPTRC(L_DEBUG, "not matched, optional is not present", "EXTRACT_FROM_JSON");
 					}
 					else {
 						switch(valueType) {
@@ -432,7 +439,22 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 							switch (static_cast<Map&>(valueHandle).getKeyMetaType()) {
 								case Meta::Type::RSTRING :;
 								case Meta::Type::USTRING : {
+
+//
 									valueType = static_cast<Map&>(valueHandle).getValueMetaType();
+									valueIsOptional=false;
+									/* in case of optional collection type determine the optionals value type by
+									 * creating a value and get the value type from this handle
+									 */
+									if (valueType == Meta::Type::OPTIONAL) {
+										ValueHandle tmpElementValueHandle=static_cast<Map&>(valueHandle).createValue();
+										valueType = static_cast<Optional&> (tmpElementValueHandle).getValueMetaType();
+										tmpElementValueHandle.deleteValue();
+										valueIsOptional=true;
+									}
+
+//									valueType = static_cast<Map&>(valueHandle).getValueMetaType();
+//									valueIsOptional=false;
 									break;
 								}
 								default : {
@@ -453,6 +475,7 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 								case Meta::Type::RSTRING :;
 								case Meta::Type::USTRING : {
 									valueType = static_cast<BMap&>(valueHandle).getValueMetaType();
+									valueIsOptional=false;
 									break;
 								}
 								default : {
@@ -471,6 +494,90 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 							Tuple & tuple = valueHandle;
 							objectStack.push(TupleState(tuple));
 
+							break;
+						}
+						case Meta::Type::OPTIONAL: {
+							Optional & refOptional = valueHandle;
+							switch(refOptional.getValueMetaType()) {
+								case Meta::Type::MAP : {
+									SPLAPPTRC(L_DEBUG, "matched to optional map", "EXTRACT_FROM_JSON");
+									/* state to indicate that a MAP is open and further key value SAX events
+									 * doesn't require mapping to attribute/value but have to be added to the open
+									 * map*/
+									state.inCollection = MAP;
+
+									// if optional attribute input was null
+									// set to present with default content
+									if (!refOptional.isPresent())
+										SetOptionalValueToDefault(refOptional);
+
+									/* support only rstring and ustring as key type
+									 * mark the value type of the map, has to be used in further
+									 * SAX value event calls*/
+									switch (static_cast<Map&>(refOptional.getValue()).getKeyMetaType()) {
+										case Meta::Type::RSTRING :;
+										case Meta::Type::USTRING : {
+											valueType = static_cast<Map&>(refOptional.getValue()).getValueMetaType();
+											valueIsOptional=false;
+											break;
+										}
+										default : {
+											SPLAPPTRC(L_DEBUG, "key type not matched", "EXTRACT_FROM_JSON");
+											/* no mapping in further SAX key/value events calls until object closed
+											 * as the attribute map type doesn't fit */
+											state.attrIter = endIter;
+										}
+									}
+
+									break;
+								}
+								case Meta::Type::BMAP : {
+									SPLAPPTRC(L_DEBUG, "matched to optional bounded map", "EXTRACT_FROM_JSON");
+									state.inCollection = MAP;
+									// if optional input was null
+									// set to present with default countent
+									if (!refOptional.isPresent())
+										SetOptionalValueToDefault(refOptional);
+
+									switch (static_cast<BMap&>(refOptional.getValue()).getKeyMetaType()) {
+										case Meta::Type::RSTRING :;
+										case Meta::Type::USTRING : {
+											valueType = static_cast<Map&>(refOptional.getValue()).getValueMetaType();
+											valueIsOptional=false;
+											break;
+										}
+										default : {
+											SPLAPPTRC(L_DEBUG, "key type not matched", "EXTRACT_FROM_JSON");
+											state.attrIter = endIter;
+										}
+									}
+
+									break;
+								}
+								case Meta::Type::TUPLE : {
+									SPLAPPTRC(L_DEBUG, "matched to optional tuple", "EXTRACT_FROM_JSON");
+									/* actual open attribute is of tuple type
+									 * so that this StartObject will open a new tuple object
+									 * on stack which now receives SAX key/value events */
+
+									// if optional input was null
+									// set to present with default countent
+									if (!refOptional.isPresent())
+										SetOptionalValueToDefault(refOptional);
+
+									Tuple & tuple = refOptional.getValue();
+									objectStack.push(TupleState(tuple));
+
+									break;
+								}
+								default : {
+									SPLAPPTRC(L_DEBUG, "not matched", "EXTRACT_FROM_JSON");
+									/* the actual attribute is not of supported type
+									 * no mapping in further SAX key/value events calls until object closed
+									 * */
+									state.attrIter = endIter;
+								}
+							}
 							break;
 						}
 						default : {
@@ -519,6 +626,9 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 								break;
 							}
 							case Meta::Type::MAP : {
+								/*only maps with JSON object value mapped to tuple are supported
+								 * map<key,tuple<>>
+								 * but not map<key,map<>>*/
 								Map & mapAttr = valueHandle;
 								ValueHandle valueElemHandle = mapAttr.createValue();
 
@@ -532,6 +642,43 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 								Tuple & tuple = (*(mapAttr.findElement(key))).second;
 								objectStack.push(TupleState(tuple));
 
+								break;
+							}
+							case Meta::Type::OPTIONAL: {
+								Optional & refOptional = valueHandle;
+								switch(refOptional.getValueMetaType()) {
+									case Meta::Type::LIST : {
+										List & listAttr = refOptional.getValue();
+										ValueHandle valueElemHandle = listAttr.createElement();
+										listAttr.pushBack(valueElemHandle);
+										valueElemHandle.deleteValue();
+
+										Tuple & tuple = listAttr.getElement(listAttr.getSize()-1);
+										objectStack.push(TupleState(tuple));
+
+										break;
+									}
+									case Meta::Type::MAP : {
+										Map & mapAttr = refOptional.getValue();;
+										ValueHandle valueElemHandle = mapAttr.createValue();
+
+										ConstValueHandle key(lastKey);
+										if(mapAttr.getKeyMetaType() == Meta::Type::USTRING)
+											key = ustring(lastKey.data(), lastKey.length());
+
+										mapAttr.insertElement(key, valueElemHandle);
+										valueElemHandle.deleteValue();
+
+										Tuple & tuple = (*(mapAttr.findElement(key))).second;
+										objectStack.push(TupleState(tuple));
+
+										break;
+									}
+									default : {
+										SPLAPPTRC(L_DEBUG, "Set and bounded collection types with tuple value not supported", "EXTRACT_FROM_JSON");
+										state.attrIter = endIter;
+									}
+								}
 								break;
 							}
 							default : {
@@ -599,6 +746,16 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 						SPLAPPTRC(L_DEBUG, "matched to list", "EXTRACT_FROM_JSON");
 
 						valueType = static_cast<List&>(valueHandle).getElementMetaType();
+						valueIsOptional=false;
+						/* in case of optional collection type determine the optionals value type by
+						 * creating a value and get the value type from this handle
+						 */
+						if (valueType == Meta::Type::OPTIONAL) {
+							ValueHandle tmpElementValueHandle=static_cast<List&>(valueHandle).createElement();
+							valueType = static_cast<Optional&> (tmpElementValueHandle).getValueMetaType();
+							tmpElementValueHandle.deleteValue();
+							valueIsOptional=true;
+						}
 						state.inCollection = LIST;
 						break;
 					}
@@ -606,6 +763,13 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 						SPLAPPTRC(L_DEBUG, "matched to bounded list", "EXTRACT_FROM_JSON");
 
 						valueType = static_cast<BList&>(valueHandle).getElementMetaType();
+						valueIsOptional=false;
+						if (valueType == Meta::Type::OPTIONAL) {
+							ValueHandle tmpElementValueHandle=static_cast<BList&>(valueHandle).createElement();
+							valueType = static_cast<Optional&> (tmpElementValueHandle).getValueMetaType();
+							tmpElementValueHandle.deleteValue();
+							valueIsOptional=true;
+						}
 						state.inCollection = LIST;
 						break;
 					}
@@ -613,6 +777,13 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 						SPLAPPTRC(L_DEBUG, "matched to set", "EXTRACT_FROM_JSON");
 
 						valueType = static_cast<Set&>(valueHandle).getElementMetaType();
+						valueIsOptional=false;
+						if (valueType == Meta::Type::OPTIONAL) {
+							ValueHandle tmpElementValueHandle=static_cast<Set&>(valueHandle).createElement();
+							valueType = static_cast<Optional&> (tmpElementValueHandle).getValueMetaType();
+							tmpElementValueHandle.deleteValue();
+							valueIsOptional=true;
+						}
 						state.inCollection = LIST;
 						break;
 					}
@@ -620,6 +791,13 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 						SPLAPPTRC(L_DEBUG, "matched to bounded set", "EXTRACT_FROM_JSON");
 
 						valueType = static_cast<BSet&>(valueHandle).getElementMetaType();
+						valueIsOptional=false;
+						if (valueType == Meta::Type::OPTIONAL) {
+							ValueHandle tmpElementValueHandle=static_cast<BSet&>(valueHandle).createElement();
+							valueType = static_cast<Optional&> (tmpElementValueHandle).getValueMetaType();
+							tmpElementValueHandle.deleteValue();
+							valueIsOptional=true;
+						}
 						state.inCollection = LIST;
 						break;
 					}
@@ -628,47 +806,60 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 						switch(refOptional.getValueMetaType()) {
 							case Meta::Type::LIST : {
 								SPLAPPTRC(L_DEBUG, "matched to optional list", "EXTRACT_FROM_JSON");
-								/* if the list is not present we need to add an empty one
-								 * we don't get an handle from an optional being not present
-								 * even if there is an value of correct type inside the
-								 * optional
-								 * */
-								Macro_generateNonPresentCollectionValue(List,list);
-
-								if (refOptional.isPresent()) {
-									valueType = static_cast<List&>(refOptional.getValue()).getElementMetaType();
-									state.inCollection = LIST;
+								SetOptionalValueToDefault(refOptional);
+								valueType = static_cast<List&>(refOptional.getValue()).getElementMetaType();
+								valueIsOptional=false;
+								if (valueType == Meta::Type::OPTIONAL) {
+									ValueHandle tmpElementValueHandle=static_cast<List&>(refOptional.getValue()).createElement();
+									valueType = static_cast<Optional&> (tmpElementValueHandle).getValueMetaType();
+									tmpElementValueHandle.deleteValue();
+									valueIsOptional=true;
 								}
-								else {
-									SPLAPPTRC(L_DEBUG, "not matched", "EXTRACT_FROM_JSON");
-									state.attrIter = endIter;
+								state.inCollection = LIST;
+								break;
+							}
+							case Meta::Type::BLIST : {
+								SPLAPPTRC(L_DEBUG, "matched to optional bounded list", "EXTRACT_FROM_JSON");
+								SetOptionalValueToDefault(refOptional);
+								valueType = static_cast<BList&>(refOptional.getValue()).getElementMetaType();
+								valueIsOptional=false;
+								if (valueType == Meta::Type::OPTIONAL) {
+									ValueHandle tmpElementValueHandle=static_cast<BList&>(refOptional.getValue()).createElement();
+									valueType = static_cast<Optional&> (tmpElementValueHandle).getValueMetaType();
+									tmpElementValueHandle.deleteValue();
+									valueIsOptional=true;
 								}
-
+								state.inCollection = LIST;
 								break;
 							}
 							case Meta::Type::SET : {
 								SPLAPPTRC(L_DEBUG, "matched to optional set", "EXTRACT_FROM_JSON");
-								/* if the list is not present we need to add an empty one
-								 * we don't get an handle from an optional being not present
-								 * even if there is an value of correct type inside the
-								 * optional
-								 * */
-								Macro_generateNonPresentCollectionValue(Set,set);
-
-								if (refOptional.isPresent()) {
-									valueType = static_cast<Set&>(refOptional.getValue()).getElementMetaType();
-									state.inCollection = LIST;
+								SetOptionalValueToDefault(refOptional);
+								valueType = static_cast<Set&>(refOptional.getValue()).getElementMetaType();
+								valueIsOptional=false;
+								if (valueType == Meta::Type::OPTIONAL) {
+									ValueHandle tmpElementValueHandle=static_cast<Set&>(refOptional.getValue()).createElement();
+									valueType = static_cast<Optional&> (tmpElementValueHandle).getValueMetaType();
+									tmpElementValueHandle.deleteValue();
+									valueIsOptional=true;
 								}
-								else {
-									SPLAPPTRC(L_DEBUG, "not matched", "EXTRACT_FROM_JSON");
-									state.attrIter = endIter;
-								}
-
+								state.inCollection = LIST;
 								break;
 							}
-							// todo bounded collections are not supported for optionals
-							//case Meta::Type::BLIST :
-							//case Meta::Type::BSET :
+							case Meta::Type::BSET : {
+								SPLAPPTRC(L_DEBUG, "matched to optional bounded set", "EXTRACT_FROM_JSON");
+								SetOptionalValueToDefault(refOptional);
+								valueType = static_cast<BSet&>(refOptional.getValue()).getElementMetaType();
+								valueIsOptional=false;
+								if (valueType == Meta::Type::OPTIONAL) {
+									ValueHandle tmpElementValueHandle=static_cast<BSet&>(refOptional.getValue()).createElement();
+									valueType = static_cast<Optional&> (tmpElementValueHandle).getValueMetaType();
+									tmpElementValueHandle.deleteValue();
+									valueIsOptional=true;
+								}
+								state.inCollection = LIST;
+								break;
+							}
 							default : {
 								SPLAPPTRC(L_DEBUG, "not matched", "EXTRACT_FROM_JSON");
 								state.attrIter = endIter;
@@ -698,52 +889,132 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 			return true;
 		}
 
-		/* InsertValue doesn't need adaption to optional types because this can be handles in
-		 * calling context. */
-		inline void InsertValue(ValueHandle & valueHandle, ConstValueHandle const& valueElemHandle) {
 
-			/* How the value should be added to a collection depends on the
-			 * type of the actual open attribute (given by valueHandle)*/
+
+		/* Inserting a value in a collection type attribute
+		 * MAP/BMAP
+		 * LIST/BLIST
+		 * SET/BSET
+		 * parameter:
+		 * 		valueHandle - handle to the collection attribute
+		 * 		valueElemHandle - handle to the eleemnt to be inserted
+		 *
+		 * The collection attribute may be optional
+		 * The collections elements may be optional:
+		 * 		list elements
+		 * 		map Value elements (map Key type can't be optional)
+		 * 		set elements can't be optional, doesn't make sense
+		 *
+		 * Member varibale
+		 * 		valueIsOptional - indicates that the collection element value type is optional
+		 * 		valueType - contains the collection element value type, if collection element value type
+		 * 		            is an 'optional'  valueType is set to the  ValueType of the 'optional' and
+		 * 		            valueIsOptional is set.
+		 * 		lastKey - holds the name of the last read key from SAX key(), used for maps to add
+		 * 				  a JSON key:value pair into a SPL map
+		 * 		            */
+		inline void InsertValue(ValueHandle & valueHandle, ConstValueHandle const& valueElemHandle) {
 			switch (valueHandle.getMetaType()) {
 				case Meta::Type::LIST : {
-					static_cast<List&>(valueHandle).pushBack(valueElemHandle);
+					InsertListElement(static_cast<List&>(valueHandle),valueIsOptional, valueElemHandle);
 					break;
 				}
 				case Meta::Type::BLIST : {
-					static_cast<BList&>(valueHandle).pushBack(valueElemHandle);
+					InsertListElement(static_cast<BList&>(valueHandle),valueIsOptional, valueElemHandle);
 					break;
 				}
 				case Meta::Type::SET : {
-					static_cast<Set&>(valueHandle).insertElement(valueElemHandle);
+					InsertSetElement(static_cast<Set&>(valueHandle),valueIsOptional, valueElemHandle);
 					break;
 				}
 				case Meta::Type::BSET : {
-					static_cast<BSet&>(valueHandle).insertElement(valueElemHandle);
+					InsertSetElement(static_cast<BSet&>(valueHandle),valueIsOptional, valueElemHandle);
 					break;
 				}
 				case Meta::Type::MAP : {
-					/* Inserting to MAP means that we need the last read KEY
-					 * additionally to the value
-					 * lastkey stores this  */
-					Map & mapAttr = valueHandle;
+					if(static_cast<Map&>(valueHandle).getKeyMetaType() == Meta::Type::RSTRING)
+						InsertMapElement(static_cast<Map&>(valueHandle),ConstValueHandle(lastKey),valueIsOptional, valueElemHandle);
+					else
+						InsertMapElement(static_cast<Map&>(valueHandle),ConstValueHandle(ustring(lastKey.data(), lastKey.length())),valueIsOptional, valueElemHandle);
+/*					Map & mapAttr = valueHandle;
 					if(mapAttr.getKeyMetaType() == Meta::Type::RSTRING)
 						mapAttr.insertElement(ConstValueHandle(lastKey), valueElemHandle);
 					else
 						mapAttr.insertElement(ConstValueHandle(ustring(lastKey.data(), lastKey.length())), valueElemHandle);
-
+*/
 					break;
 				}
 				case Meta::Type::BMAP : {
+					if(static_cast<BMap&>(valueHandle).getKeyMetaType() == Meta::Type::RSTRING)
+						InsertMapElement(static_cast<BMap&>(valueHandle),ConstValueHandle(lastKey),valueIsOptional, valueElemHandle);
+					else
+						InsertMapElement(static_cast<BMap&>(valueHandle),ConstValueHandle(ustring(lastKey.data(), lastKey.length())),valueIsOptional, valueElemHandle);
+/*
 					BMap & mapAttr = valueHandle;
 					if(mapAttr.getKeyMetaType() == Meta::Type::RSTRING)
 						mapAttr.insertElement(ConstValueHandle(lastKey), valueElemHandle);
 					else
 						mapAttr.insertElement(ConstValueHandle(ustring(lastKey.data(), lastKey.length())), valueElemHandle);
-
+*/
 					break;
 				}
 				default:;
 			}
+		}
+
+		/* Functions to insert elements into collections
+		 * if it is a collection of optional elements
+		 * - create a new optional element
+		 * - set the element value
+		 * - add the optional element to collection
+		 * - delete the created element
+		 * otherwise insert the element directly
+		*/
+		template <typename T>
+		void InsertListElement(T & collection,bool& isOptional, ConstValueHandle const& elementHandle ) {
+			if (isOptional){
+				ValueHandle tmpElementValueHandle = collection.createElement();
+				static_cast<Optional&>(tmpElementValueHandle).setValue(elementHandle);
+				collection.pushBack(tmpElementValueHandle);
+				tmpElementValueHandle.deleteValue();
+			}
+			else
+				collection.pushBack(elementHandle);
+		}
+
+		template <typename T>
+		void InsertSetElement(T& collection,bool& isOptional, ConstValueHandle const& elementHandle) {
+			if (isOptional){
+				ValueHandle tmpElementValueHandle = collection.createElement();
+				static_cast<Optional&>(tmpElementValueHandle).setValue(elementHandle);
+				collection.insertElement(tmpElementValueHandle);
+				tmpElementValueHandle.deleteValue();
+			}
+			else
+				collection.insertElement(elementHandle);
+		}
+
+		template <typename T>
+		void InsertMapElement(T & collection,ConstValueHandle const& key, bool& isOptional, ConstValueHandle const& elementHandle ) {
+			if (isOptional){
+				ValueHandle tmpElementValueHandle = collection.createValue();
+				static_cast<Optional&>(tmpElementValueHandle).setValue(elementHandle);
+				collection.insertElement(key, tmpElementValueHandle);
+				tmpElementValueHandle.deleteValue();
+			}
+			else
+				collection.insertElement(key, elementHandle);
+		}
+
+
+		/* Function to set an Optional to present with its value
+		 * default initialization
+		 * necessary e.g. to set an optional collection to present and empty
+		 * */
+		inline void SetOptionalValueToDefault(Optional & refOptional) {
+			ValueHandle value = refOptional.createValue();
+			refOptional.setValue(value);
+			value.deleteValue();
 		}
 
 	private:
@@ -753,7 +1024,9 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 		// of the (key,value) pair
 		// for optionals it is the base type of the optional<>
 		Meta::Type valueType;
-		//store the stack of nested tuples, the top is the one which is open/in-work
+		// indicate that the collection element is optional<>
+		bool valueIsOptional;
+		// store the stack of nested tuples, the top is the one which is open/in-work
 		std::stack<TupleState> objectStack;
 	};
 

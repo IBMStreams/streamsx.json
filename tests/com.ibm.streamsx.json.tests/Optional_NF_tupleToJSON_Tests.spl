@@ -76,6 +76,26 @@ type	SetType =
 		//set<timestamp> timestampSet, optional<set<timestamp>> timestampSetOptNull, optional<set<timestamp>> timestampSetOptVal;
 
 
+type	MapType = 
+		map<rstring,rstring> rstringMap, optional<map<rstring,rstring>> rstringMapOptNull,  optional<map<rstring,rstring>> rstringMapOptVal,
+		map<rstring,ustring> ustringMap, optional<map<rstring,ustring>> ustringMapOptNull,  optional<map<rstring,ustring>> ustringMapOptVal,
+		map<rstring,int8> int8Map,  optional<map<rstring,int8>> int8MapOptNull, optional<map<rstring,int8>> int8MapOptVal,
+		map<rstring,int16> int16Map,  optional<map<rstring,int16>> int16MapOptNull, optional<map<rstring,int16>> int16MapOptVal,
+		map<rstring,int32> int32Map,  optional<map<rstring,int32>> int32MapOptNull, optional<map<rstring,int32>> int32MapOptVal,
+		map<rstring,int64> int64Map,  optional<map<rstring,int64>> int64MapOptNull, optional<map<rstring,int64>> int64MapOptVal,
+		map<rstring,uint8> uint8Map,  optional<map<rstring,uint8>> uint8MapOptNull, optional<map<rstring,uint8>> uint8MapOptVal,
+		map<rstring,uint16> uint16Map,  optional<map<rstring,uint16>> uint16MapOptNull, optional<map<rstring,uint16>> uint16MapOptVal,
+		map<rstring,uint32> uint32Map,  optional<map<rstring,uint32>> uint32MapOptNull, optional<map<rstring,uint32>> uint32MapOptVal,
+		map<rstring,uint64> uint64Map,  optional<map<rstring,uint64>> uint64MapOptNull, optional<map<rstring,uint64>> uint64MapOptVal,
+		map<rstring,boolean> booleanMap,  optional<map<rstring,boolean>> booleanMapOptNull, optional<map<rstring,boolean>> booleanMapOptVal,
+		map<rstring,float32> float32Map,  optional<map<rstring,float32>> float32MapOptNull, optional<map<rstring,float32>> float32MapOptVal,
+		map<rstring,float64> float64Map,  optional<map<rstring,float64>> float64MapOptNull, optional<map<rstring,float64>> float64MapOptVal,
+		map<rstring,decimal32> decimal32Map,  optional<map<rstring,decimal32>> decimal32MapOptNull, optional<map<rstring,decimal32>> decimal32MapOptVal,
+		map<rstring,decimal64> decimal64Map,  optional<map<rstring,decimal64>> decimal64MapOptNull, optional<map<rstring,decimal64>> decimal64MapOptVal,
+		map<rstring,decimal128> decimal128Map,  optional<map<rstring,decimal128>> decimal128MapOptNull, optional<map<rstring,decimal128>> decimal128MapOptVal;
+		//map<rstring,timestamp> timestampMap, optional<map<rstring,timestamp>> timestampMapOptNull, optional<map<rstring,timestamp>> timestampMapOptVal;
+
+
 type	ListOfOptionalType= 
 		list<rstring> rstringList, list<optional<rstring>> rstringListOptNull, list<optional<rstring>> rstringListOptVal, list<optional<rstring>> rstringListOptValMix,
 		list<ustring> ustringList, list<optional<ustring>> ustringListOptNull, list<optional<ustring>> ustringListOptVal,list<optional<ustring>> ustringListOptValMix,
@@ -95,6 +115,7 @@ type	ListOfOptionalType=
 		list<decimal128> decimal128List, list<optional<decimal128>> decimal128ListOptNull, list<optional<decimal128>> decimal128ListOptVal,list<optional<decimal128>> decimal128ListOptValMix;
 		//list<timestamp> timestampList, list<optional<timestamp>> timestampListOptNull, list<optional<timestamp>> timestampListOptVal,list<optional<timestamp>> timestampListOptValMix;
 
+
 type	SetOfOptionalType = 
 		set<rstring> rstringSet, set<optional<rstring>> rstringSetOptNull, set<optional<rstring>> rstringSetOptVal, set<optional<rstring>> rstringSetOptValMix,
 		set<ustring> ustringSet, set<optional<ustring>> ustringSetOptNull, set<optional<ustring>> ustringSetOptVal,set<optional<ustring>> ustringSetOptValMix,
@@ -113,6 +134,25 @@ type	SetOfOptionalType =
 		set<decimal64> decimal64Set, set<optional<decimal64>> decimal64SetOptNull, set<optional<decimal64>> decimal64SetOptVal,set<optional<decimal64>> decimal64SetOptValMix,
 		set<decimal128> decimal128Set, set<optional<decimal128>> decimal128SetOptNull, set<optional<decimal128>> decimal128SetOptVal,set<optional<decimal128>> decimal128SetOptValMix;
 		//set<timestamp> timestampSet, set<optional<timestamp>> timestampSetOptNull, set<optional<timestamp>> timestampSetOptVal,set<optional<timestamp>> timestampSetOptValMix;
+
+type	MapOfOptionalType = 
+		map<rstring,rstring> rstringMap, map<rstring,optional<rstring>> rstringMapOptNull,  map<rstring,optional<rstring>> rstringMapOptValMix,
+		map<rstring,ustring> ustringMap, map<rstring,optional<ustring>> ustringMapOptNull,  map<rstring,optional<ustring>> ustringMapOptValMix,
+		map<rstring,int8> int8Map, map<rstring,optional<int8>> int8MapOptNull, map<rstring,optional<int8>> int8MapOptValMix,
+		map<rstring,int16> int16Map, map<rstring,optional<int16>> int16MapOptNull, map<rstring,optional<int16>> int16MapOptValMix,
+		map<rstring,int32> int32Map, map<rstring,optional<int32>> int32MapOptNull, map<rstring,optional<int32>> int32MapOptValMix,
+		map<rstring,int64> int64Map, map<rstring,optional<int64>> int64MapOptNull, map<rstring,optional<int64>> int64MapOptValMix,
+		map<rstring,uint8> uint8Map, map<rstring,optional<uint8>> uint8MapOptNull, map<rstring,optional<uint8>> uint8MapOptValMix,
+		map<rstring,uint16> uint16Map, map<rstring,optional<uint16>> uint16MapOptNull, map<rstring,optional<uint16>> uint16MapOptValMix,
+		map<rstring,uint32> uint32Map, map<rstring,optional<uint32>> uint32MapOptNull, map<rstring,optional<uint32>> uint32MapOptValMix,
+		map<rstring,uint64> uint64Map, map<rstring,optional<uint64>> uint64MapOptNull, map<rstring,optional<uint64>> uint64MapOptValMix,
+		map<rstring,boolean> booleanMap, map<rstring,optional<boolean>> booleanMapOptNull, map<rstring,optional<boolean>> booleanMapOptValMix,
+		map<rstring,float32> float32Map, map<rstring,optional<float32>> float32MapOptNull, map<rstring,optional<float32>> float32MapOptValMix,
+		map<rstring,float64> float64Map, map<rstring,optional<float64>> float64MapOptNull, map<rstring,optional<float64>> float64MapOptValMix,
+		map<rstring,decimal32> decimal32Map, map<rstring,optional<decimal32>> decimal32MapOptNull, map<rstring,optional<decimal32>> decimal32MapOptValMix,
+		map<rstring,decimal64> decimal64Map, map<rstring,optional<decimal64>> decimal64MapOptNull, map<rstring,optional<decimal64>> decimal64MapOptValMix,
+		map<rstring,decimal128> decimal128Map, map<rstring,optional<decimal128>> decimal128MapOptNull, map<rstring,optional<decimal128>> decimal128MapOptValMix;
+		//map<rstring,timestamp> timestampMap, map<rstring,optional<timestamp>> timestampMapOptNull, map<rstring,optional<timestamp>> timestampMapOptValMix;
 
 
 
