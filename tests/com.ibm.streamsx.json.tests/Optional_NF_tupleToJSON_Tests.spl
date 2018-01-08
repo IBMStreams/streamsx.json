@@ -19,6 +19,7 @@ use com.ibm.streamsx.json::*;
 type	FlatType = tuple <
 	 	rstring rstringAtt, optional<rstring> rstringAttOptNull, optional<rstring> rstringAttOptVal,
 		ustring ustringAtt, optional<ustring> ustringAttOptNull, optional<ustring> ustringAttOptVal,
+	 	rstring[10] bstringAtt, optional<rstring[10]> bstringAttOptNull, optional<rstring[10]> bstringAttOptVal,
 		int8 int8Att, optional<int8> int8AttOptNull, optional<int8> int8AttOptVal,
 		int16 int16Att, optional<int16> int16AttOptNull, optional<int16> int16AttOptVal,
 		int32 int32Att, optional<int32> int32AttOptNull, optional<int32> int32AttOptVal,
@@ -40,6 +41,7 @@ type	FlatType = tuple <
 type	ListType = 
 		list<rstring> rstringList, optional<list<rstring>> rstringListOptNull,  optional<list<rstring>> rstringListOptVal,
 		list<ustring> ustringList, optional<list<ustring>> ustringListOptNull,  optional<list<ustring>> ustringListOptVal,
+		list<rstring[10]> bstringList, optional<list<rstring[10]>> bstringListOptNull,  optional<list<rstring[10]>> bstringListOptVal,
 		list<int8> int8List,  optional<list<int8>> int8ListOptNull, optional<list<int8>> int8ListOptVal,
 		list<int16> int16List,  optional<list<int16>> int16ListOptNull, optional<list<int16>> int16ListOptVal,
 		list<int32> int32List,  optional<list<int32>> int32ListOptNull, optional<list<int32>> int32ListOptVal,
@@ -59,6 +61,7 @@ type	ListType =
 type	SetType = 
 		set<rstring> rstringSet, optional<set<rstring>> rstringSetOptNull,  optional<set<rstring>> rstringSetOptVal,
 		set<ustring> ustringSet, optional<set<ustring>> ustringSetOptNull,  optional<set<ustring>> ustringSetOptVal,
+		set<rstring[10]> bstringSet, optional<set<rstring[10]>> bstringSetOptNull,  optional<set<rstring[10]>> bstringSetOptVal,
 		set<int8> int8Set,  optional<set<int8>> int8SetOptNull, optional<set<int8>> int8SetOptVal,
 		set<int16> int16Set,  optional<set<int16>> int16SetOptNull, optional<set<int16>> int16SetOptVal,
 		set<int32> int32Set,  optional<set<int32>> int32SetOptNull, optional<set<int32>> int32SetOptVal,
@@ -76,9 +79,31 @@ type	SetType =
 		//set<timestamp> timestampSet, optional<set<timestamp>> timestampSetOptNull, optional<set<timestamp>> timestampSetOptVal;
 
 
+type	MapType = 
+		map<rstring,rstring> rstringMap, optional<map<rstring,rstring>> rstringMapOptNull,  optional<map<rstring,rstring>> rstringMapOptVal,
+		map<rstring,ustring> ustringMap, optional<map<rstring,ustring>> ustringMapOptNull,  optional<map<rstring,ustring>> ustringMapOptVal,
+		map<rstring,rstring[10]> bstringMap, optional<map<rstring,rstring[10]>> bstringMapOptNull,  optional<map<rstring,rstring[10]>> bstringMapOptVal,
+		map<rstring,int8> int8Map,  optional<map<rstring,int8>> int8MapOptNull, optional<map<rstring,int8>> int8MapOptVal,
+		map<rstring,int16> int16Map,  optional<map<rstring,int16>> int16MapOptNull, optional<map<rstring,int16>> int16MapOptVal,
+		map<rstring,int32> int32Map,  optional<map<rstring,int32>> int32MapOptNull, optional<map<rstring,int32>> int32MapOptVal,
+		map<rstring,int64> int64Map,  optional<map<rstring,int64>> int64MapOptNull, optional<map<rstring,int64>> int64MapOptVal,
+		map<rstring,uint8> uint8Map,  optional<map<rstring,uint8>> uint8MapOptNull, optional<map<rstring,uint8>> uint8MapOptVal,
+		map<rstring,uint16> uint16Map,  optional<map<rstring,uint16>> uint16MapOptNull, optional<map<rstring,uint16>> uint16MapOptVal,
+		map<rstring,uint32> uint32Map,  optional<map<rstring,uint32>> uint32MapOptNull, optional<map<rstring,uint32>> uint32MapOptVal,
+		map<rstring,uint64> uint64Map,  optional<map<rstring,uint64>> uint64MapOptNull, optional<map<rstring,uint64>> uint64MapOptVal,
+		map<rstring,boolean> booleanMap,  optional<map<rstring,boolean>> booleanMapOptNull, optional<map<rstring,boolean>> booleanMapOptVal,
+		map<rstring,float32> float32Map,  optional<map<rstring,float32>> float32MapOptNull, optional<map<rstring,float32>> float32MapOptVal,
+		map<rstring,float64> float64Map,  optional<map<rstring,float64>> float64MapOptNull, optional<map<rstring,float64>> float64MapOptVal,
+		map<rstring,decimal32> decimal32Map,  optional<map<rstring,decimal32>> decimal32MapOptNull, optional<map<rstring,decimal32>> decimal32MapOptVal,
+		map<rstring,decimal64> decimal64Map,  optional<map<rstring,decimal64>> decimal64MapOptNull, optional<map<rstring,decimal64>> decimal64MapOptVal,
+		map<rstring,decimal128> decimal128Map,  optional<map<rstring,decimal128>> decimal128MapOptNull, optional<map<rstring,decimal128>> decimal128MapOptVal;
+		//map<rstring,timestamp> timestampMap, optional<map<rstring,timestamp>> timestampMapOptNull, optional<map<rstring,timestamp>> timestampMapOptVal;
+
+
 type	ListOfOptionalType= 
 		list<rstring> rstringList, list<optional<rstring>> rstringListOptNull, list<optional<rstring>> rstringListOptVal, list<optional<rstring>> rstringListOptValMix,
 		list<ustring> ustringList, list<optional<ustring>> ustringListOptNull, list<optional<ustring>> ustringListOptVal,list<optional<ustring>> ustringListOptValMix,
+		list<rstring[10]> bstringList, list<optional<rstring[10]>> bstringListOptNull, list<optional<rstring[10]>> bstringListOptVal, list<optional<rstring[10]>> bstringListOptValMix,
 		list<int8> int8List, list<optional<int8>> int8ListOptNull, list<optional<int8>> int8ListOptVal,list<optional<int8>> int8ListOptValMix,
 		list<int16> int16List, list<optional<int16>> int16ListOptNull, list<optional<int16>> int16ListOptVal,list<optional<int16>> int16ListOptValMix,
 		list<int32> int32List, list<optional<int32>> int32ListOptNull, list<optional<int32>> int32ListOptVal,list<optional<int32>> int32ListOptValMix,
@@ -95,9 +120,11 @@ type	ListOfOptionalType=
 		list<decimal128> decimal128List, list<optional<decimal128>> decimal128ListOptNull, list<optional<decimal128>> decimal128ListOptVal,list<optional<decimal128>> decimal128ListOptValMix;
 		//list<timestamp> timestampList, list<optional<timestamp>> timestampListOptNull, list<optional<timestamp>> timestampListOptVal,list<optional<timestamp>> timestampListOptValMix;
 
+
 type	SetOfOptionalType = 
 		set<rstring> rstringSet, set<optional<rstring>> rstringSetOptNull, set<optional<rstring>> rstringSetOptVal, set<optional<rstring>> rstringSetOptValMix,
 		set<ustring> ustringSet, set<optional<ustring>> ustringSetOptNull, set<optional<ustring>> ustringSetOptVal,set<optional<ustring>> ustringSetOptValMix,
+		set<rstring[10]> bstringSet, set<optional<rstring[10]>> bstringSetOptNull, set<optional<rstring[10]>> bstringSetOptVal, set<optional<rstring[10]>> bstringSetOptValMix,
 		set<int8> int8Set, set<optional<int8>> int8SetOptNull, set<optional<int8>> int8SetOptVal,set<optional<int8>> int8SetOptValMix,
 		set<int16> int16Set, set<optional<int16>> int16SetOptNull, set<optional<int16>> int16SetOptVal,set<optional<int16>> int16SetOptValMix,
 		set<int32> int32Set, set<optional<int32>> int32SetOptNull, set<optional<int32>> int32SetOptVal,set<optional<int32>> int32SetOptValMix,
@@ -113,6 +140,26 @@ type	SetOfOptionalType =
 		set<decimal64> decimal64Set, set<optional<decimal64>> decimal64SetOptNull, set<optional<decimal64>> decimal64SetOptVal,set<optional<decimal64>> decimal64SetOptValMix,
 		set<decimal128> decimal128Set, set<optional<decimal128>> decimal128SetOptNull, set<optional<decimal128>> decimal128SetOptVal,set<optional<decimal128>> decimal128SetOptValMix;
 		//set<timestamp> timestampSet, set<optional<timestamp>> timestampSetOptNull, set<optional<timestamp>> timestampSetOptVal,set<optional<timestamp>> timestampSetOptValMix;
+
+type	MapOfOptionalType = 
+		map<rstring,rstring> rstringMap, map<rstring,optional<rstring>> rstringMapOptNull,  map<rstring,optional<rstring>> rstringMapOptValMix,
+		map<rstring,ustring> ustringMap, map<rstring,optional<ustring>> ustringMapOptNull,  map<rstring,optional<ustring>> ustringMapOptValMix,
+		map<rstring,rstring[10]> bstringMap, map<rstring,optional<rstring[10]>> bstringMapOptNull,  map<rstring,optional<rstring[10]>> bstringMapOptValMix,
+		map<rstring,int8> int8Map, map<rstring,optional<int8>> int8MapOptNull, map<rstring,optional<int8>> int8MapOptValMix,
+		map<rstring,int16> int16Map, map<rstring,optional<int16>> int16MapOptNull, map<rstring,optional<int16>> int16MapOptValMix,
+		map<rstring,int32> int32Map, map<rstring,optional<int32>> int32MapOptNull, map<rstring,optional<int32>> int32MapOptValMix,
+		map<rstring,int64> int64Map, map<rstring,optional<int64>> int64MapOptNull, map<rstring,optional<int64>> int64MapOptValMix,
+		map<rstring,uint8> uint8Map, map<rstring,optional<uint8>> uint8MapOptNull, map<rstring,optional<uint8>> uint8MapOptValMix,
+		map<rstring,uint16> uint16Map, map<rstring,optional<uint16>> uint16MapOptNull, map<rstring,optional<uint16>> uint16MapOptValMix,
+		map<rstring,uint32> uint32Map, map<rstring,optional<uint32>> uint32MapOptNull, map<rstring,optional<uint32>> uint32MapOptValMix,
+		map<rstring,uint64> uint64Map, map<rstring,optional<uint64>> uint64MapOptNull, map<rstring,optional<uint64>> uint64MapOptValMix,
+		map<rstring,boolean> booleanMap, map<rstring,optional<boolean>> booleanMapOptNull, map<rstring,optional<boolean>> booleanMapOptValMix,
+		map<rstring,float32> float32Map, map<rstring,optional<float32>> float32MapOptNull, map<rstring,optional<float32>> float32MapOptValMix,
+		map<rstring,float64> float64Map, map<rstring,optional<float64>> float64MapOptNull, map<rstring,optional<float64>> float64MapOptValMix,
+		map<rstring,decimal32> decimal32Map, map<rstring,optional<decimal32>> decimal32MapOptNull, map<rstring,optional<decimal32>> decimal32MapOptValMix,
+		map<rstring,decimal64> decimal64Map, map<rstring,optional<decimal64>> decimal64MapOptNull, map<rstring,optional<decimal64>> decimal64MapOptValMix,
+		map<rstring,decimal128> decimal128Map, map<rstring,optional<decimal128>> decimal128MapOptNull, map<rstring,optional<decimal128>> decimal128MapOptValMix;
+		//map<rstring,timestamp> timestampMap, map<rstring,optional<timestamp>> timestampMapOptNull, map<rstring,optional<timestamp>> timestampMapOptValMix;
 
 
 
@@ -149,6 +196,7 @@ composite Optional_NF_tupleToJSON_BasicTest {
 		output TupleStream : 
 			rstringAtt = "rStringValue", rstringAttOptNull = null, rstringAttOptVal = "rStringValue",
 			ustringAtt = "uStringValue"u, ustringAttOptNull = null, ustringAttOptVal = "uStringValue"u,
+			bstringAtt = (rstring[10])"bStringValue", bstringAttOptNull = null, bstringAttOptVal = (rstring[10])"bStringValue",
 			int8Att=10bs , int8AttOptNull=null , int8AttOptVal=-99bs,
 			int16Att=10hs , int16AttOptNull=null , int16AttOptVal=-99hs,
 			int32Att=10ws , int32AttOptNull=null , int32AttOptVal=-99ws,
@@ -196,6 +244,7 @@ composite Optional_NF_tupleToJSON_OptionalListTest {
 		output TupleStream : 
 			rstringList=[ "a", "b", "c"] , rstringListOptNull=null, rstringListOptVal=[ "a", "b", "c"],
 			ustringList=[ "a"u, "b"u, "c"u] , ustringListOptNull=null, ustringListOptVal=[ "a"u, "b"u, "c"u],
+			bstringList=[ (rstring[10])"a", (rstring[10])"b", (rstring[10])"c"] , bstringListOptNull=null, bstringListOptVal=[ (rstring[10])"a", (rstring[10])"b", (rstring[10])"c"],
 			int8List=[1bs,2bs,3bs],  int8ListOptNull=null, int8ListOptVal=[1bs,2bs,3bs],
 			int16List=[1hs,2hs,3hs], int16ListOptNull=null, int16ListOptVal=[1hs,2hs,3hs],
 			int32List=[1ws,2ws,3ws], int32ListOptNull=null, int32ListOptVal=[1ws,2ws,3ws],
@@ -236,6 +285,7 @@ composite Optional_NF_tupleToJSON_OptionalSetTest {
 		output TupleStream : 
 			rstringSet={ "a", "b", "c"} , rstringSetOptNull=null, rstringSetOptVal={ "a", "b", "c"},
 			ustringSet={ "a"u, "b"u, "c"u} , ustringSetOptNull=null, ustringSetOptVal={ "a"u, "b"u, "c"u},
+			bstringSet={ (rstring[10])"a", (rstring[10])"b", (rstring[10])"c"} , bstringSetOptNull=null, bstringSetOptVal={ (rstring[10])"a", (rstring[10])"b", (rstring[10])"c"},
 			int8Set={1bs,2bs,3bs},  int8SetOptNull=null, int8SetOptVal={1bs,2bs,3bs},
 			int16Set={1hs,2hs,3hs}, int16SetOptNull=null, int16SetOptVal={1hs,2hs,3hs},
 			int32Set={1ws,2ws,3ws}, int32SetOptNull=null, int32SetOptVal={1ws,2ws,3ws},
@@ -277,6 +327,7 @@ composite Optional_NF_tupleToJSON_ListOfOptionalTest {
 		output TupleStream : 
 			rstringList=[ "a", "b", "c"] , rstringListOptNull=[null,null,null], rstringListOptVal=[ "a", "b", "c"],  rstringListOptValMix=[ "a", null, "c"],
 			ustringList=[ "a"u, "b"u, "c"u] , ustringListOptNull=[null,null,null], ustringListOptVal=[ "a"u, "b"u, "c"u], ustringListOptValMix=[ "a"u, null, "c"u],
+			bstringList=[ (rstring[10])"a", (rstring[10])"b", (rstring[10])"c"] , bstringListOptNull=[null,null,null], bstringListOptVal=[ (rstring[10])"a", (rstring[10])"b", (rstring[10])"c"],  bstringListOptValMix=[ (rstring[10])"a", null, (rstring[10])"c"],
 			int8List=[1bs,2bs,3bs],  int8ListOptNull=[null,null,null], int8ListOptVal=[1bs,2bs,3bs], int8ListOptValMix=[ 1bs, null, 2bs],
 			int16List=[1hs,2hs,3hs], int16ListOptNull=[null,null,null], int16ListOptVal=[1hs,2hs,3hs], int16ListOptValMix=[ 1hs, null, 2hs],
 			int32List=[1ws,2ws,3ws], int32ListOptNull=[null,null,null], int32ListOptVal=[1ws,2ws,3ws], int32ListOptValMix=[ 1ws, null, 2ws],
@@ -329,6 +380,7 @@ composite Optional_NF_tupleToJSON_SetOfOptionalTest {
 		output TupleStream : 
 			rstringSet= {"a","b","c"} , rstringSetOptNull=(set<optional<rstring>>){}, rstringSetOptVal={ "a", "b", "c"},  rstringSetOptValMix={ "a", "c"},
 			ustringSet={ "a"u, "b"u, "c"u} , ustringSetOptNull=(set<optional<ustring>>){}, ustringSetOptVal={ "a"u, "b"u, "c"u}, ustringSetOptValMix={ "a"u, "c"u},
+			bstringSet= {(rstring[10])"a",(rstring[10])"b",(rstring[10])"c"} , bstringSetOptNull=(set<optional<rstring[10]>>){}, bstringSetOptVal={ (rstring[10])"a", (rstring[10])"b", (rstring[10])"c"},  bstringSetOptValMix={ (rstring[10])"a", (rstring[10])"c"},
 			int8Set={1bs,2bs,3bs},  int8SetOptNull=(set<optional<int8>>){}, int8SetOptVal={1bs,2bs,3bs}, int8SetOptValMix={ 1bs, 2bs},
 			int16Set={1hs,2hs,3hs}, int16SetOptNull=(set<optional<int16>>){}, int16SetOptVal={1hs,2hs,3hs}, int16SetOptValMix={ 1hs, 2hs},
 			int32Set={1ws,2ws,3ws}, int32SetOptNull=(set<optional<int32>>){}, int32SetOptVal={1ws,2ws,3ws}, int32SetOptValMix={ 1ws, 2ws},
@@ -369,6 +421,7 @@ composite Optional_NF_tupleToJSON_BasicTupleTest {
 			mutable FlatType myTupleVal = {
 				rstringAtt = "rStringValue", rstringAttOptNull = null, rstringAttOptVal = "rStringValue",
 				ustringAtt = "uStringValue"u, ustringAttOptNull = null, ustringAttOptVal = "uStringValue"u,
+				bstringAtt = (rstring[10])"bStringValue", bstringAttOptNull = null, bstringAttOptVal = (rstring[10])"bStringValue",
 				int8Att=10bs , int8AttOptNull=null , int8AttOptVal=-99bs,
 				int16Att=10hs , int16AttOptNull=null , int16AttOptVal=-99hs,
 				int32Att=10ws , int32AttOptNull=null , int32AttOptVal=-99ws,
@@ -417,6 +470,7 @@ composite Optional_NF_tupleToJSON_OptionalListOfTupleTest {
 			mutable FlatType myTupleVal = {
 				rstringAtt = "rStringValue", rstringAttOptNull = null, rstringAttOptVal = "rStringValue",
 				ustringAtt = "uStringValue"u, ustringAttOptNull = null, ustringAttOptVal = "uStringValue"u,
+				bstringAtt = (rstring[10])"bStringValue", bstringAttOptNull = null, bstringAttOptVal = (rstring[10])"bStringValue",
 				int8Att=10bs , int8AttOptNull=null , int8AttOptVal=-99bs,
 				int16Att=10hs , int16AttOptNull=null , int16AttOptVal=-99hs,
 				int32Att=10ws , int32AttOptNull=null , int32AttOptVal=-99ws,
@@ -467,6 +521,7 @@ composite Optional_NF_tupleToJSON_OptionalSetOfTupleTest {
 			mutable FlatType myTupleVal1 = {
 				rstringAtt = "rStringValue", rstringAttOptNull = null, rstringAttOptVal = "rStringValue",
 				ustringAtt = "uStringValue"u, ustringAttOptNull = null, ustringAttOptVal = "uStringValue"u,
+				bstringAtt = (rstring[10])"bStringValue", bstringAttOptNull = null, bstringAttOptVal = (rstring[10])"bStringValue",
 				int8Att=10bs , int8AttOptNull=null , int8AttOptVal=-99bs,
 				int16Att=10hs , int16AttOptNull=null , int16AttOptVal=-99hs,
 				int32Att=10ws , int32AttOptNull=null , int32AttOptVal=-99ws,
@@ -489,6 +544,7 @@ composite Optional_NF_tupleToJSON_OptionalSetOfTupleTest {
 			mutable FlatType myTupleVal2 = {
 				rstringAtt = "rStringValue2", rstringAttOptNull = null, rstringAttOptVal = "rStringValue",
 				ustringAtt = "uStringValue"u, ustringAttOptNull = null, ustringAttOptVal = "uStringValue"u,
+				bstringAtt = (rstring[10])"bStringValue", bstringAttOptNull = null, bstringAttOptVal = (rstring[10])"bStringValue",
 				int8Att=10bs , int8AttOptNull=null , int8AttOptVal=-99bs,
 				int16Att=10hs , int16AttOptNull=null , int16AttOptVal=-99hs,
 				int32Att=10ws , int32AttOptNull=null , int32AttOptVal=-99ws,
