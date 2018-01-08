@@ -41,6 +41,15 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 
 	typedef enum{ NO, LIST, MAP } InCollection;
 
+
+	/* Structure holding the state of the actual open tuple
+	 * tuple		reference to the SPl tuple object
+	 * attrIter		Iterator to access the attributes of the tuple
+	 * inCollection	indicates that the attribute of attrIter is a SPL collection (MAP, LIST)
+	 * 				or not
+	 * objectCount	counter of JSON objects being opened (synch to objects closed)
+	 * foundKeys	set holding attribute names of the tuple already read
+	 */
 	struct TupleState {
 
 		TupleState(Tuple & _tuple) : tuple(_tuple), attrIter(_tuple.getEndIterator()), inCollection(NO), objectCount(0) {}
@@ -52,6 +61,45 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 		set<rstring> foundKeys;
 	};
 
+
+	/* EventHandler as expected by RapidJSON lib SAX parser
+	 *
+	 * SAX events handled
+	 *
+	 * 	key()
+	 * 	null()
+	 * 	bool()
+	 *	Int()
+	 *	Uint()
+	 *	Int64()
+	 *	Uint64()
+	 *	Double()
+	 *	String()
+	 * 	StartObject()
+	 * 	EndObject()
+	 * 	StartArray()
+	 * 	EndArray()
+	 *
+	 * 	The eventhandler holds a status stack of TupleState allowing nested object handling.
+	 * 	An JSON object is mapped to a SPL tuple type or can also be mapped to a SPL map type.
+	 * 	The SPL map types key is either rstring or ustring. All values of this JSON
+	 * 	object are expected to be of same type.
+	 * 	An JSON array is mapped to a SPL set or SPL list. Primitive as  well as tuple types
+	 * 	are supported as collection elements.
+	 * 	A key event tries to find the attribute of same name as the key. If found the AttrIter
+	 * 	is used in following events for value assignment.
+	 * 	Null events are ignored if the SPL attribute type is not optional. If it is optional
+	 * 	the null value is set to the attribute or in collection of optional elements the element
+	 * 	is set to null.
+	 * 	Int(), Uint(), Int65(), Uint64(), Double() events are mapped to the attributes SPL
+	 * 	numeric type if it matches.
+	 * 	String() event is mapped to the attributes SPL string type if it matches
+	 * 	(rstring,ustring,rstring<n>).
+	 *
+	 * 	SPL decimal types are not supported.
+	 * 	SPL Set of tuple is not supported.
+	 * 	SPL timestamps are not supported.
+	 */
 	struct EventHandler : public BaseReaderHandler<UTF8<>, EventHandler> {
 
 		EventHandler(Tuple & _tuple) {
@@ -94,10 +142,11 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 		}
 
 		/*
-		 * an JSON null value is ignored by non-optional attributes, as there is no SPL equivalent
-		 * optional attributes have to be set to not present
-		 * list and map collection elements have to be created and added with set to not-present
-		 * Set elements will not be added as null gives no information in a set*/
+		 * A JSON null value is ignored by non-optional attributes, as there is no SPL equivalent.
+		 * Optional attributes will be set to not present (null).
+		 * List and map collection elements have to be created and added with set to not-present.
+		 * Set elements will not be added as null gives no information in a set.
+		 * */
 		bool Null() {
 			TupleState & state = objectStack.top();
 
@@ -116,7 +165,6 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 						 * or primitive attribute
 						 * set it just to not-present
 						 */
-						//todo we need a clear() on Optional base class
 						((Optional &)valueHandle).clear();
 					}
 				}
@@ -125,10 +173,9 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 					 * null
 					 * only List, Blist, Map, BMap are supported
 					 * if the collection element valueType is optional
-					 *   create an element of the collection, set to not-present
+					 *   create an element of the collection (initially optionals are NULL)
 					 * for non-optional collection element types the null is ignored
 					 */
-						//handle of the collection
 					ValueHandle collectionHandle = valueHandle;
 					if (valueHandle.getMetaType() == Meta::Type::OPTIONAL)
 						collectionHandle = ((Optional&)valueHandle).getValue();
@@ -136,36 +183,28 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 					switch (collectionHandle.getMetaType()) {
 						case Meta::Type::MAP: {
 							if (((Map &)collectionHandle).getValueMetaType() == Meta::Type::OPTIONAL) {
-								//new optionals are initially null
 								ValueHandle collectionElementValue = ((Map &)collectionHandle).createValue();
-								//insert this null into the collection
 								InsertValue(valueHandle, collectionElementValue);
 								collectionElementValue.deleteValue();
 								}
 							break;}
 						case Meta::Type::BMAP: {
 							if (((BMap &)collectionHandle).getValueMetaType() == Meta::Type::OPTIONAL) {
-								//new optionals are initially null
 								ValueHandle collectionElementValue = ((BMap &)collectionHandle).createValue();
-								//insert this null into the collection
 								InsertValue(valueHandle, collectionElementValue);
 								collectionElementValue.deleteValue();
 								}
 							break;}
 						case Meta::Type::LIST: {
 							if (((List &)collectionHandle).getElementMetaType() == Meta::Type::OPTIONAL) {
-								//new optionals are initially null
 								ValueHandle collectionElementValue = ((List &)collectionHandle).createElement();
-								//insert this null into the collection
 								InsertValue(valueHandle, collectionElementValue);
 								collectionElementValue.deleteValue();
 								}
 							break;}
 						case Meta::Type::BLIST: {
 							if (((BList &)collectionHandle).getElementMetaType() == Meta::Type::OPTIONAL) {
-								//new optionals are initially null
 								ValueHandle collectionElementValue = ((BList &)collectionHandle).createElement();
-								//insert this null into the collection
 								InsertValue(valueHandle, collectionElementValue);
 								collectionElementValue.deleteValue();
 								}
@@ -274,9 +313,6 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 					}
 				}
 				else {
-					/*
-					 * we are in a collection, the valueHandle is the handle to the collection attribute
-					 * in case of optional it should be present at this point!!!*/
 					if (valueHandle.getMetaType() == Meta::Type::OPTIONAL){
 						Optional&  refOptional = (Optional&) valueHandle;
 						if (refOptional.isPresent()) {
@@ -340,8 +376,6 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 						Optional&  refOptional = (Optional&) valueHandle;
 						switch(refOptional.getValueMetaType()) {
 							case Meta::Type::BSTRING : {
-								//use the way via valueHandle to assign value
-								//as no cast is possible for optional<bstring<n>> as we don't have n
 								SetOptionalValueToDefault(refOptional);
 								ValueHandle tmpValueHandle = refOptional.getValue();
 								static_cast<BString &>(tmpValueHandle) = rstring(s,length);
@@ -368,7 +402,6 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 				else {
 					if (valueHandle.getMetaType() == Meta::Type::OPTIONAL){
 						Optional&  refOptional = (Optional&) valueHandle;
-						//collection should be present anytime
 						if (refOptional.isPresent()) {
 							valueHandle = refOptional.getValue();
 							switch(valueType) {
@@ -402,24 +435,14 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 			TupleState & state = objectStack.top();
 			TupleIterator const& endIter = state.tuple.getEndIterator();
 
-			/*We are at the beginning
-			 *       after duplicate key detection
-			 *       after non-matching key
-			 */
 			if(state.attrIter == endIter) {
 				state.objectCount++;
 			}
-			/* We are after key detection
-			 * An opened json object can only be
-			 * 		a tuple
-			 * 		a map or bmap
-			 * Nothing else can be a valid destination of an object
-			 * */
 			else {
 				ValueHandle valueHandle = (*state.attrIter).getValue();
 
 				/* There is no collection open
-				 * Determine which to attribute type the object has to be mapped
+				 * valid attribute types to which the object can be mapped
 				 * 	tuple
 				 * 	map
 				 * 	bmap
@@ -428,19 +451,12 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 					switch(valueHandle.getMetaType()) {
 						case Meta::Type::MAP : {
 							SPLAPPTRC(L_DEBUG, "matched to map", "EXTRACT_FROM_JSON");
-							/* state to indicate that a MAP is open and further key value SAX events
-							 * doesn't require mapping to attribute/value but have to be added to the open
-							 * map*/
 							state.inCollection = MAP;
 
-							/* support only rstring and ustring as key type
-							 * mark the value type of the map, has to be used in further
-							 * SAX value event calls*/
 							switch (static_cast<Map&>(valueHandle).getKeyMetaType()) {
 								case Meta::Type::RSTRING :;
 								case Meta::Type::USTRING : {
 
-//
 									valueType = static_cast<Map&>(valueHandle).getValueMetaType();
 									valueIsOptional=false;
 									/* in case of optional collection type determine the optionals value type by
@@ -453,14 +469,10 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 										valueIsOptional=true;
 									}
 
-//									valueType = static_cast<Map&>(valueHandle).getValueMetaType();
-//									valueIsOptional=false;
 									break;
 								}
 								default : {
 									SPLAPPTRC(L_DEBUG, "key type not matched", "EXTRACT_FROM_JSON");
-									/* no mapping in further SAX key/value events calls until object closed
-									 * as the attribute map type doesn't fit */
 									state.attrIter = endIter;
 								}
 							}
@@ -488,9 +500,6 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 						}
 						case Meta::Type::TUPLE : {
 							SPLAPPTRC(L_DEBUG, "matched to tuple", "EXTRACT_FROM_JSON");
-							/* actual open attribute is of tuple type
-							 * so that this StartObject will open a new tuple object
-							 * on stack which now receives SAX key/value events */
 							Tuple & tuple = valueHandle;
 							objectStack.push(TupleState(tuple));
 
@@ -501,19 +510,12 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 							switch(refOptional.getValueMetaType()) {
 								case Meta::Type::MAP : {
 									SPLAPPTRC(L_DEBUG, "matched to optional map", "EXTRACT_FROM_JSON");
-									/* state to indicate that a MAP is open and further key value SAX events
-									 * doesn't require mapping to attribute/value but have to be added to the open
-									 * map*/
 									state.inCollection = MAP;
 
-									// if optional attribute input was null
-									// set to present with default content
+									/* make sure that a map is there */
 									if (!refOptional.isPresent())
 										SetOptionalValueToDefault(refOptional);
 
-									/* support only rstring and ustring as key type
-									 * mark the value type of the map, has to be used in further
-									 * SAX value event calls*/
 									switch (static_cast<Map&>(refOptional.getValue()).getKeyMetaType()) {
 										case Meta::Type::RSTRING :;
 										case Meta::Type::USTRING : {
@@ -523,8 +525,6 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 										}
 										default : {
 											SPLAPPTRC(L_DEBUG, "key type not matched", "EXTRACT_FROM_JSON");
-											/* no mapping in further SAX key/value events calls until object closed
-											 * as the attribute map type doesn't fit */
 											state.attrIter = endIter;
 										}
 									}
@@ -534,8 +534,8 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 								case Meta::Type::BMAP : {
 									SPLAPPTRC(L_DEBUG, "matched to optional bounded map", "EXTRACT_FROM_JSON");
 									state.inCollection = MAP;
-									// if optional input was null
-									// set to present with default countent
+
+									/* make sure that a map is there */
 									if (!refOptional.isPresent())
 										SetOptionalValueToDefault(refOptional);
 
@@ -556,12 +556,8 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 								}
 								case Meta::Type::TUPLE : {
 									SPLAPPTRC(L_DEBUG, "matched to optional tuple", "EXTRACT_FROM_JSON");
-									/* actual open attribute is of tuple type
-									 * so that this StartObject will open a new tuple object
-									 * on stack which now receives SAX key/value events */
 
-									// if optional input was null
-									// set to present with default countent
+									/* make sure that a tuple is there */
 									if (!refOptional.isPresent())
 										SetOptionalValueToDefault(refOptional);
 
@@ -572,9 +568,6 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 								}
 								default : {
 									SPLAPPTRC(L_DEBUG, "not matched", "EXTRACT_FROM_JSON");
-									/* the actual attribute is not of supported type
-									 * no mapping in further SAX key/value events calls until object closed
-									 * */
 									state.attrIter = endIter;
 								}
 							}
@@ -582,9 +575,6 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 						}
 						default : {
 							SPLAPPTRC(L_DEBUG, "not matched", "EXTRACT_FROM_JSON");
-							/* the actual attribute is not of supported type
-							 * no mapping in further SAX key/value events calls until object closed
-							 * */
 							state.attrIter = endIter;
 						}
 					}
@@ -595,15 +585,8 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 				 *     list
 				 *     map */
 				else {
-					/*todo check this,
-					 * makes sense only that we are in an open MAP collection with a map as map-value
-					 * this would be the only case were we would expect and want to handle a
-					 * StartElement without mapping this object to a tuple
-					 * Other scenarios would lead to not matched ????
-					 * Like expecting map of integer {"mapOfInt":{"key1":1}}
-					 * but getting {"mapOfMap": {"key1":{"subkey":1}}}
-					 * or expecting list of int {"ListOfTuple:[1]}
-					 * but getting list of tuples {"ListOfTuple:[{"attribute":1}]}*/
+					/* the value of a SPL collection needs to be tuple to be able to map a new JSON object
+					 * otherwise just count the open objects to be in synch with EndObject() */
 					if(valueType != Meta::Type::TUPLE) {
 						state.objectCount++;
 					}
@@ -704,7 +687,7 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 			if(state.inCollection == MAP) {
 				state.inCollection = NO;
 			}
-			/* only the pending opend child object (tuple or map) in a list/tuple is closed
+			/* only the pending open child object (tuple or map) in a list/tuple is closed
 			 * and tuple object is removed from stack when
 			 * object count is in synch with all StartObject and EndObject received during
 			 * lifetime of open stack tuple (there may be some which are not mapped/matched)
@@ -724,7 +707,7 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 
 
 		/* StartArray will match only to list/blist and set/bset attribute types
-		 * todo : array of arrays resp. collection of collections is not supported
+		 * hint: array of arrays resp. collection of collections is not supported
 		 * */
 		bool StartArray() {
 			SPLAPPTRC(L_DEBUG, "array started", "EXTRACT_FROM_JSON");
@@ -732,24 +715,19 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 			TupleState & state = objectStack.top();
 			TupleIterator const& endIter = state.tuple.getEndIterator();
 
-			/* we do have an open attribute expecting a value?
-			 * this would be the one receiving t he JSON array content
+			/* Do we have an open attribute expecting a value?
+			 * This would be the one receiving t he JSON array content
 			 * and as such needs to have a SPL type being able to store values from
-			 * an array */
+			 * an array (SPL list or SPL Set).*/
 			if(state.attrIter != endIter) {
 				ValueHandle valueHandle = (*state.attrIter).getValue();
 
-				/* check the attributes MetaType against supported and
-				 * handle it accordingly*/
 				switch (valueHandle.getMetaType()) {
 					case Meta::Type::LIST : {
 						SPLAPPTRC(L_DEBUG, "matched to list", "EXTRACT_FROM_JSON");
 
 						valueType = static_cast<List&>(valueHandle).getElementMetaType();
 						valueIsOptional=false;
-						/* in case of optional collection type determine the optionals value type by
-						 * creating a value and get the value type from this handle
-						 */
 						if (valueType == Meta::Type::OPTIONAL) {
 							ValueHandle tmpElementValueHandle=static_cast<List&>(valueHandle).createElement();
 							valueType = static_cast<Optional&> (tmpElementValueHandle).getValueMetaType();
@@ -878,17 +856,12 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 		}
 
 
-
-
 		bool EndArray(SizeType elementCount) {
 			SPLAPPTRC(L_DEBUG, "array ended", "EXTRACT_FROM_JSON");
 
-			/*EndArray only closes the open collection and we go back
-			 * to normal handling for the open tuple object */
 			objectStack.top().inCollection = NO;
 			return true;
 		}
-
 
 
 		/* Inserting a value in a collection type attribute
@@ -936,12 +909,6 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 						InsertMapElement(static_cast<Map&>(valueHandle),ConstValueHandle(lastKey),valueIsOptional, valueElemHandle);
 					else
 						InsertMapElement(static_cast<Map&>(valueHandle),ConstValueHandle(ustring(lastKey.data(), lastKey.length())),valueIsOptional, valueElemHandle);
-/*					Map & mapAttr = valueHandle;
-					if(mapAttr.getKeyMetaType() == Meta::Type::RSTRING)
-						mapAttr.insertElement(ConstValueHandle(lastKey), valueElemHandle);
-					else
-						mapAttr.insertElement(ConstValueHandle(ustring(lastKey.data(), lastKey.length())), valueElemHandle);
-*/
 					break;
 				}
 				case Meta::Type::BMAP : {
@@ -949,13 +916,6 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 						InsertMapElement(static_cast<BMap&>(valueHandle),ConstValueHandle(lastKey),valueIsOptional, valueElemHandle);
 					else
 						InsertMapElement(static_cast<BMap&>(valueHandle),ConstValueHandle(ustring(lastKey.data(), lastKey.length())),valueIsOptional, valueElemHandle);
-/*
-					BMap & mapAttr = valueHandle;
-					if(mapAttr.getKeyMetaType() == Meta::Type::RSTRING)
-						mapAttr.insertElement(ConstValueHandle(lastKey), valueElemHandle);
-					else
-						mapAttr.insertElement(ConstValueHandle(ustring(lastKey.data(), lastKey.length())), valueElemHandle);
-*/
 					break;
 				}
 				default:;
@@ -1008,7 +968,7 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 
 
 		/* Function to set an Optional to present with its value
-		 * default initialization
+		 * default initialization,
 		 * necessary e.g. to set an optional collection to present and empty
 		 * */
 		inline void SetOptionalValueToDefault(Optional & refOptional) {
