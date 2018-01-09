@@ -2,7 +2,7 @@
 title: "Toolkit Usage Overview"
 permalink: /docs/user/overview/
 excerpt: "How to use this toolkit."
-last_modified_at: 2017-08-04T12:37:48-04:00
+last_modified_at: 2018-01-09T11:00:00-00:00
 redirect_from:
    - /theme-setup/
 sidebar:
@@ -22,6 +22,6 @@ sidebar:
 
 [Package com.ibm.streamsx.json.converters](https://ibmstreams.github.io/streamsx.json/com.ibm.streamsx.json/doc/converters/index.html)
 
-## Article
+## Articles
 
-[https://developer.ibm.com/streamsdev/docs/introducing-the-json-toolkit/](https://developer.ibm.com/streamsdev/docs/introducing-the-json-toolkit/)
+[DeveloperWorks: Introducing the json toolkit](https://developer.ibm.com/streamsdev/docs/introducing-the-json-toolkit/)
