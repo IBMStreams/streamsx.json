@@ -199,7 +199,6 @@ public class JSONToTuple extends AbstractOperator
 			if(jsonStringOutputAttribute!= null) {
 				op.setString(jsonStringOutputAttribute, jsonInput);
 			}
-			ops.submit(op);
 
 			
 		} catch(Exception e) {
@@ -211,6 +210,7 @@ public class JSONToTuple extends AbstractOperator
 				op1.submit(tuple);
 			}
 		}
+        	ops.submit(op);
 	}
 
 	static final String DESC = 
