@@ -209,6 +209,7 @@ public class JSONToTuple extends AbstractOperator
 				StreamingOutput<OutputTuple> op1 = getOutput(1);
 				op1.submit(tuple);
 			}
+                        return;
 		}
         	ops.submit(op);
 	}
