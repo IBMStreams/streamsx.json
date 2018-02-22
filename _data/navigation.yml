@@ -11,8 +11,8 @@ main:
 knowledgedocs:
   - title: Background knowledge
     children:
-      - title: "Overview - Use case"
-        url: /docs/knowledge/usecase/overview
+      - title: "Overview"
+        url: /docs/knowledge/overview
 
 # user documentation links
 userdocs:

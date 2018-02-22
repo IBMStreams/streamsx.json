@@ -7,22 +7,22 @@
 <meta name="copyright" content="(C) Copyright 2005"/>
 <meta name="DC.rights.owner" content="(C) Copyright 2005"/>
 <meta name="DC.Type" content="reference"/>
-<meta name="DC.Title" content="Functions: com.ibm.streamsx.json 1.2.1.commit_cc3b08f"/>
+<meta name="DC.Title" content="Functions: com.ibm.streamsx.json 1.4.3.commit_8c13ca1"/>
 <meta name="DC.Format" content="XHTML"/>
 <meta name="DC.Identifier" content="spldoc_index"/>
 <link rel="stylesheet" type="text/css" href="../../html/commonltr.css"/>
 <link rel="stylesheet" type="text/css" href="../../html/spldoc.css"/>
-<title>Functions: com.ibm.streamsx.json 1.2.1.commit_cc3b08f</title>
+<title>Functions: com.ibm.streamsx.json 1.4.3.commit_8c13ca1</title>
 </head>
 <body id="spldoc_index">
 
 
-<h1 class="title topictitle1">Functions: com.ibm.streamsx.json 1.2.1.commit_cc3b08f</h1>
+<h1 class="title topictitle1">Functions: com.ibm.streamsx.json 1.4.3.commit_8c13ca1</h1>
 
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBM Streams com.ibm.streamsx.json Toolkit and samples</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.json.html">com.ibm.streamsx.json 1.2.1.commit_cc3b08f</a> &gt; Functions</p>
+<a class="xref" href="../toolkits/toolkits.html">IBM Streams com.ibm.streamsx.json Toolkit and samples</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.json.html">com.ibm.streamsx.json 1.4.3.commit_8c13ca1</a> &gt; Functions</p>
 
 </div>
 
@@ -30,9 +30,129 @@
   
 <dl class="dl">
 
+  <dt class="dt dlterm"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__extractFromJSON.rstring.T">extractFromJSON(rstring, T)</a></dt>
+
+  <dd class="dd">Extract values from JSON string accordingly to a given tuple.</dd>
+
+
+
+  <dt class="dt dlterm"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__getParseError.JsonParseStatus.status">getParseError(JsonParseStatus.status)</a></dt>
+
+  <dd class="dd">Get parse error string.</dd>
+
+
+
   <dt class="dt dlterm"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__mapToJSON.map:.:S.T:.:">mapToJSON(map&lt;S, T&gt;)</a></dt>
 
   <dd class="dd">Convert a map to JSON object encoded as a serialized JSON string.</dd>
+
+
+
+  <dt class="dt dlterm"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__parseJSON.rstring.E">parseJSON(rstring, E)</a></dt>
+
+  <dd class="dd">Parse JSON string (used in conjunction with queryJSON function).</dd>
+
+
+
+  <dt class="dt dlterm"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__parseJSON.rstring.JsonParseStatus.status.uint32.E">parseJSON(rstring, JsonParseStatus.status, uint32, E)</a></dt>
+
+  <dd class="dd">Parse JSON string (used in conjunction with queryJSON function).</dd>
+
+
+
+  <dt class="dt dlterm"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.T.E">queryJSON(rstring, T, E)</a></dt>
+
+  <dd class="dd">Query JSON object for integral value with a given path (parseJSON function should be run before).</dd>
+
+
+
+  <dt class="dt dlterm"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.T.E">queryJSON(rstring, T, E)</a></dt>
+
+  <dd class="dd">Query JSON object for floatingpoint value with a given path (parseJSON function should be run before).</dd>
+
+
+
+  <dt class="dt dlterm"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.T.E">queryJSON(rstring, T, E)</a></dt>
+
+  <dd class="dd">Query JSON object for string value with a given path (parseJSON function should be run before).</dd>
+
+
+
+  <dt class="dt dlterm"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.T.JsonStatus.status.E">queryJSON(rstring, T, JsonStatus.status, E)</a></dt>
+
+  <dd class="dd">Query JSON object for integral value with a given path (parseJSON function should be run before).</dd>
+
+
+
+  <dt class="dt dlterm"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.T.JsonStatus.status.E">queryJSON(rstring, T, JsonStatus.status, E)</a></dt>
+
+  <dd class="dd">Query JSON object for floatingpoint value with a given path (parseJSON function should be run before).</dd>
+
+
+
+  <dt class="dt dlterm"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.T.JsonStatus.status.E">queryJSON(rstring, T, JsonStatus.status, E)</a></dt>
+
+  <dd class="dd">Query JSON object for string value with a given path (parseJSON function should be run before).</dd>
+
+
+
+  <dt class="dt dlterm"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.boolean.E">queryJSON(rstring, boolean, E)</a></dt>
+
+  <dd class="dd">Query JSON object for boolean value with a given path (parseJSON function should be run before).</dd>
+
+
+
+  <dt class="dt dlterm"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.boolean.JsonStatus.status.E">queryJSON(rstring, boolean, JsonStatus.status, E)</a></dt>
+
+  <dd class="dd">Query JSON object value with a given path (parseJSON function should be run before).</dd>
+
+
+
+  <dt class="dt dlterm"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.list:.:T:.:.E">queryJSON(rstring, list&lt;T&gt;, E)</a></dt>
+
+  <dd class="dd">Query JSON object for list of integrals with a given path (parseJSON function should be run before).</dd>
+
+
+
+  <dt class="dt dlterm"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.list:.:T:.:.E">queryJSON(rstring, list&lt;T&gt;, E)</a></dt>
+
+  <dd class="dd">Query JSON object for list of floatingpoint values with a given path (parseJSON function should be run before).</dd>
+
+
+
+  <dt class="dt dlterm"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.list:.:T:.:.E">queryJSON(rstring, list&lt;T&gt;, E)</a></dt>
+
+  <dd class="dd">Query JSON object for list of strings with a given path (parseJSON function should be run before).</dd>
+
+
+
+  <dt class="dt dlterm"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.list:.:T:.:.JsonStatus.status.E">queryJSON(rstring, list&lt;T&gt;, JsonStatus.status, E)</a></dt>
+
+  <dd class="dd">Query JSON object for list of integrals with a given path (parseJSON function should be run before).</dd>
+
+
+
+  <dt class="dt dlterm"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.list:.:T:.:.JsonStatus.status.E">queryJSON(rstring, list&lt;T&gt;, JsonStatus.status, E)</a></dt>
+
+  <dd class="dd">Query JSON object for list of floatingpoint values with a given path (parseJSON function should be run before).</dd>
+
+
+
+  <dt class="dt dlterm"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.list:.:T:.:.JsonStatus.status.E">queryJSON(rstring, list&lt;T&gt;, JsonStatus.status, E)</a></dt>
+
+  <dd class="dd">Query JSON object for list of strings with a given path (parseJSON function should be run before).</dd>
+
+
+
+  <dt class="dt dlterm"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.list:.:boolean:.:.E">queryJSON(rstring, list&lt;boolean&gt;, E)</a></dt>
+
+  <dd class="dd">Query JSON object for list of booleans with a given path (parseJSON function should be run before).</dd>
+
+
+
+  <dt class="dt dlterm"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__queryJSON.rstring.list:.:boolean:.:.JsonStatus.status.E">queryJSON(rstring, list&lt;boolean&gt;, JsonStatus.status, E)</a></dt>
+
+  <dd class="dd">Query JSON object for list of booleans with a given path (parseJSON function should be run before).</dd>
 
 
 
