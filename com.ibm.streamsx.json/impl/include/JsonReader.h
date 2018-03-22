@@ -35,10 +35,6 @@ using namespace SPL;
 
 namespace com { namespace ibm { namespace streamsx { namespace json {
 
-	namespace {
-		struct OperatorInstance {};
-	}
-
 	typedef enum{ NO, LIST, MAP } InCollection;
 
 
@@ -1001,46 +997,6 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 	}
 
 
-	template<typename Index, typename OP>
-	inline Document& getDocument() {
-		static thread_specific_ptr<Document> jsonPtr_;
-
-		Document * jsonPtr = jsonPtr_.get();
-		if(!jsonPtr) {
-			jsonPtr_.reset(new Document());
-			jsonPtr = jsonPtr_.get();
-		}
-
-		return *jsonPtr;
-	}
-
-	template<typename Status, typename Index>
-	inline bool parseJSON(rstring const& jsonString, Status & status, uint32_t & offset, const Index & jsonIndex) {
-		Document & json = getDocument<Index, OperatorInstance>();
-		Document(kObjectType).Swap(json);
-
-		if(json.Parse<kParseStopWhenDoneFlag>(jsonString.c_str()).HasParseError()) {
-			json.SetObject();
-			status = json.GetParseError();
-			offset = json.GetErrorOffset();
-
-			return false;
-		}
-		return true;
-	}
-
-	template<typename Index>
-	inline uint32_t  parseJSON(rstring const& jsonString, const Index & jsonIndex) {
-
-		ParseErrorCode status = kParseErrorNone;
-		uint32_t offset = 0;
-
-		if(!parseJSON(jsonString, status, offset, jsonIndex))
-			SPLAPPTRC(L_ERROR, GetParseError_En(status), "PARSE_JSON");
-
-		return (uint32_t)status;
-	}
-
 	template<typename T>
 	inline T parseNumber(Value * value) {
 		StringBuffer str;
@@ -1187,34 +1143,82 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 
 		return defaultVal;
 	}
-
-	template<typename T, typename Status, typename Index>
-	inline T queryJSON(rstring const& jsonPath, T const& defaultVal, Status & status, Index const& jsonIndex) {
-
-		Document & json = getDocument<Index, OperatorInstance>();
-		if(json.IsNull())
-			THROW(SPL::SPLRuntimeOperator, "Invalid usage of 'queryJSON' function, 'parseJSON' function must be used before.");
-
-		const Pointer & pointer = Pointer(jsonPath.c_str());
-		PointerParseErrorCode ec = pointer.GetParseErrorCode();
-
-		if(pointer.IsValid()) {
-			Value * value = pointer.Get(json);
-			return getJSONValue(value, defaultVal, status, jsonIndex);
-		}
-		else {
-			status = ec + 4; // Pointer error codes in SPL enum should be shifted by 4
-			return defaultVal;
-		}
-	}
-
-	template<typename T, typename Index>
-	inline T queryJSON(rstring const& jsonPath, T const& defaultVal, Index const& jsonIndex) {
-
-		 int status = 0;
-		 return queryJSON(jsonPath, defaultVal, status, jsonIndex);
-	}
-
 }}}}
 
-#endif /* JSON_READER_H_ */
+#endif
+
+namespace com { namespace ibm { namespace streamsx { namespace json {
+
+	namespace { // this anonymous namespace will be defined for each operator separately
+
+		template<typename Index>
+		inline Document& getDocument() {
+			static thread_specific_ptr<Document> jsonPtr_;
+
+			Document * jsonPtr = jsonPtr_.get();
+			if(!jsonPtr) {
+				jsonPtr_.reset(new Document());
+				jsonPtr = jsonPtr_.get();
+			}
+
+			return *jsonPtr;
+		}
+
+		template<typename Status, typename Index>
+		inline bool parseJSON(rstring const& jsonString, Status & status, uint32_t & offset, const Index & jsonIndex) {
+			Document & json = getDocument<Index>();
+			Document(kObjectType).Swap(json);
+
+			if(json.Parse<kParseStopWhenDoneFlag>(jsonString.c_str()).HasParseError()) {
+				json.SetObject();
+				status = json.GetParseError();
+				offset = json.GetErrorOffset();
+
+				return false;
+			}
+			return true;
+		}
+
+		template<typename Index>
+		inline uint32_t  parseJSON(rstring const& jsonString, const Index & jsonIndex) {
+
+			ParseErrorCode status = kParseErrorNone;
+			uint32_t offset = 0;
+
+			if(!parseJSON(jsonString, status, offset, jsonIndex))
+				SPLAPPTRC(L_ERROR, GetParseError_En(status), "PARSE_JSON");
+
+			return (uint32_t)status;
+		}
+
+		template<typename T, typename Status, typename Index>
+		inline T queryJSON(rstring const& jsonPath, T const& defaultVal, Status & status, Index const& jsonIndex) {
+
+			Document & json = getDocument<Index>();
+			if(json.IsNull())
+				THROW(SPL::SPLRuntimeOperator, "Invalid usage of 'queryJSON' function, 'parseJSON' function must be used before.");
+
+			const Pointer & pointer = Pointer(jsonPath.c_str());
+			PointerParseErrorCode ec = pointer.GetParseErrorCode();
+
+			if(pointer.IsValid()) {
+				Value * value = pointer.Get(json);
+				return getJSONValue(value, defaultVal, status, jsonIndex);
+			}
+			else {
+				status = ec + 4; // Pointer error codes in SPL enum should be shifted by 4
+				return defaultVal;
+			}
+		}
+
+		template<typename T, typename Index>
+		inline T queryJSON(rstring const& jsonPath, T const& defaultVal, Index const& jsonIndex) {
+
+			 int status = 0;
+			 return queryJSON(jsonPath, defaultVal, status, jsonIndex);
+		}
+	}
+}}}}
+
+/* JSON_READER_H_ */
+

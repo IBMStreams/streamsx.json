@@ -1,0 +1,89 @@
+//
+// *******************************************************************************
+// * Copyright (C)2014, International Business Machines Corporation and *
+// * others. All Rights Reserved. *
+// *******************************************************************************
+//
+namespace com.ibm.streamsx.json.tests;
+
+use com.ibm.streamsx.json::*;
+
+composite BasicParseQueryTest {
+
+
+	type
+		JsonSourceType = rstring jsonString;
+		ExtractedSourceType = tuple<int32 a, rstring b, tuple< int32 c1, rstring c2> c>;
+
+	graph
+		stream<JsonSourceType> JsonSourceStream = Beacon() {
+		param
+			iterations : 1u;
+		output JsonSourceStream : jsonString = "{\"a\":1,\"b\":\"Hallo\",\"c\":{\"c1\": 2, \"c2\":\"Hallo again\"}}";
+		}
+
+		stream<ExtractedSourceType> ExtractedSourceStream as O = Custom(JsonSourceStream as I) {
+		
+		logic
+			state: 	{
+				mutable ExtractedSourceStream generatedTuple;
+				mutable uint32 parseResultCode;
+				mutable JsonStatus.status queryStatus;
+				mutable	int32 query_a;
+				mutable	rstring query_b;
+				mutable	int32 query_c1;
+				mutable	rstring query_c2;
+			}
+
+			onTuple I: { 
+
+				parseResultCode = parseJSON(I.jsonString, JsonIndex._1);
+				generatedTuple = {a=0,b="",c={c1=0,c2=""}};
+				query_a = 0;
+				query_b = "";
+				query_c1 = 0;
+				query_c2 = "";
+
+				if (parseResultCode == 0u){
+					query_a = queryJSON("/a",0,queryStatus,JsonIndex._1);
+					log(Sys.info,"queryStatus: " + (rstring)queryStatus);
+					if (queryStatus == JsonStatus.FOUND || queryStatus == JsonStatus.FOUND_CAST) {
+					generatedTuple.a = query_a;
+					}
+
+					query_b = queryJSON("/b","",queryStatus,JsonIndex._1);
+					log(Sys.info,"queryStatus: " + (rstring)queryStatus);
+					if (queryStatus == JsonStatus.FOUND || queryStatus == JsonStatus.FOUND_CAST) {
+					generatedTuple.b = query_b;
+					}
+
+					query_c1 = queryJSON("/c/c1",0,queryStatus,JsonIndex._1);
+					log(Sys.info,"queryStatus: " + (rstring)queryStatus);
+					if (queryStatus == JsonStatus.FOUND || queryStatus == JsonStatus.FOUND_CAST) {
+					generatedTuple.c.c1 = query_c1;
+					}
+ 
+					query_c2 = queryJSON("/c/c2","",queryStatus,JsonIndex._1);
+					log(Sys.info,"queryStatus: " + (rstring)queryStatus);
+					if (queryStatus == JsonStatus.FOUND || queryStatus == JsonStatus.FOUND_CAST) {
+					generatedTuple.c.c2 = query_c2;
+					}
+
+				}
+				submit( generatedTuple, ExtractedSourceStream);
+			}
+		}
+		
+		/* Verify the Input JSON with the generated tuple, which attributes
+		   are set by one parseJSON() and several queryJSON() calls
+		   
+		   The verifier converts the jsonString attribute of the first port to a tupletype 
+		   of the 2nd port and compares both tuples
+		*/
+		() as SinkOp = VerifierJTOT(JsonSourceStream; ExtractedSourceStream) {}
+
+	config 
+	  tracing : debug;
+}
+
+
