@@ -229,7 +229,7 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 					if (valueHandle.getMetaType() == Meta::Type::OPTIONAL) {
 						Optional & refOptional = valueHandle;
 						if (refOptional.getValueMetaType() == Meta::Type::BOOLEAN)
-							static_cast<optional<boolean> &>(refOptional) = boolean(b);
+							static_cast<SPL::optional<boolean> &>(refOptional) = boolean(b);
 						else
 							SPLAPPTRC(L_DEBUG, "not matched", "EXTRACT_FROM_JSON");
 					}
@@ -279,16 +279,16 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 					if (valueHandle.getMetaType() == Meta::Type::OPTIONAL){
 						Optional & refOptional = valueHandle;
 						switch(((const SPL::Optional&)valueHandle).getValueMetaType()) {
-							case Meta::Type::INT8 : { static_cast<optional<int8> &>(refOptional) = int8(num); break; }
-							case Meta::Type::INT16 : { static_cast<optional<int16> &>(refOptional) = int16(num); break; }
-							case Meta::Type::INT32 : { static_cast<optional<int32> &>(refOptional) = int32(num); break; }
-							case Meta::Type::INT64 : { static_cast<optional<int64> &>(refOptional) = int64(num); break; }
-							case Meta::Type::UINT8 : { static_cast<optional<uint8> &>(refOptional) = uint8(num); break; }
-							case Meta::Type::UINT16 : { static_cast<optional<uint16> &>(refOptional) = uint16(num); break; }
-							case Meta::Type::UINT32 : { static_cast<optional<uint32> &>(refOptional) = uint32(num); break; }
-							case Meta::Type::UINT64 : { static_cast<optional<uint64> &>(refOptional) = uint64(num); break; }
-							case Meta::Type::FLOAT32 : { static_cast<optional<float32> &>(refOptional) = float32(num); break; }
-							case Meta::Type::FLOAT64 : { static_cast<optional<float64> &>(refOptional) = float64(num); break; }
+							case Meta::Type::INT8 : { static_cast<SPL::optional<int8> &>(refOptional) = int8(num); break; }
+							case Meta::Type::INT16 : { static_cast<SPL::optional<int16> &>(refOptional) = int16(num); break; }
+							case Meta::Type::INT32 : { static_cast<SPL::optional<int32> &>(refOptional) = int32(num); break; }
+							case Meta::Type::INT64 : { static_cast<SPL::optional<int64> &>(refOptional) = int64(num); break; }
+							case Meta::Type::UINT8 : { static_cast<SPL::optional<uint8> &>(refOptional) = uint8(num); break; }
+							case Meta::Type::UINT16 : { static_cast<SPL::optional<uint16> &>(refOptional) = uint16(num); break; }
+							case Meta::Type::UINT32 : { static_cast<SPL::optional<uint32> &>(refOptional) = uint32(num); break; }
+							case Meta::Type::UINT64 : { static_cast<SPL::optional<uint64> &>(refOptional) = uint64(num); break; }
+							case Meta::Type::FLOAT32 : { static_cast<SPL::optional<float32> &>(refOptional) = float32(num); break; }
+							case Meta::Type::FLOAT64 : { static_cast<SPL::optional<float64> &>(refOptional) = float64(num); break; }
 							default : SPLAPPTRC(L_DEBUG, "not matched", "EXTRACT_FROM_JSON");
 						}
 					}
@@ -378,10 +378,10 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 								refOptional.setValue(tmpValueHandle);
 								break; }
 							case Meta::Type::RSTRING : {
-								static_cast<optional<rstring> &>(refOptional) = rstring(s,length);
+								static_cast<SPL::optional<rstring> &>(refOptional) = rstring(s,length);
 								break; }
 							case Meta::Type::USTRING : {
-								static_cast<optional<ustring> &>(refOptional) = ustring(s,length);
+								static_cast<SPL::optional<ustring> &>(refOptional) = ustring(s,length);
 								break; }
 							default : SPLAPPTRC(L_DEBUG, "not matched", "EXTRACT_FROM_JSON");
 						}
