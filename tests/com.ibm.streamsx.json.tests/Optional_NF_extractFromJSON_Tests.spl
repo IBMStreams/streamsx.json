@@ -1,0 +1,645 @@
+//
+// *******************************************************************************
+// * Copyright (C)2014, International Business Machines Corporation and *
+// * others. All Rights Reserved. *
+// *******************************************************************************
+//
+/*********************************************************************************
+*
+* This testsuite will test the C++ native  Functions of the streamsx.json toolkit
+*
+*
+*       <tuple T> public T extractFromJSON(rstring jsonString, T value)
+*
+* decimal type not supported by extractFromJson
+*
+*********************************************************************************/
+namespace com.ibm.streamsx.json.tests;
+use com.ibm.streamsx.json::*;
+
+
+composite Optional_NF_extractFromJSON_BasicTest {
+
+
+	graph
+		stream<FlatType> TupleStream = Beacon() {
+		param
+			iterations : 1u;
+		output TupleStream : 
+			rstringAtt = "rStringValue", rstringAttOptNull = null, rstringAttOptVal = "rStringValue",
+			ustringAtt = "uStringValue"u, ustringAttOptNull = null, ustringAttOptVal = "uStringValue"u,
+			bstringAtt = (rstring[10])"bStringValue", bstringAttOptNull = null, bstringAttOptVal = (rstring[10])"bStringValue",
+			int8Att=10bs , int8AttOptNull=null , int8AttOptVal=-99bs,
+			int16Att=10hs , int16AttOptNull=null , int16AttOptVal=-99hs,
+			int32Att=10ws , int32AttOptNull=null , int32AttOptVal=-99ws,
+			int64Att=10ls , int64AttOptNull=null , int64AttOptVal=-99ls,
+			uint8Att=10bu , uint8AttOptNull=null , uint8AttOptVal=99bu,
+			uint16Att=10hu , uint16AttOptNull=null , uint16AttOptVal=99hu,
+			uint32Att=10wu , uint32AttOptNull=null , uint32AttOptVal=99wu,
+			uint64Att=10lu , uint64AttOptNull=null , uint64AttOptVal=99lu,
+			booleanAtt=true, booleanAttOptNull=null, booleanAttOptVal=true,
+			float32Att=3.5wf,float32AttOptNull=null , float32AttOptVal=3.5wf,
+			float64Att=3.5lf, float64AttOptNull=null ,  float64AttOptVal=3.5lf,
+// as decimal types are not supported by extractFromJJson, we set only defaults so 
+// that we can use the FlatType for test to generate and compare tuples
+			decimal32Att=0wd, decimal32AttOptNull=null , decimal32AttOptVal=null,
+			decimal64Att=0ld, decimal64AttOptNull=null , decimal64AttOptVal=null,
+			decimal128Att=0qd, decimal128AttOptNull=null , decimal128AttOptVal=null
+//the JSON toolkit native functions and TupleToJSON/JSONToTuple operator are incompatible
+//in timestamp respresentation in JSON
+//native functions respresent timestamp as a date string while the operatores respresent it
+//as a float value with nanoseconds in fractions
+//
+//on that reason we can't test one vs. the other
+			//timestampAtt=fromDecimal128(1qd), timestampAttOptNull=null, timestampAttOptVal=fromDecimal128(1qd);
+			;
+		}
+
+
+		stream<rstring json> JsonStream = Functor(TupleStream as I ) {
+		output JsonStream:
+			json = tupleToJSON (I);
+		}
+
+
+		/*
+		 * Verify against the native function by converting back to 
+		 * tuple;
+		 */
+
+		stream<TupleStream> ConvertedStream = Custom(JsonStream as I ) {
+		logic
+			state: 	{
+				mutable TupleStream generatedTuple;
+			}
+
+			onTuple JsonStream: { 
+				generatedTuple = extractFromJSON (I.json,generatedTuple);
+		
+				submit( generatedTuple, ConvertedStream);
+			}
+		}
+
+
+		() as TupleVerify = TupleVerifier(ConvertedStream;TupleStream) {}
+
+
+	config 
+	  tracing : debug;
+}
+
+composite Optional_NF_extractFromJSON_OptionalListTest {
+
+
+
+	graph
+		stream<ListType> TupleStream = Beacon() {
+		param
+			iterations : 1u;
+		output TupleStream : 
+			rstringList=[ "a", "b", "c"] , rstringListOptNull=null, rstringListOptVal=[ "a", "b", "c"],
+			ustringList=[ "a"u, "b"u, "c"u] , ustringListOptNull=null, ustringListOptVal=[ "a"u, "b"u, "c"u],
+			bstringList=[ (rstring[10])"a", (rstring[10])"b", (rstring[10])"c"] , bstringListOptNull=null, bstringListOptVal=[ (rstring[10])"a", (rstring[10])"b", (rstring[10])"c"],
+			int8List=[1bs,2bs,3bs],  int8ListOptNull=null, int8ListOptVal=[1bs,2bs,3bs],
+			int16List=[1hs,2hs,3hs], int16ListOptNull=null, int16ListOptVal=[1hs,2hs,3hs],
+			int32List=[1ws,2ws,3ws], int32ListOptNull=null, int32ListOptVal=[1ws,2ws,3ws],
+			int64List=[1ls,2ls,3ls], int64ListOptNull=null, int64ListOptVal=[1ls,2ls,3ls],
+			uint8List=[1bu,2bu,3bu], uint8ListOptNull=null, uint8ListOptVal=[1bu,2bu,3bu],
+			uint16List=[1hu,2hu,3hu], uint16ListOptNull=null, uint16ListOptVal=[1hu,2hu,3hu],
+			uint32List=[1wu,2wu,3wu], uint32ListOptNull=null, uint32ListOptVal=[1wu,2wu,3wu],
+			uint64List=[1lu,2lu,3lu], uint64ListOptNull=null, uint64ListOptVal=[1lu,2lu,3lu],
+			booleanList=[true,false,true], booleanListOptNull=null, booleanListOptVal=[true,false,true],
+			float32List=[1.1wf,2.2wf,3.3wf], float32ListOptNull=null, float32ListOptVal=[1.1wf,2.2wf,3.3wf],
+			float64List=[1.1lf,2.2lf,3.3lf], float64ListOptNull=null, float64ListOptVal=[1.1lf,2.2lf,3.3lf],
+// as decimal types are not supported by extractFromJJson, we set only defaults so 
+// that we can use the FlatType for test to generate and compare tuples
+			decimal32List=(list<decimal32>)[], decimal32ListOptNull=null, decimal32ListOptVal=null,
+			decimal64List=(list<decimal64>)[], decimal64ListOptNull=null, decimal64ListOptVal=null,
+			decimal128List=(list<decimal128>)[], decimal128ListOptNull=null, decimal128ListOptVal=null;
+			//timestampList=[fromDecimal128(1qd),fromDecimal128(1qd)], timestampListOptNull=null, timestampListOptVal=[fromDecimal128(1qd),fromDecimal128(1qd)];
+		}
+
+		stream<rstring json> JsonStream = Functor(TupleStream as I ) {
+		output JsonStream:
+			json = tupleToJSON (I);
+		}
+
+
+		/*
+		 * Verify against the native function by converting back to 
+		 * tuple;
+		 */
+
+		stream<TupleStream> ConvertedStream = Custom(JsonStream as I ) {
+		logic
+			state: 	{
+				mutable TupleStream generatedTuple;
+			}
+
+			onTuple JsonStream: { 
+				generatedTuple = extractFromJSON (I.json,generatedTuple);
+		
+				submit( generatedTuple, ConvertedStream);
+			}
+		}
+
+
+		() as TupleVerify = TupleVerifier(ConvertedStream;TupleStream) {}
+
+	config 
+		tracing : debug;
+		
+}
+
+composite Optional_NF_extractFromJSON_ListOfOptionalTest {
+
+
+
+	graph
+		stream<ListOfOptionalType> TupleStream = Beacon() {
+		param
+			iterations : 1u;
+		output TupleStream : 
+			rstringList=[ "a", "b", "c"] ,  rstringListOptVal=[ "a", "b", "c"],rstringListOptValMix=[ "a", null, "c"],
+			ustringList=[ "a"u, "b"u, "c"u] ,  ustringListOptVal=[ "a"u, "b"u, "c"u], ustringListOptValMix=[ "a"u, null, "c"u],
+			bstringList=[ (rstring[10])"a", (rstring[10])"b", (rstring[10])"c"] , bstringListOptNull=[null,null,null], bstringListOptVal=[ (rstring[10])"a", (rstring[10])"b", (rstring[10])"c"],  bstringListOptValMix=[ (rstring[10])"a", null, (rstring[10])"c"],
+			int8List=[1bs,2bs,3bs],   int8ListOptVal=[1bs,2bs,3bs], int8ListOptValMix=[1bs,null,3bs],
+			int16List=[1hs,2hs,3hs],  int16ListOptVal=[1hs,2hs,3hs], int16ListOptValMix=[1hs,null,3hs],
+			int32List=[1ws,2ws,3ws],  int32ListOptVal=[1ws,2ws,3ws], int32ListOptValMix=[1ws,null,3ws],
+			int64List=[1ls,2ls,3ls],  int64ListOptVal=[1ls,2ls,3ls], int64ListOptValMix=[1ls,null,3ls],
+			uint8List=[1bu,2bu,3bu],  uint8ListOptVal=[1bu,2bu,3bu], uint8ListOptValMix=[1bu,null,3bu],
+			uint16List=[1hu,2hu,3hu],  uint16ListOptVal=[1hu,2hu,3hu], uint16ListOptValMix=[1hu,null,3hu],
+			uint32List=[1wu,2wu,3wu],  uint32ListOptVal=[1wu,2wu,3wu], uint32ListOptValMix=[1wu,null,3wu],
+			uint64List=[1lu,2lu,3lu],  uint64ListOptVal=[1lu,2lu,3lu], uint64ListOptValMix=[1lu,null,3lu],
+			booleanList=[true,false,true],  booleanListOptVal=[true,false,true], booleanListOptValMix=[true,null,true],
+			float32List=[1.1wf,2.2wf,3.3wf], float32ListOptVal=[1.1wf,2.2wf,3.3wf], float32ListOptValMix=[1.1wf,null,3.3wf],
+			float64List=[1.1lf,2.2lf,3.3lf],  float64ListOptVal=[1.1lf,2.2lf,3.3lf], float64ListOptValMix=[1.1lf,null,3.3lf],
+// as decimal types are not supported by extractFromJJson, we set only defaults so 
+// that we can use the FlatType for test to generate and compare tuples
+			decimal32List=(list<decimal32>)[], 
+			decimal64List=(list<decimal64>)[],
+			decimal128List=(list<decimal128>)[];
+			//timestampList=[fromDecimal128(1qd),fromDecimal128(1qd)], timestampListOptNull=null, timestampListOptVal=[fromDecimal128(1qd),fromDecimal128(1qd)];
+		}
+
+		stream<rstring json> JsonStream = Functor(TupleStream as I ) {
+		output JsonStream:
+			json = tupleToJSON (I);
+		}
+
+
+		/*
+		 * Verify against the native function by converting back to 
+		 * tuple;
+		 */
+
+		stream<TupleStream> ConvertedStream = Custom(JsonStream as I ) {
+		logic
+			state: 	{
+				mutable TupleStream generatedTuple;
+			}
+
+			onTuple JsonStream: { 
+				generatedTuple = extractFromJSON (I.json,generatedTuple);
+		
+				submit( generatedTuple, ConvertedStream);
+			}
+		}
+
+
+		() as TupleVerify = TupleVerifier(ConvertedStream;TupleStream) {}
+
+	config 
+		tracing : debug;
+		
+}
+
+
+composite Optional_NF_extractFromJSON_OptionalSetTest {
+
+
+	graph
+		stream<SetType> TupleStream = Beacon() {
+		param
+			iterations : 1u;
+		output TupleStream : 
+			rstringSet={ "a", "b", "c"} , rstringSetOptNull=null, rstringSetOptVal={ "a", "b", "c"},
+			ustringSet={ "a"u, "b"u, "c"u} , ustringSetOptNull=null, ustringSetOptVal={ "a"u, "b"u, "c"u},
+			bstringSet={ (rstring[10])"a", (rstring[10])"b", (rstring[10])"c"} , bstringSetOptNull=null, bstringSetOptVal={ (rstring[10])"a", (rstring[10])"b", (rstring[10])"c"},
+			int8Set={1bs,2bs,3bs},  int8SetOptNull=null, int8SetOptVal={1bs,2bs,3bs},
+			int16Set={1hs,2hs,3hs}, int16SetOptNull=null, int16SetOptVal={1hs,2hs,3hs},
+			int32Set={1ws,2ws,3ws}, int32SetOptNull=null, int32SetOptVal={1ws,2ws,3ws},
+			int64Set={1ls,2ls,3ls}, int64SetOptNull=null, int64SetOptVal={1ls,2ls,3ls},
+			uint8Set={1bu,2bu,3bu}, uint8SetOptNull=null, uint8SetOptVal={1bu,2bu,3bu},
+			uint16Set={1hu,2hu,3hu}, uint16SetOptNull=null, uint16SetOptVal={1hu,2hu,3hu},
+			uint32Set={1wu,2wu,3wu}, uint32SetOptNull=null, uint32SetOptVal={1wu,2wu,3wu},
+			uint64Set={1lu,2lu,3lu}, uint64SetOptNull=null, uint64SetOptVal={1lu,2lu,3lu},
+			booleanSet={true,false,true}, booleanSetOptNull=null, booleanSetOptVal={true,false,true},
+			float32Set={1.1wf,2.2fw,3.3wf}, float32SetOptNull=null, float32SetOptVal={1.1wf,2.2wf,3.3wf},
+			float64Set={1.1lf,2.2lf,3.3lf}, float64SetOptNull=null, float64SetOptVal={1.1lf,2.2lf,3.3lf},
+			decimal32Set=(set<decimal32>){}, decimal32SetOptNull=null, decimal32SetOptVal=null,
+			decimal64Set=(set<decimal64>){}, decimal64SetOptNull=null, decimal64SetOptVal=null,
+			decimal128Set=(set<decimal128>){}, decimal128SetOptNull=null, decimal128SetOptVal=null;
+			//timestampSet={fromDecimal128(1qd),fromDecimal128(1qd)}, timestampSetOptNull=null, timestampSetOptVal={fromDecimal128(1qd),fromDecimal128(1qd)};
+		}
+
+		stream<rstring json> JsonStream = Functor(TupleStream as I ) {
+		output JsonStream:
+			json = tupleToJSON (I);
+		}
+
+
+		/*
+		 * Verify against the native function by converting back to 
+		 * tuple;
+		 */
+
+		stream<TupleStream> ConvertedStream = Custom(JsonStream as I ) {
+		logic
+			state: 	{
+				mutable TupleStream generatedTuple;
+			}
+
+			onTuple JsonStream: { 
+				generatedTuple = extractFromJSON (I.json,generatedTuple);
+		
+				submit( generatedTuple, ConvertedStream);
+			}
+		}
+
+
+		() as TupleVerify = TupleVerifier(ConvertedStream;TupleStream) {}
+
+	config 
+		tracing : debug;
+		
+}
+
+
+composite Optional_NF_extractFromJSON_BasicTupleTest {
+
+
+	graph
+		(stream<TupleType> TupleStream)  as MyBeaconOperator= Beacon() {
+		logic 
+			state:
+			mutable FlatType myTupleVal = {
+				rstringAtt = "rStringValue", rstringAttOptNull = null, rstringAttOptVal = "rStringValue",
+				ustringAtt = "uStringValue"u, ustringAttOptNull = null, ustringAttOptVal = "uStringValue"u,
+				bstringAtt = (rstring[10])"bStringValue", bstringAttOptNull = null, bstringAttOptVal = (rstring[10])"bStringValue",
+				int8Att=10bs , int8AttOptNull=null , int8AttOptVal=-99bs,
+				int16Att=10hs , int16AttOptNull=null , int16AttOptVal=-99hs,
+				int32Att=10ws , int32AttOptNull=null , int32AttOptVal=-99ws,
+				int64Att=10ls , int64AttOptNull=null , int64AttOptVal=-99ls,
+				uint8Att=10bu , uint8AttOptNull=null , uint8AttOptVal=99bu,
+				uint16Att=10hu , uint16AttOptNull=null , uint16AttOptVal=99hu,
+				uint32Att=10wu , uint32AttOptNull=null , uint32AttOptVal=99wu,
+				uint64Att=10lu , uint64AttOptNull=null , uint64AttOptVal=99lu,
+				booleanAtt=true, booleanAttOptNull=null, booleanAttOptVal=true,
+				float32Att=3.5wf,float32AttOptNull=null , float32AttOptVal=3.5wf,
+				float64Att=3.5lf, float64AttOptNull=null ,  float64AttOptVal=3.5lf,
+				decimal32Att=0wd, decimal32AttOptNull=null , decimal32AttOptVal=null,
+				decimal64Att=0ld, decimal64AttOptNull=null , decimal64AttOptVal=null,
+				decimal128Att=0qd, decimal128AttOptNull=null , decimal128AttOptVal=null
+				//timestampAtt=fromDecimal128(1qd), timestampAttOptNull=null, timestampAttOptVal=fromDecimal128(1qd)
+				};
+		param
+			iterations : 1u;
+
+		output TupleStream : 
+			tupleAtt = myTupleVal,
+			tupleAttOptNull = null,
+			tupleAttOptVal = myTupleVal;
+
+		}
+
+
+		stream<rstring json> JsonStream = Functor(TupleStream as I ) {
+		output JsonStream:
+			json = tupleToJSON (I);
+		}
+
+
+		/*
+		 * Verify against the native function by converting back to 
+		 * tuple;
+		 */
+
+		stream<TupleStream> ConvertedStream = Custom(JsonStream as I ) {
+		logic
+			state: 	{
+				mutable TupleStream generatedTuple;
+			}
+
+			onTuple JsonStream: { 
+				generatedTuple = extractFromJSON (I.json,generatedTuple);
+		
+				submit( generatedTuple, ConvertedStream);
+			}
+		}
+
+
+		() as TupleVerify = TupleVerifier(ConvertedStream;TupleStream) {}
+
+
+	config 
+	  tracing : debug;
+}
+
+composite Optional_NF_extractFromJSON_OptionalListOfTupleTest {
+
+
+	graph
+		stream<ListOfTupleType> TupleStream = Beacon() {
+		logic 
+			state:
+			mutable FlatType myTupleVal = {
+				rstringAtt = "rStringValue", rstringAttOptNull = null, rstringAttOptVal = "rStringValue",
+				ustringAtt = "uStringValue"u, ustringAttOptNull = null, ustringAttOptVal = "uStringValue"u,
+				bstringAtt = (rstring[10])"bStringValue", bstringAttOptNull = null, bstringAttOptVal = (rstring[10])"bStringValue",
+				int8Att=10bs , int8AttOptNull=null , int8AttOptVal=-99bs,
+				int16Att=10hs , int16AttOptNull=null , int16AttOptVal=-99hs,
+				int32Att=10ws , int32AttOptNull=null , int32AttOptVal=-99ws,
+				int64Att=10ls , int64AttOptNull=null , int64AttOptVal=-99ls,
+				uint8Att=10bu , uint8AttOptNull=null , uint8AttOptVal=99bu,
+				uint16Att=10hu , uint16AttOptNull=null , uint16AttOptVal=99hu,
+				uint32Att=10wu , uint32AttOptNull=null , uint32AttOptVal=99wu,
+				uint64Att=10lu , uint64AttOptNull=null , uint64AttOptVal=99lu,
+				booleanAtt=true, booleanAttOptNull=null, booleanAttOptVal=true,
+				float32Att=3.5wf,float32AttOptNull=null , float32AttOptVal=3.5wf,
+				float64Att=3.5lf, float64AttOptNull=null ,  float64AttOptVal=3.5lf,
+				decimal32Att=0wd, decimal32AttOptNull=null , decimal32AttOptVal=null,
+				decimal64Att=0ld, decimal64AttOptNull=null , decimal64AttOptVal=null,
+				decimal128Att=0qd, decimal128AttOptNull=null , decimal128AttOptVal=null
+				//timestampAtt=fromDecimal128(1qd), timestampAttOptNull=null, timestampAttOptVal=fromDecimal128(1qd)
+				};
+		param
+			iterations : 1u;
+
+		output TupleStream : 
+			tupleList = [myTupleVal,myTupleVal,myTupleVal],
+			tupleListOptNull = null,
+			tupleListOptVal = [myTupleVal,myTupleVal,myTupleVal];
+
+		}
+
+		stream<rstring json> JsonStream = Functor(TupleStream as I ) {
+		output JsonStream:
+			json = tupleToJSON (I);
+		}
+
+
+		/*
+		 * Verify against the native function by converting back to 
+		 * tuple;
+		 */
+
+		stream<TupleStream> ConvertedStream = Custom(JsonStream as I ) {
+		logic
+			state: 	{
+				mutable TupleStream generatedTuple;
+			}
+
+			onTuple JsonStream: { 
+				generatedTuple = extractFromJSON (I.json,generatedTuple);
+		
+				submit( generatedTuple, ConvertedStream);
+			}
+		}
+
+
+		() as TupleVerify = TupleVerifier(ConvertedStream;TupleStream) {}
+
+	config 
+	  tracing : debug;
+}
+
+
+
+/*
+Sets are not supported so far. So this testcase will fail.
+Created to have it just already there, not to be executed in testsuite.
+*/
+composite Optional_NF_extractFromJSON_OptionalSetOfTupleTest {
+
+
+	graph
+		stream<SetOfTupleType> TupleStream = Beacon() {
+		logic 
+			state: 
+			{
+			mutable FlatType myTupleVal1 = {
+				rstringAtt = "rStringValue", rstringAttOptNull = null, rstringAttOptVal = "rStringValue",
+				ustringAtt = "uStringValue"u, ustringAttOptNull = null, ustringAttOptVal = "uStringValue"u,
+				bstringAtt = (rstring[10])"bStringValue", bstringAttOptNull = null, bstringAttOptVal = (rstring[10])"bStringValue",
+				int8Att=10bs , int8AttOptNull=null , int8AttOptVal=-99bs,
+				int16Att=10hs , int16AttOptNull=null , int16AttOptVal=-99hs,
+				int32Att=10ws , int32AttOptNull=null , int32AttOptVal=-99ws,
+				int64Att=10ls , int64AttOptNull=null , int64AttOptVal=-99ls,
+				uint8Att=10bu , uint8AttOptNull=null , uint8AttOptVal=99bu,
+				uint16Att=10hu , uint16AttOptNull=null , uint16AttOptVal=99hu,
+				uint32Att=10wu , uint32AttOptNull=null , uint32AttOptVal=99wu,
+				uint64Att=10lu , uint64AttOptNull=null , uint64AttOptVal=99lu,
+				booleanAtt=true, booleanAttOptNull=null, booleanAttOptVal=true,
+				float32Att=3.5wf,float32AttOptNull=null , float32AttOptVal=3.5wf,
+				float64Att=3.5lf, float64AttOptNull=null ,  float64AttOptVal=3.5lf,
+				decimal32Att=0wd, decimal32AttOptNull=null , decimal32AttOptVal=null,
+				decimal64Att=0ld, decimal64AttOptNull=null , decimal64AttOptVal=null,
+				decimal128Att=0qd, decimal128AttOptNull=null , decimal128AttOptVal=null
+				//timestampAtt=fromDecimal128(1qd), timestampAttOptNull=null, timestampAttOptVal=fromDecimal128(1qd)
+				};
+			/*
+			 * just changing rstringAtt to a different value for a different tuple value to be inserted into set
+			 */
+			mutable FlatType myTupleVal2 = {
+				rstringAtt = "rStringValue2", rstringAttOptNull = null, rstringAttOptVal = "rStringValue",
+				ustringAtt = "uStringValue"u, ustringAttOptNull = null, ustringAttOptVal = "uStringValue"u,
+				bstringAtt = (rstring[10])"bStringValue", bstringAttOptNull = null, bstringAttOptVal = (rstring[10])"bStringValue",
+				int8Att=10bs , int8AttOptNull=null , int8AttOptVal=-99bs,
+				int16Att=10hs , int16AttOptNull=null , int16AttOptVal=-99hs,
+				int32Att=10ws , int32AttOptNull=null , int32AttOptVal=-99ws,
+				int64Att=10ls , int64AttOptNull=null , int64AttOptVal=-99ls,
+				uint8Att=10bu , uint8AttOptNull=null , uint8AttOptVal=99bu,
+				uint16Att=10hu , uint16AttOptNull=null , uint16AttOptVal=99hu,
+				uint32Att=10wu , uint32AttOptNull=null , uint32AttOptVal=99wu,
+				uint64Att=10lu , uint64AttOptNull=null , uint64AttOptVal=99lu,
+				booleanAtt=true, booleanAttOptNull=null, booleanAttOptVal=true,
+				float32Att=3.5wf,float32AttOptNull=null , float32AttOptVal=3.5wf,
+				float64Att=3.5lf, float64AttOptNull=null ,  float64AttOptVal=3.5lf,
+				decimal32Att=0wd, decimal32AttOptNull=null , decimal32AttOptVal=null,
+				decimal64Att=0ld, decimal64AttOptNull=null , decimal64AttOptVal=null,
+				decimal128Att=0qd, decimal128AttOptNull=null , decimal128AttOptVal=null
+				//timestampAtt=fromDecimal128(1qd), timestampAttOptNull=null, timestampAttOptVal=fromDecimal128(1qd)
+				};
+			}
+
+		param
+			iterations : 1u;
+
+		output TupleStream : 
+			tupleSet = {myTupleVal1,myTupleVal2},
+			tupleSetOptNull = null,
+			tupleSetOptVal = {myTupleVal1,myTupleVal2};
+
+		}
+
+		stream<rstring json> JsonStream = Functor(TupleStream as I ) {
+		output JsonStream:
+			json = tupleToJSON (I);
+		}
+
+
+		/*
+		 * Verify against the native function by converting back to 
+		 * tuple;
+		 */
+
+		stream<TupleStream> ConvertedStream = Custom(JsonStream as I ) {
+		logic
+			state: 	{
+				mutable TupleStream generatedTuple;
+			}
+
+			onTuple JsonStream: { 
+				generatedTuple = extractFromJSON (I.json,generatedTuple);
+		
+				submit( generatedTuple, ConvertedStream);
+			}
+		}
+
+
+		() as TupleVerify = TupleVerifier(ConvertedStream;TupleStream) {}
+
+
+	config 
+	  tracing : debug;
+}
+
+
+composite Optional_NF_extractFromJSON_OptionalMapTest {
+
+
+
+	graph
+		stream<MapType> TupleStream = Beacon() {
+		param
+			iterations : 1u;
+		output TupleStream : 
+			rstringMap={ "a":"a", "b":"b", "c":"c"} , rstringMapOptNull=null, rstringMapOptVal={ "a":"a", "b":"b", "c":"c"},
+			ustringMap={ "a":"a"u, "b":"b"u, "c":"c"u} , ustringMapOptNull=null, ustringMapOptVal={ "a":"a"u, "b":"b"u, "c":"c"u},
+			bstringMap={ "a":(rstring[10])"a", "b":(rstring[10])"b", "c":(rstring[10])"c"} , bstringMapOptNull=null, bstringMapOptVal={ "a":(rstring[10])"a", "b":(rstring[10])"b", "c":(rstring[10])"c"},
+			int8Map={"a":1bs,"b":2bs,"c":3bs},  int8MapOptNull=null, int8MapOptVal={"a":1bs,"b":2bs,"c":3bs},
+			int16Map={"a":1hs,"b":2hs,"c":3hs}, int16MapOptNull=null, int16MapOptVal={"a":1hs,"b":2hs,"c":3hs},
+			int32Map={"a":1ws,"b":2ws,"c":3ws}, int32MapOptNull=null, int32MapOptVal={"a":1ws,"b":2ws,"c":3ws},
+			int64Map={"a":1ls,"b":2ls,"c":3ls}, int64MapOptNull=null, int64MapOptVal={"a":1ls,"b":2ls,"c":3ls},
+			uint8Map={"a":1bu,"b":2bu,"c":3bu}, uint8MapOptNull=null, uint8MapOptVal={"a":1bu,"b":2bu,"c":3bu},
+			uint16Map={"a":1hu,"b":2hu,"c":3hu}, uint16MapOptNull=null, uint16MapOptVal={"a":1hu,"b":2hu,"c":3hu},
+			uint32Map={"a":1wu,"b":2wu,"c":3wu}, uint32MapOptNull=null, uint32MapOptVal={"a":1wu,"b":2wu,"c":3wu},
+			uint64Map={"a":1lu,"b":2lu,"c":3lu}, uint64MapOptNull=null, uint64MapOptVal={"a":1lu,"b":2lu,"c":3lu},
+			booleanMap={"a":true,"b":false,"c":true}, booleanMapOptNull=null, booleanMapOptVal={"a":true,"b":false,"c":true},
+			float32Map={"a":1.1wf,"b":2.2wf,"c":3.3wf}, float32MapOptNull=null, float32MapOptVal={"a":1.1wf,"b":2.2wf,"c":3.3wf},
+			float64Map={"a":1.1lf,"b":2.2lf,"c":3.3lf}, float64MapOptNull=null, float64MapOptVal={"a":1.1lf,"b":2.2lf,"c":3.3lf},
+// as decimal types are not supported by extractFromJJson, we set only defaults so 
+// that we can use the FlatType for test to generate and compare tuples
+			decimal32Map=(map<rstring,decimal32>){}, decimal32MapOptNull=null, decimal32MapOptVal=null,
+			decimal64Map=(map<rstring,decimal64>){}, decimal64MapOptNull=null, decimal64MapOptVal=null,
+			decimal128Map=(map<rstring,decimal128>){}, decimal128MapOptNull=null, decimal128MapOptVal=null;
+			//timestampMap={"a":fromDecimal128(1qd),"b":fromDecimal128(1qd)}, timestampMapOptNull=null, timestampMapOptVal={"a":fromDecimal128(1qd),"b":fromDecimal128(1qd)};
+		}
+
+		stream<rstring json> JsonStream = Functor(TupleStream as I ) {
+		output JsonStream:
+			json = tupleToJSON (I);
+		}
+
+
+		/*
+		 * Verify against the native function by converting back to 
+		 * tuple;
+		 */
+
+		stream<TupleStream> ConvertedStream = Custom(JsonStream as I ) {
+		logic
+			state: 	{
+				mutable TupleStream generatedTuple;
+			}
+
+			onTuple JsonStream: { 
+				generatedTuple = extractFromJSON (I.json,generatedTuple);
+		
+				submit( generatedTuple, ConvertedStream);
+			}
+		}
+
+
+		() as TupleVerify = TupleVerifier(ConvertedStream;TupleStream) {}
+
+	config 
+		tracing : debug;
+		
+}
+
+
+composite Optional_NF_extractFromJSON_MapOfOptionalTest {
+
+
+
+	graph
+		stream<MapOfOptionalType> TupleStream = Beacon() {
+		param
+			iterations : 1u;
+		output TupleStream : 
+			rstringMap={ "a":"a", "b":"b", "c":"c"} ,  rstringMapOptValMix={ "a":"a", "b":null, "c":"c"},
+			ustringMap={ "a":"a"u, "b":"b"u, "c":"c"u}, ustringMapOptValMix={ "a":"a"u, "b":null, "c":"c"u},
+			bstringMap={ "a":(rstring[10])"a", "b":(rstring[10])"b", "c":(rstring[10])"c"} , bstringMapOptValMix={ "a":(rstring[10])"a", "b":null, "c":(rstring[10])"c"},
+			int8Map={"a":1bs,"b":2bs,"c":3bs},  int8MapOptValMix={"a":1bs,"b":null,"c":3bs},
+			int16Map={"a":1hs,"b":2hs,"c":3hs}, int16MapOptValMix={"a":1hs,"b":null,"c":3hs},
+			int32Map={"a":1ws,"b":2ws,"c":3ws}, int32MapOptValMix={"a":1ws,"b":null,"c":3ws},
+			int64Map={"a":1ls,"b":2ls,"c":3ls}, int64MapOptValMix={"a":1ls,"b":null,"c":3ls},
+			uint8Map={"a":1bu,"b":2bu,"c":3bu}, uint8MapOptValMix={"a":1bu,"b":null,"c":3bu},
+			uint16Map={"a":1hu,"b":2hu,"c":3hu}, uint16MapOptValMix={"a":1hu,"b":null,"c":3hu},
+			uint32Map={"a":1wu,"b":2wu,"c":3wu}, uint32MapOptValMix={"a":1wu,"b":null,"c":3wu},
+			uint64Map={"a":1lu,"b":2lu,"c":3lu}, uint64MapOptValMix={"a":1lu,"b":null,"c":3lu},
+			booleanMap={"a":true,"b":false,"c":true}, booleanMapOptValMix={"a":true,"b":null,"c":true},
+			float32Map={"a":1.1wf,"b":2.2wf,"c":3.3wf}, float32MapOptValMix={"a":1.1wf,"b":null,"c":3.3wf},
+			float64Map={"a":1.1lf,"b":2.2lf,"c":3.3lf}, float64MapOptValMix={"a":1.1lf,"b":null,"c":3.3lf},
+// as decimal types are not supported by extractFromJJson, we set only defaults so 
+// that we can use the FlatType for test to generate and compare tuples
+			decimal32Map=(map<rstring,decimal32>){}, decimal32MapOptValMix=(map<rstring,optional<decimal32>>){},
+			decimal64Map=(map<rstring,decimal64>){}, decimal64MapOptValMix=(map<rstring,optional<decimal64>>){},
+			decimal128Map=(map<rstring,decimal128>){}, decimal128MapOptValMix=(map<rstring,optional<decimal128>>){};
+			//timestampMap={"a":fromDecimal128(1qd),"b":fromDecimal128(1qd)}, timestampMapOptValMix={"a":fromDecimal128(1qd),"b":null,"c":fromDecimal128(1qd)};
+		}
+
+		stream<rstring json> JsonStream = Functor(TupleStream as I ) {
+		output JsonStream:
+			json = tupleToJSON (I);
+		}
+
+
+		/*
+		 * Verify against the native function by converting back to 
+		 * tuple;
+		 */
+
+		stream<TupleStream> ConvertedStream = Custom(JsonStream as I ) {
+		logic
+			state: 	{
+				mutable TupleStream generatedTuple;
+			}
+
+			onTuple JsonStream: { 
+				generatedTuple = extractFromJSON (I.json,generatedTuple);
+		
+				submit( generatedTuple, ConvertedStream);
+			}
+		}
+
+
+		() as TupleVerify = TupleVerifier(ConvertedStream;TupleStream) {}
+
+	config 
+		tracing : debug;
+		
+}
+
