@@ -15,6 +15,7 @@
 
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
+#include <streams_boost/algorithm/string.hpp>
 
 using namespace rapidjson;
 using namespace SPL;
@@ -46,44 +47,44 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 	}
 
 	template<typename Container, typename Iterator>
-	inline void writeArray(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle);
+	inline void writeArray(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle, SPL::rstring const& prefixToIgnore);
 
 	template<typename Container, typename Iterator>
-	inline void writeMap(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle);
+	inline void writeMap(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle, SPL::rstring const& prefixToIgnore);
 
-	inline void writeTuple(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle);
+	inline void writeTuple(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle, SPL::rstring const& prefixToIgnore);
 
 	inline void writePrimitive(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle);
 
 
-	inline void writeAny(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle) {
+	inline void writeAny(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle, SPL::rstring const& prefixToIgnore) {
 
 		switch (valueHandle.getMetaType()) {
 			case Meta::Type::LIST : {
-				writeArray<List,ConstListIterator>(writer, valueHandle);
+				writeArray<List,ConstListIterator>(writer, valueHandle, prefixToIgnore);
 				break;
 			}
 			case Meta::Type::BLIST : {
-				writeArray<BList,ConstListIterator>(writer, valueHandle);
+				writeArray<BList,ConstListIterator>(writer, valueHandle, prefixToIgnore);
 				break;
 			}
 			case Meta::Type::SET : {
-				writeArray<Set,ConstSetIterator>(writer, valueHandle);
+				writeArray<Set,ConstSetIterator>(writer, valueHandle, prefixToIgnore);
 				break;
 			}
 			case Meta::Type::BSET : {
-				writeArray<BSet,ConstSetIterator>(writer, valueHandle);
+				writeArray<BSet,ConstSetIterator>(writer, valueHandle, prefixToIgnore);
 				break;
 			}
 			case Meta::Type::MAP :
-				writeMap<Map,ConstMapIterator>(writer, valueHandle);
+				writeMap<Map,ConstMapIterator>(writer, valueHandle, prefixToIgnore);
 				break;
 			case Meta::Type::BMAP : {
-				writeMap<BMap,ConstMapIterator>(writer, valueHandle);
+				writeMap<BMap,ConstMapIterator>(writer, valueHandle, prefixToIgnore);
 				break;
 			}
 			case Meta::Type::TUPLE : {
-				writeTuple(writer, valueHandle);
+				writeTuple(writer, valueHandle, prefixToIgnore);
 				break;
 			}
 			default:
@@ -92,7 +93,7 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 	}
 
 	template<typename Container, typename Iterator>
-	inline void writeArray(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle) {
+	inline void writeArray(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle, SPL::rstring const& prefixToIgnore) {
 
 		writer.StartArray();
 
@@ -100,14 +101,14 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 		for(Iterator arrayIter = array.getBeginIterator(); arrayIter != array.getEndIterator(); arrayIter++) {
 
 			const ConstValueHandle & arrayValueHandle = *arrayIter;
-			writeAny(writer, arrayValueHandle);
+			writeAny(writer, arrayValueHandle, prefixToIgnore);
 		}
 
 		writer.EndArray();
 	}
 
 	template<typename Container, typename Iterator>
-	inline void writeMap(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle) {
+	inline void writeMap(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle, SPL::rstring const& prefixToIgnore) {
 
 		writer.StartObject();
 
@@ -118,13 +119,14 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 			const ConstValueHandle & mapValueHandle = mapHandle.second;
 
 			writer.String(convToChars(mapHandle.first));
-			writeAny(writer, mapValueHandle);
+			writeAny(writer, mapValueHandle, prefixToIgnore);
 		}
 
 		writer.EndObject();
 	}
 
-	inline void writeTuple(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle) {
+	inline void writeTuple(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle, SPL::rstring const& prefixToIgnore) {
+		using namespace streams_boost::algorithm;
 
 		writer.StartObject();
 
@@ -134,8 +136,14 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 			const std::string & attrName = (*tupleIter).getName();
 			const ConstValueHandle & attrValueHandle = static_cast<ConstTupleAttribute>(*tupleIter).getValue();
 
-			writer.String(convToChars(attrName));
-			writeAny(writer, attrValueHandle);
+			if(!prefixToIgnore.empty() && starts_with(attrName, prefixToIgnore)) {
+				writer.String(convToChars(replace_first_copy(attrName, prefixToIgnore, "")));
+			}
+			else {
+				writer.String(convToChars(attrName));
+			}
+
+			writeAny(writer, attrValueHandle, prefixToIgnore);
 		}
 
 		writer.EndObject();
@@ -252,29 +260,29 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 	}
 
 
-	inline SPL::rstring tupleToJSON(Tuple const& tuple) {
+	inline SPL::rstring tupleToJSON(Tuple const& tuple, SPL::rstring prefixToIgnore = "") {
 
 	    StringBuffer s;
 	    Writer<StringBuffer> writer(s);
 
-		writeAny(writer, ConstValueHandle(tuple));
+		writeAny(writer, ConstValueHandle(tuple), prefixToIgnore);
 
 		return s.GetString();
 	}
 
 	template<class MAP>
-	inline SPL::rstring mapToJSON(MAP const& map) {
+	inline SPL::rstring mapToJSON(MAP const& map, SPL::rstring prefixToIgnore = "") {
 
 	    StringBuffer s;
 	    Writer<StringBuffer> writer(s);
 
-		writeAny(writer, ConstValueHandle(map));
+		writeAny(writer, ConstValueHandle(map), prefixToIgnore);
 
 		return s.GetString();
 	}
 
 	template<class String, class SPLAny>
-	inline SPL::rstring toJSON(String const& key, SPLAny const& splAny) {
+	inline SPL::rstring toJSON(String const& key, SPLAny const& splAny, SPL::rstring prefixToIgnore = "") {
 
 
 	    StringBuffer s;
@@ -284,7 +292,7 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 
 		writer.String(convToChars(key));
 
-		writeAny(writer, ConstValueHandle(splAny));
+		writeAny(writer, ConstValueHandle(splAny), prefixToIgnore);
 
 		writer.EndObject();
 

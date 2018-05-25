@@ -15,7 +15,7 @@ tests=BasicTest ListTest SetOfListTest InputSpecificationTest RootAttributeTest 
 rntest=./scripts/testRunner.sh
 ftest=./scripts/expectFail.sh
 
-all: BasicTest ListTest SetOfListTest NullBasicTest RecordArrayListTest InputSpecificationTest RootAttributeTest CompileFailtest EmptyStringTest ReservedKeywordTest BasicParseQueryTest
+all: BasicTest ListTest SetOfListTest NullBasicTest RecordArrayListTest InputSpecificationTest RootAttributeTest CompileFailtest EmptyStringTest ReservedKeywordTest BasicParseQueryTest TupleToJSONPrefixToIgnoreTest MapToJSONPrefixToIgnoreTest ToJSONPrefixToIgnoreTest
 	@echo "Tests Passed"
 
 compile: ${tests}
