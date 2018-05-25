@@ -52,6 +52,7 @@ Convert a value to JSON object with a single key encoded as a serialized JSON st
 Convert a value to JSON object with a single key encoded as a serialized JSON string. Blob, complex and xml values are converted to nulls.
 @param key Key for name-value pair to be converted to JSON.
 @param value Value for `key`.
+@param prefixToIgnore rstring prefix to ignore in attribute name .
 @return Serialized JSON object containing single name-value pair.
 </function:description>
         <function:prototype>&lt;string S, any T> public rstring toJSON(S key, T value, rstring prefixToIgnore)</function:prototype>
