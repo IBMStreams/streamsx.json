@@ -1,0 +1,333 @@
+//
+// *******************************************************************************
+// * Copyright (C)2014, International Business Machines Corporation and *
+// * others. All Rights Reserved. *
+// *******************************************************************************
+//
+namespace com.ibm.streamsx.json.tests;
+
+use com.ibm.streamsx.json::tupleToJSON;
+use com.ibm.streamsx.json::mapToJSON;
+use com.ibm.streamsx.json::toJSON;
+
+
+/*
+ The TupleToJSON operator already supports a parameter to define a prefix in attribute
+ name which should be ignored when convert a tuple to a JSON object.
+ Those functionality is necessary when attribute names would be reserved keywords in SPL
+ (as type, graph). In SPL application the attribute names get a prefix which should be deleted
+ in JSON as there the names can be without any restriction on SPL reserved keywords.
+
+ Now also the native.functions to convert SPL values into JSON will support this 
+ functionality.
+
+
+ This test covers the prefixToIgnore function parameter.
+
+     <tuple T> public rstring tupleToJSON(T t)
+     <tuple T> public rstring tupleToJSON(T t, rstring prefixToIgnore)
+
+
+ The Verifier() and VerifierJTOT() test-composites have a default parameter value 
+ of "__" for prefixToIgnore.
+
+
+*/
+composite TupleToJSONPrefixToIgnoreTest {
+
+	type
+		MyTypePrefixed = rstring __att1, rstring b, rstring __att3;
+		MyType = rstring att1, rstring b, rstring att3;
+
+	graph
+		stream<MyTypePrefixed> SourceS = Beacon() {
+		param
+			iterations : 1u;
+		output SourceS : __att1="a", b="b", __att3="c";
+		}
+
+		stream<MyType> ExpectedS = Beacon() {
+		param
+			iterations : 1u;
+		output ExpectedS : att1="a", b="b", att3="c";
+		}
+
+		/* test the tupleToJSON with prefixToIgnore parameter */
+		stream<rstring jsonString> JsonFromPrefixedS = Functor(SourceS) {
+			output JsonFromPrefixedS : jsonString = tupleToJSON(SourceS,"__");
+		}
+
+		
+		/* VerifierJTOT will take the jsonString attribute of JsonFromPrefixedS
+		   and convert it to a tuple of type ExpectedS.
+		*/
+		() as SinkOp = VerifierJTOT(JsonFromPrefixedS; ExpectedS) {} // verify JSONToTuple
+
+
+		/* test the tupleToJSON without prefixToIgnore parameter */
+		stream<rstring jsonString> JsonFromNonPrefixedS = Functor(ExpectedS) {
+			output JsonFromNonPrefixedS : jsonString = tupleToJSON(ExpectedS);
+		}
+
+		
+		/* VerifierJTOT will take the jsonString attribute of JsonFromNonPrefixedS
+		   and convert it to a tuple of type ExpectedS.
+		*/
+		() as SinkOp2 = VerifierJTOT(JsonFromNonPrefixedS; ExpectedS) {} // verify JSONToTuple
+
+		
+
+	config 
+		tracing : debug;
+		
+}
+
+/*
+ This test case verifies the functionality of prefixToIgnore parametr in the mapToJSON function.
+
+     <string S, any T> public rstring mapToJSON(map<S, T> m)
+     <string S, any T> public rstring mapToJSON(map<S, T> m, rstring prefixToIgnore)
+
+ Two maps are created with same content. One map is of a type having some attributes prefixed while
+ the other has all attributes w/o prefix.
+
+ The map with prefixed attributes is converted to JSON by 
+     <string S, any T> public rstring mapToJSON(map<S, T> m, rstring prefixToIgnore)
+
+ The map without prefixed attributes is converted to JSON by 
+     <string S, any T> public rstring mapToJSON(map<S, T> m)
+
+ Both shall generate the same JSON string.
+
+ Nested prefixToIgnore handling is also tested because the map types conteains tuple type attributes.
+*/
+composite MapToJSONPrefixToIgnoreTest {
+
+	type
+		MyTupleType         = tuple<rstring  aPref, rstring b, rstring  cPref>;
+		MyTupleTypePrefixed = tuple<rstring _aPref, rstring b, rstring _cPref>;
+
+		MyMapValueType         = MyTupleType          tupleAttPref, MyTupleType         tupleAtt, rstring  dPref, rstring e;
+		MyMapValueTypePrefixed = MyTupleTypePrefixed _tupleAttPref, MyTupleTypePrefixed tupleAtt, rstring _dPref, rstring e;
+
+		MyMapType = map<rstring, MyMapValueType>;
+		MyMapTypePrefixed = map<rstring, MyMapValueTypePrefixed>;
+
+
+	graph
+		stream<int32 i> SourceS = Beacon() {
+
+			param
+				iterations : 1u;
+		
+			output SourceS : i = 1;
+		}
+
+		stream<rstring jsonString> ProcessedS as O = Custom(SourceS as I) {
+		
+		logic
+			state: 	{
+				mutable MyMapTypePrefixed mapVarPref;
+				mutable MyMapType         mapVar;
+				mutable rstring           jsonStringMaster;
+				mutable rstring           jsonStringPrefixed;
+			}
+
+			onTuple I: { 
+   				/* This is the map content with prefixed attribute names. The mapToJSON function should 
+				   ignore the prefix when generating a JSON */
+				mapVarPref = {"key1":{_tupleAttPref = {_aPref="a",b="b",_cPref="c"}, tupleAtt = {_aPref="a",b="b",_cPref="c"},_dPref="d",e="e"},
+					      "key2":{_tupleAttPref = {_aPref="a",b="b",_cPref="c"}, tupleAtt = {_aPref="a",b="b",_cPref="c"},_dPref="d",e="e"}};
+
+				/* This is a map content without prefixed attribute names. It is used later golden master as it produce a JSON w/p prefix */
+				mapVar =     {"key1":{ tupleAttPref = { aPref="a",b="b", cPref="c"}, tupleAtt = { aPref="a",b="b", cPref="c"}, dPref="d",e="e"},
+					      "key2":{ tupleAttPref = { aPref="a",b="b", cPref="c"}, tupleAtt = { aPref="a",b="b", cPref="c"}, dPref="d",e="e"}};
+
+				jsonStringPrefixed = mapToJSON(mapVarPref, "_");
+				log(Sys.info,"jsonStringPrefixed = " + jsonStringPrefixed);
+
+				jsonStringMaster   = mapToJSON(mapVar);
+				log(Sys.info,"jsonStringMaster = " + jsonStringMaster);
+
+				if(jsonStringPrefixed != jsonStringMaster) {
+					log(Sys.error,"ERROR Does not match: " + jsonStringPrefixed + " and " + jsonStringMaster);
+					shutdownPE();
+				}
+
+			}
+		}
+
+		
+
+	config 
+		tracing : debug;
+		
+}
+
+
+
+/* 
+ This test case verifies the functionality of prefixToIgnore parametr in the toJSON function.
+
+     <string S, any T> public rstring toJSON(S key, T value)
+     <string S, any T> public rstring toJSON(S key, T value, rstring prefixToIgnore)
+
+ Two variables are created with same content but one has some attributes prefixed while
+ the other has all attributes w/o prefix.
+
+ The one with prefixed attributes is converted to JSON by 
+     <string S, any T> public rstring mapToJSON(map<S, T> m, rstring prefixToIgnore)
+
+ The one without prefixed attributes is converted to JSON by 
+     <string S, any T> public rstring mapToJSON(map<S, T> m)
+
+ Both shall generate the same JSON string.
+
+
+ The test is done for several constructed types (only those can have prefix attributes):
+    list<>
+    map<>
+    set<>
+    tuple<>
+
+ One test covers converting primitive type with each of the two function versions to check 
+ that this works also.
+
+*/
+composite ToJSONPrefixToIgnoreTest {
+
+	type
+		MyTupleType         = tuple<int32  aPref, int32 b, int32  cPref>;
+		MyTupleTypePrefixed = tuple<int32 _aPref, int32 b, int32 _cPref>;
+
+		MyListType          = list<MyTupleType>;
+		MyListTypePrefixed  = list<MyTupleTypePrefixed>;
+
+		MySetType           = set<MyTupleType>;
+		MySetTypePrefixed   = set<MyTupleTypePrefixed>;
+
+		MyMapValueType         = MyTupleType;
+		MyMapValueTypePrefixed = MyTupleTypePrefixed;
+
+		MyMapType = map<rstring, MyMapValueType>;
+		MyMapTypePrefixed = map<rstring, MyMapValueTypePrefixed>;
+
+
+	graph
+		stream<int32 i> SourceS = Beacon() {
+
+			param
+				iterations : 1u;
+		
+			output SourceS : i = 1;
+		}
+
+		stream<rstring jsonString> ProcessedS as O = Custom(SourceS as I) {
+		
+		logic
+			state: 	{
+				mutable MyMapTypePrefixed mapVarPref;
+				mutable MyMapType         mapVar;
+				mutable MyListTypePrefixed listVarPref;
+				mutable MyListType         listVar;
+				mutable MySetTypePrefixed setVarPref;
+				mutable MySetType         setVar;
+				mutable MyTupleTypePrefixed tupleVarPref;
+				mutable MyTupleType         tupleVar;
+				mutable int32		  int32Var;
+				mutable rstring           jsonStringMaster;
+				mutable rstring           jsonStringPrefixed;
+			}
+
+			onTuple I: { 
+				mapVarPref = {"key1":{_aPref=1,b=2,_cPref=3},
+					      "key2":{_aPref=1,b=2,_cPref=3}};
+
+				mapVar =     {"key1":{ aPref=1,b=2, cPref=3},
+					      "key2":{ aPref=1,b=2, cPref=3}};
+
+				jsonStringPrefixed = toJSON("MAP",mapVarPref, "_");
+				log(Sys.info,"jsonStringPrefixed = " + jsonStringPrefixed);
+
+				jsonStringMaster   = toJSON("MAP",mapVar);
+				log(Sys.info,"jsonStringMaster = " + jsonStringMaster);
+
+				if(jsonStringPrefixed != jsonStringMaster) {
+					log(Sys.error,"ERROR Does not match: " + jsonStringPrefixed + " and " + jsonStringMaster);
+					shutdownPE();
+				}
+
+
+
+
+				listVarPref = [{_aPref=1,b=2,_cPref=3},
+					       {_aPref=1,b=2,_cPref=3}];
+
+				listVar =     [{ aPref=1,b=2, cPref=3},
+					      { aPref=1,b=2, cPref=3}];
+
+				jsonStringPrefixed = toJSON("LIST",listVarPref, "_");
+				log(Sys.info,"jsonStringPrefixed = " + jsonStringPrefixed);
+
+				jsonStringMaster   = toJSON("LIST",listVar);
+				log(Sys.info,"jsonStringMaster = " + jsonStringMaster);
+
+				if(jsonStringPrefixed != jsonStringMaster) {
+					log(Sys.error,"ERROR Does not match: " + jsonStringPrefixed + " and " + jsonStringMaster);
+					shutdownPE();
+				}
+
+
+				setVarPref = {{_aPref=1,b=2,_cPref=3},{_aPref=11,b=22,_cPref=33}};
+				setVar =     {{ aPref=1,b=2, cPref=3},{ aPref=11,b=22, cPref=33}};
+
+				jsonStringPrefixed = toJSON("SET",setVarPref, "_");
+				log(Sys.info,"jsonStringPrefixed = " + jsonStringPrefixed);
+
+				jsonStringMaster   = toJSON("SET",setVar);
+				log(Sys.info,"jsonStringMaster = " + jsonStringMaster);
+
+				if(jsonStringPrefixed != jsonStringMaster) {
+					log(Sys.error,"ERROR Does not match: " + jsonStringPrefixed + " and " + jsonStringMaster);
+					shutdownPE();
+				}
+
+
+				tupleVarPref = {_aPref=1,b=2,_cPref=3};
+				tupleVar =     { aPref=1,b=2, cPref=3};
+
+				jsonStringPrefixed = toJSON("TUPLE",tupleVarPref, "_");
+				log(Sys.info,"jsonStringPrefixed = " + jsonStringPrefixed);
+
+				jsonStringMaster   = toJSON("TUPLE",tupleVar);
+				log(Sys.info,"jsonStringMaster = " + jsonStringMaster);
+
+				if(jsonStringPrefixed != jsonStringMaster) {
+					log(Sys.error,"ERROR Does not match: " + jsonStringPrefixed + " and " + jsonStringMaster);
+					shutdownPE();
+				}
+
+				int32Var = 1;
+
+				jsonStringPrefixed = toJSON("INT32",int32Var, "_");
+				log(Sys.info,"jsonStringPrefixed = " + jsonStringPrefixed);
+
+				jsonStringMaster   = toJSON("INT32",int32Var);
+				log(Sys.info,"jsonStringMaster = " + jsonStringMaster);
+
+				if(jsonStringPrefixed != jsonStringMaster) {
+					log(Sys.error,"ERROR Does not match: " + jsonStringPrefixed + " and " + jsonStringMaster);
+					shutdownPE();
+				}
+
+			}
+		}
+
+		
+
+	config 
+		tracing : debug;
+		
+}
+
+
