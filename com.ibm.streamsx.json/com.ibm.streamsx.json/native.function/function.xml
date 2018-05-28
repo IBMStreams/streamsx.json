@@ -90,6 +90,7 @@ Threading limitations:
 Call to parseJSON should not be placed in param section or state of the operator (internally a json object is shared via the thread local storage).
 @param jsonString The input JSON string.
 @param status indicates a status of the parser (enum JsonParseStatus.status).
+@param offset returns the offset in JSON string where parse error occured (use when status returns error).
 @param jsonIndex Json index of enum type (e.g. enum\{_1\}).
 @return Error code (0 - no error).
 </function:description>
