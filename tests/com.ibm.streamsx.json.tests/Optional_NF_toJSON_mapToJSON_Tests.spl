@@ -176,16 +176,12 @@ composite Optional_NF_mapToJSON_CombinedTest {
 		TestCombinationType = 
 		tuple <
 			map<rstring,int32> mapAtt,
-			optional<map<rstring,int32>> optMapAtt,
-			optional<map<rstring,int32>> optMapAttNull,
 			map<rstring,optional<int32>> mapOptAtt
 		>;
 
 		TestCombinationResultType = 
 		tuple <
 			rstring  mapAtt,
-			rstring  optMapAtt,
-			rstring  optMapAttNull,
 			rstring  mapOptAtt
 		>;
 
@@ -195,8 +191,6 @@ composite Optional_NF_mapToJSON_CombinedTest {
 			iterations : 1u;
 		output TupleStream : 
 			mapAtt = {"value1":98,"value2":99},
-			optMapAtt  = {"value1":98,"value2":99},
-			optMapAttNull = null,
 			mapOptAtt = {"value1":null,"value2":99};
 		}
 
@@ -205,8 +199,6 @@ composite Optional_NF_mapToJSON_CombinedTest {
 			iterations : 1u;
 		output ExpectedResultStream : 
 			mapAtt = 	"{\"value1\":98,\"value2\":99}",
-			optMapAtt  = 	"{\"value1\":98,\"value2\":99}",
-			optMapAttNull = "{}",
 			mapOptAtt = 	"{\"value1\":null,\"value2\":99}";
 		}
 
@@ -215,8 +207,6 @@ composite Optional_NF_mapToJSON_CombinedTest {
 		output 
 			JsonResultStream:
 				mapAtt = 	mapToJSON (I.mapAtt),
-				optMapAtt  = 	mapToJSON (I.optMapAtt),
-				optMapAttNull = mapToJSON (I.optMapAttNull),
 				mapOptAtt = 	mapToJSON (I.mapOptAtt);
 			
 		}
