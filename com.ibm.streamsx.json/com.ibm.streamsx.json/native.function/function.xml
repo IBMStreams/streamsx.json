@@ -14,11 +14,29 @@ Convert a tuple to JSON object encoded as a serialized JSON String. Blob, comple
       </function:function>
       <function:function>
         <function:description>
+Convert a tuple to JSON object encoded as a serialized JSON String. Blob, complex and xml values are converted to nulls.
+@param t Tuple to be converted to JSON.
+@param prefixToIgnore rstring prefix to ignore in attribute name .
+@return Tuple encoded as a serialized JSON object.
+        </function:description>
+        <function:prototype>&lt;tuple T> public rstring tupleToJSON(T t, rstring prefixToIgnore)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>
 Convert a map to JSON object encoded as a serialized JSON string. Blob, complex and xml values are converted to nulls.
 @param m Map containing key-value pairs to be converted to JSON.
 @return Serialized JSON object containing all name-value pairs in `m`.
 </function:description>
         <function:prototype>&lt;string S, any T> public rstring mapToJSON(map&lt;S, T> m)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>
+Convert a map to JSON object encoded as a serialized JSON string. Blob, complex and xml values are converted to nulls.
+@param m Map containing key-value pairs to be converted to JSON.
+@param prefixToIgnore rstring prefix to ignore in attribute name .
+@return Serialized JSON object containing all name-value pairs in `m`.
+</function:description>
+        <function:prototype>&lt;string S, any T> public rstring mapToJSON(map&lt;S, T> m, rstring prefixToIgnore)</function:prototype>
       </function:function>
       <function:function>
         <function:description>
@@ -31,12 +49,22 @@ Convert a value to JSON object with a single key encoded as a serialized JSON st
       </function:function>
       <function:function>
         <function:description>
+Convert a value to JSON object with a single key encoded as a serialized JSON string. Blob, complex and xml values are converted to nulls.
+@param key Key for name-value pair to be converted to JSON.
+@param value Value for `key`.
+@param prefixToIgnore rstring prefix to ignore in attribute name .
+@return Serialized JSON object containing single name-value pair.
+</function:description>
+        <function:prototype>&lt;string S, any T> public rstring toJSON(S key, T value, rstring prefixToIgnore)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>
 Extract values from JSON string accordingly to a given tuple.
 @param jsonString The input JSON string.
 @param tuple A mutable tuple to save extracted values.
 @return Reference to the input tuple.
 </function:description>
-        <function:prototype>&lt;tuple T> public T extractFromJSON(rstring jsonString, T value)</function:prototype>
+        <function:prototype>&lt;tuple T> public T extractFromJSON(rstring jsonString, mutable T value)</function:prototype>
       </function:function>
       <function:function>
         <function:description>
