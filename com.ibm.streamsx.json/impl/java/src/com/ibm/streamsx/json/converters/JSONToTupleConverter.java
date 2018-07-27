@@ -22,6 +22,7 @@ import com.ibm.streams.operator.meta.CollectionType;
 import com.ibm.streams.operator.meta.TupleType;
 import com.ibm.streams.operator.types.RString;
 import com.ibm.streams.operator.types.Timestamp;
+import com.ibm.streams.operator.Type.MetaType;
 import com.ibm.streamsx.json.converters.Messages;
 
 /**
@@ -168,7 +169,9 @@ public class JSONToTupleConverter {
 		int cnt=0;
 		String cname = "List: " + name; //$NON-NLS-1$
 
-		switch(ctype.getElementType().getMetaType()) {
+		MetaType collectionElementMetaType = ctype.getElementType().getMetaType();
+		
+		switch(collectionElementMetaType) {
 		case INT8:
 		case UINT8: 
 		{
@@ -178,6 +181,20 @@ public class JSONToTupleConverter {
 				if(obj!=null) lst.add(obj);
 			}
 
+			/* SPL list<intxx> attributes
+			 * expects assignment of java array type int[]
+			 * 
+			 * SPL list<uintxx> attributes
+			 * expects assignment of java collection type arrayList<Object>
+			 * were Object is expected to be java.lang.Byte object
+			 * which is returned from jsonToAttribute()
+			 * 
+			 */
+			if (collectionElementMetaType == MetaType.UINT8){
+				return lst;
+  			}
+			
+			
 			byte[] arr= new byte[lst.size()];
 			for(Object val : lst)
 				arr[cnt++] = (Byte)val;
@@ -192,6 +209,11 @@ public class JSONToTupleConverter {
 				if(obj!=null) lst.add(obj);
 			}
 
+			/* list<uintxx> case */
+			if (collectionElementMetaType == MetaType.UINT16){
+				return lst;
+  			}
+			
 			short[] arr= new short[lst.size()];
 			for(Object val : lst)
 				arr[cnt++] = (Short)val;
@@ -206,6 +228,11 @@ public class JSONToTupleConverter {
 				if(obj!=null) lst.add(obj);
 			}
 
+			/* list<uintxx> case */
+			if (collectionElementMetaType == MetaType.UINT32){
+				return lst;
+  			}
+			
 			int[] arr= new int[lst.size()];
 			for(Object val : lst)
 				arr[cnt++] = (Integer)val;
@@ -220,6 +247,11 @@ public class JSONToTupleConverter {
 				Object obj =jsonToAttribute(cname, ctype.getElementType(), jsonObj, ptype);
 				if(obj!=null) lst.add(obj);
 			}
+
+			/* list<uintxx> case */
+			if (collectionElementMetaType == MetaType.UINT64){
+				return lst;
+  			}
 
 			long[] arr= new long[lst.size()];
 			for(Object val : lst)

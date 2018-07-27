@@ -27,13 +27,15 @@ composite ListTest {
 
 
 	type
-		MyType = list<rstring> a, list<int64> b, set<float64> c;
+		MyType = list<rstring> a, list<int64> b, set<float64> c, 
+			list<uint8> d, list<uint16> e, list<uint32> f, list<uint64> g;
 
 	graph
 		stream<MyType> InputS = Beacon() {
 		param
 			iterations : 1u;
-		output InputS : a=[ "a", "b", "c"] , b=[1l,2l,3l], c={1.2, 2.2,3.5};
+		output InputS : a=[ "a", "b", "c"] , b=[1l,2l,3l], c={1.2, 2.2,3.5},
+				d=[1ub,2ub, 3ub], e=[1uh,2uh, 3uh], f=[1uw,2uw, 3uw], g=[1ul,2ul, 3ul];
 		}
 		() as SinkOp = Verifier(InputS) {}
 	config 
