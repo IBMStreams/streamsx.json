@@ -15,33 +15,74 @@ namespace com.ibm.streamsx.json;
 */
 type Json = rstring jsonString;
 
-
+/**
+* Defining types to be used in 
+* parseJSON() and queryJSON() functions
+* value for parameter index. Each single one-value enum type
+* represents an index to one parsed and internal stored JSON object
+* which can be used later with queryJSON()
+* by referencing the object with the index.
+* So one can parse up to 20 JSON strings
+* and work on them with queryJSON without 
+* re-parsing a JSON string when multiple querys
+* should be done on it.
+* Usage sample:
+*   parseJSON(yourJsonString, JsonIndex._1)
+*/
 public composite JsonIndex {
 	type
+		/** Single-value enum type with value JsonIndex._1 to reference internal stored JSON object */
 		static type_1 = enum{_1};
+		/** Single-value enum type with value JsonIndex._2 to reference internal stored JSON object */
 		static type_2 = enum{_2};
+		/** Single-value enum type with value JsonIndex._3 to reference internal stored JSON object */
 		static type_3 = enum{_3};
+		/** Single-value enum type with value JsonIndex._4 to reference internal stored JSON object */
 		static type_4 = enum{_4};
+		/** Single-value enum type with value JsonIndex._5 to reference internal stored JSON object */
 		static type_5 = enum{_5};
+		/** Single-value enum type with value JsonIndex._6 to reference internal stored JSON object */
 		static type_6 = enum{_6};
+		/** Single-value enum type with value JsonIndex._7 to reference internal stored JSON object */
 		static type_7 = enum{_7};
+		/** Single-value enum type with value JsonIndex._8 to reference internal stored JSON object */
 		static type_8 = enum{_8};
+		/** Single-value enum type with value JsonIndex._9 to reference internal stored JSON object */
 		static type_9 = enum{_9};
+		/** Single-value enum type with value JsonIndex._10 to reference internal stored JSON object */
 		static type_10 = enum{_10};
+		/** Single-value enum type with value JsonIndex._11 to reference internal stored JSON object */
 		static type_11 = enum{_11};
+		/** Single-value enum type with value JsonIndex._12 to reference internal stored JSON object */
 		static type_12 = enum{_12};
+		/** Single-value enum type with value JsonIndex._13 to reference internal stored JSON object */
 		static type_13 = enum{_13};
+		/** Single-value enum type with value JsonIndex._14 to reference internal stored JSON object */
 		static type_14 = enum{_14};
+		/** Single-value enum type with value JsonIndex._15 to reference internal stored JSON object */
 		static type_15 = enum{_15};
+		/** Single-value enum type with value JsonIndex._16 to reference internal stored JSON object */
 		static type_16 = enum{_16};
+		/** Single-value enum type with value JsonIndex._17 to reference internal stored JSON object */
 		static type_17 = enum{_17};
+		/** Single-value enum type with value JsonIndex._18 to reference internal stored JSON object */
 		static type_18 = enum{_18};
+		/** Single-value enum type with value JsonIndex._19 to reference internal stored JSON object */
 		static type_19 = enum{_19};
+		/** Single-value enum type with value JsonIndex._20 to reference internal stored JSON object */
 		static type_20 = enum{_20};
 }
 
+/** 
+* Definition of error codes which are returned when parsing a JSON string into 
+* internal JSON object. These are errors are caused by wrong formatted JSON string.
+* Result of parseJSON().
+*/
 public composite JsonParseStatus {
 	type
+		/** 
+		* Errors returned by parseJSON() 
+		*/
 		static status = enum{PARSED, DOCUMENT_EMPTY, MULTIPLE_ROOTS, VALUE_INVALID, KEY_MISSING, COLON_MISSING,
 							 OBJECT_COMMA_OR_BRACKET_MISSING, ARRAY_COMMA_OR_BRACKET_MISSING,
 							 UNICODE_ESCAPE_INVALID, UNICODE_SURROGATE_INVALID,
@@ -49,8 +90,16 @@ public composite JsonParseStatus {
 							 NUMBER_TOO_BIG, NUMBER_MISS_FRACTION, NUMBER_MISS_EXPONENT, TERMINATION, SYNTAX_ERROR};
 }
 
+/** 
+* Definition of error codes which are returned when querying 
+* an internal JSON object (reference by JSONindex._? value) with a JSON path.
+* Result of queryJSON().
+*/
 public composite JsonStatus {
 	type
+		/** 
+		* Errors returned by queryJSON() 
+		*/
 		static status = enum{FOUND, FOUND_CAST, FOUND_WRONG_TYPE, FOUND_NULL, NOT_FOUND,
 							 PATH_MUST_BEGIN_WITH_SLASH, INVALID_ESCAPE, INVALID_PERCENT_ENCODING, CHAR_MUST_PERCENT_ENCODING};
 }

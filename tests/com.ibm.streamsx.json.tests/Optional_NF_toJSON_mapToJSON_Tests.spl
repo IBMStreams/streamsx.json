@@ -1,0 +1,219 @@
+//
+// *******************************************************************************
+// * Copyright (C)2014, International Business Machines Corporation and *
+// * others. All Rights Reserved. *
+// *******************************************************************************
+//
+/*********************************************************************************
+*
+* This testsuite will test the C++ native  Function of the streamsx.json toolkit
+*
+*
+*	<string S, any T> public rstring toJSON(S key, T value)
+*
+*       <string S, any T> public rstring mapToJSON(map<S, T> m)        
+*
+*
+*
+* The function  
+*       <tuple T> public rstring tupleToJSON(T t) #
+* is tested separately and full featured (huge number of type and composite type 
+* combinations for optional) which is seen as the base test.
+* 
+* As the toJSON and mapToJSON use same underlying functions their tests are reduced
+* to check the interface for samples of primitive and composite types.
+*
+*********************************************************************************/
+namespace com.ibm.streamsx.json.tests;
+use com.ibm.streamsx.json::*;
+
+/**********************************************************
+* <string S, any T> public rstring toJSON(S key, T value)
+***********************************************************/
+
+composite Optional_NF_toJSON_CombinedTest {
+
+	type 	
+		TupleType = 
+		tuple <
+			int32 innerTupleAtt
+		>;
+
+		TestCombinationType = 
+		tuple <
+			int32 att,
+			optional<int32> optAtt,
+			optional<int32> optAttNull,
+			list<int32> listAtt,
+			optional<list<int32>> optListAtt,
+			optional<list<int32>> optListAttNull,
+			list<optional<int32>> listOptAtt,
+			set<int32> setAtt,
+			optional<set<int32>> optSetAtt,
+			optional<set<int32>> optSetAttNull,
+			set<optional<int32>> setOptAtt,
+			TupleType tupleAtt,
+			optional<TupleType> optTupleAtt,
+			optional<TupleType> optTupleAttNull,
+			map<rstring,int32> mapAtt,
+			optional<map<rstring,int32>> optMapAtt,
+			optional<map<rstring,int32>> optMapAttNull,
+			map<rstring,optional<int32>> mapOptAtt
+		>;
+
+		TestCombinationResultType = 
+		tuple <
+			rstring  att,
+			rstring  optAtt,
+			rstring  optAttNull,
+			rstring  listAtt,
+			rstring  optListAtt,
+			rstring  optListAttNull,
+			rstring  listOptAtt,
+			rstring  setAtt,
+			rstring  optSetAtt,
+			rstring  optSetAttNull,
+			rstring  setOptAtt,
+			rstring  tupleAtt,
+			rstring  optTupleAtt,
+			rstring  optTupleAttNull,
+			rstring  mapAtt,
+			rstring  optMapAtt,
+			rstring  optMapAttNull,
+			rstring  mapOptAtt
+
+		>;
+
+	graph
+		stream<TestCombinationType> TupleStream = Beacon() {
+		param
+			iterations : 1u;
+		output TupleStream : 
+			att = 99,
+			optAtt  = 99,
+			optAttNull = null,
+			listAtt = [ 99, 99],
+			optListAtt = [ 99, 99],
+			optListAttNull = null,
+			listOptAtt = [ null, 99],
+			setAtt = {98, 99},
+			optSetAtt = {98, 99},
+			optSetAttNull = null,
+			setOptAtt = {null, 99},
+			tupleAtt = {innerTupleAtt = 99},
+			optTupleAtt = {innerTupleAtt = 99},
+			optTupleAttNull = null,
+			mapAtt = {"value1":98,"value2":99},
+			optMapAtt  = {"value1":98,"value2":99},
+			optMapAttNull = null,
+			mapOptAtt = {"value1":null,"value2":99};
+		}
+
+		stream<TestCombinationResultType> ExpectedResultStream = Beacon() {
+		param
+			iterations : 1u;
+		output ExpectedResultStream : 
+			att = 		"{\"result\":99}",
+			optAtt  = 	"{\"result\":99}",
+			optAttNull = 	"{\"result\":null}",
+			listAtt = 	"{\"result\":[99,99]}",
+			optListAtt = 	"{\"result\":[99,99]}",
+			optListAttNull = "{\"result\":null}",
+			listOptAtt = 	"{\"result\":[null,99]}",
+			setAtt = 	"{\"result\":[99,98]}",
+			optSetAtt = 	"{\"result\":[99,98]}",
+			optSetAttNull = "{\"result\":null}",
+			setOptAtt = 	"{\"result\":[99,null]}",
+			tupleAtt = 	"{\"result\":{\"innerTupleAtt\":99}}",
+			optTupleAtt = 	"{\"result\":{\"innerTupleAtt\":99}}",
+			optTupleAttNull = "{\"result\":null}",
+			mapAtt = 	"{\"result\":{\"value1\":98,\"value2\":99}}",
+			optMapAtt  = 	"{\"result\":{\"value1\":98,\"value2\":99}}",
+			optMapAttNull = "{\"result\":null}",
+			mapOptAtt = 	"{\"result\":{\"value1\":null,\"value2\":99}}";
+
+		}
+
+
+		stream<TestCombinationResultType> JsonResultStream = Functor(TupleStream as I ) {
+		output 
+			JsonResultStream:
+				att = 		toJSON ("result",I.att),
+				optAtt  = 	toJSON ("result",I.optAtt),
+				optAttNull = 	toJSON ("result",I.optAttNull),
+				listAtt = 	toJSON ("result",I.listAtt),
+				optListAtt = 	toJSON ("result",I.optListAtt),
+				optListAttNull = toJSON ("result",I.optListAttNull),
+				listOptAtt = 	toJSON ("result",I.listOptAtt),
+				setAtt = 	toJSON ("result",I.setAtt),
+				optSetAtt = 	toJSON ("result",I.optSetAtt),
+				optSetAttNull = toJSON ("result",I.optSetAttNull),
+				setOptAtt = 	toJSON ("result",I.setOptAtt),
+				tupleAtt = 	toJSON ("result",I.tupleAtt),
+				optTupleAtt = 	toJSON ("result",I.optTupleAtt),
+				optTupleAttNull = toJSON ("result",I.optTupleAttNull),
+				mapAtt = 	toJSON ("result",I.mapAtt),
+				optMapAtt  = 	toJSON ("result",I.optMapAtt),
+				optMapAttNull = toJSON ("result",I.optMapAttNull),
+				mapOptAtt = 	toJSON ("result",I.mapOptAtt);
+			
+		}
+		() as Verify = TupleVerifier(JsonResultStream;ExpectedResultStream) {}
+
+
+	config 
+	  tracing : debug;
+}
+
+/**********************************************************
+* <string S, any T> public rstring mapToJSON(map<S, T> m)
+***********************************************************/
+
+composite Optional_NF_mapToJSON_CombinedTest {
+
+	type 	
+
+		TestCombinationType = 
+		tuple <
+			map<rstring,int32> mapAtt,
+			map<rstring,optional<int32>> mapOptAtt
+		>;
+
+		TestCombinationResultType = 
+		tuple <
+			rstring  mapAtt,
+			rstring  mapOptAtt
+		>;
+
+	graph
+		stream<TestCombinationType> TupleStream = Beacon() {
+		param
+			iterations : 1u;
+		output TupleStream : 
+			mapAtt = {"value1":98,"value2":99},
+			mapOptAtt = {"value1":null,"value2":99};
+		}
+
+		stream<TestCombinationResultType> ExpectedResultStream = Beacon() {
+		param
+			iterations : 1u;
+		output ExpectedResultStream : 
+			mapAtt = 	"{\"value1\":98,\"value2\":99}",
+			mapOptAtt = 	"{\"value1\":null,\"value2\":99}";
+		}
+
+
+		stream<TestCombinationResultType> JsonResultStream = Functor(TupleStream as I ) {
+		output 
+			JsonResultStream:
+				mapAtt = 	mapToJSON (I.mapAtt),
+				mapOptAtt = 	mapToJSON (I.mapOptAtt);
+			
+		}
+		() as Verify = TupleVerifier(JsonResultStream;ExpectedResultStream) {}
+
+
+	config 
+	  tracing : debug;
+}
+
