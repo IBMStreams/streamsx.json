@@ -17,8 +17,9 @@
 #include "rapidjson/stringbuffer.h"
 #include <streams_boost/algorithm/string.hpp>
 
-using namespace rapidjson;
-using namespace SPL;
+
+
+//using namespace SPL;
 
 namespace com { namespace ibm { namespace streamsx { namespace json {
 
@@ -26,68 +27,69 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 	inline char const* convToChars(String const& str) { return str.c_str(); }
 
 	template<>
-	inline char const* convToChars<ustring>(ustring const& str) { return spl_cast<rstring,ustring>::cast(str).c_str(); }
+	inline char const* convToChars<SPL::ustring>(SPL::ustring const& str) { return SPL::spl_cast<SPL::rstring,SPL::ustring>::cast(str).c_str(); }
 
 	template<>
-	inline char const* convToChars<ConstValueHandle>(const ConstValueHandle& valueHandle) {
+	inline char const* convToChars<SPL::ConstValueHandle>(const SPL::ConstValueHandle& valueHandle) {
 		switch(valueHandle.getMetaType()) {
-			case Meta::Type::BSTRING : {
-				const BString & str = valueHandle;
+			case SPL::Meta::Type::BSTRING : {
+				const SPL::BString & str = valueHandle;
 				return str.getCString();
 			}
-			case Meta::Type::USTRING : {
-				const ustring & str = valueHandle;
-				return spl_cast<rstring,ustring>::cast(str).c_str();
+			case SPL::Meta::Type::USTRING : {
+				const SPL::ustring & str = valueHandle;
+				return SPL::spl_cast<SPL::rstring,SPL::ustring>::cast(str).c_str();
 			}
 			default: {
-				const rstring & str = valueHandle;
+				const SPL::rstring & str = valueHandle;
 				return str.c_str();
 			}
 		}
 	}
 
-	template<typename Container, typename Iterator>
-	inline void writeArray(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle, SPL::rstring const& prefixToIgnore);
 
 	template<typename Container, typename Iterator>
-	inline void writeMap(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle, SPL::rstring const& prefixToIgnore);
+	inline void writeArray(rapidjson::Writer<rapidjson::StringBuffer> & writer, SPL::ConstValueHandle const & valueHandle, SPL::rstring const& prefixToIgnore);
 
-	inline void writeTuple(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle, SPL::rstring const& prefixToIgnore);
+	template<typename Container, typename Iterator>
+	inline void writeMap(rapidjson::Writer<rapidjson::StringBuffer> & writer, SPL::ConstValueHandle const & valueHandle, SPL::rstring const& prefixToIgnore);
 
-	inline void writePrimitive(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle);
+	inline void writeTuple(rapidjson::Writer<rapidjson::StringBuffer> & writer, SPL::ConstValueHandle const & valueHandle, SPL::rstring const& prefixToIgnore);
+
+	inline void writePrimitive(rapidjson::Writer<rapidjson::StringBuffer> & writer, SPL::ConstValueHandle const & valueHandle);
 
 
-	inline void writeAny(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle, SPL::rstring const& prefixToIgnore) {
+	inline void writeAny(rapidjson::Writer<rapidjson::StringBuffer> & writer, SPL::ConstValueHandle const & valueHandle, SPL::rstring const& prefixToIgnore) {
 
 		switch (valueHandle.getMetaType()) {
-			case Meta::Type::LIST : {
-				writeArray<List,ConstListIterator>(writer, valueHandle, prefixToIgnore);
+			case SPL::Meta::Type::LIST : {
+				writeArray<SPL::List,SPL::ConstListIterator>(writer, valueHandle, prefixToIgnore);
 				break;
 			}
-			case Meta::Type::BLIST : {
-				writeArray<BList,ConstListIterator>(writer, valueHandle, prefixToIgnore);
+			case SPL::Meta::Type::BLIST : {
+				writeArray<SPL::BList,SPL::ConstListIterator>(writer, valueHandle, prefixToIgnore);
 				break;
 			}
-			case Meta::Type::SET : {
-				writeArray<Set,ConstSetIterator>(writer, valueHandle, prefixToIgnore);
+			case SPL::Meta::Type::SET : {
+				writeArray<SPL::Set,SPL::ConstSetIterator>(writer, valueHandle, prefixToIgnore);
 				break;
 			}
-			case Meta::Type::BSET : {
-				writeArray<BSet,ConstSetIterator>(writer, valueHandle, prefixToIgnore);
+			case SPL::Meta::Type::BSET : {
+				writeArray<SPL::BSet,SPL::ConstSetIterator>(writer, valueHandle, prefixToIgnore);
 				break;
 			}
-			case Meta::Type::MAP :
-				writeMap<Map,ConstMapIterator>(writer, valueHandle, prefixToIgnore);
+			case SPL::Meta::Type::MAP :
+				writeMap<SPL::Map,SPL::ConstMapIterator>(writer, valueHandle, prefixToIgnore);
 				break;
-			case Meta::Type::BMAP : {
-				writeMap<BMap,ConstMapIterator>(writer, valueHandle, prefixToIgnore);
+			case SPL::Meta::Type::BMAP : {
+				writeMap<SPL::BMap,SPL::ConstMapIterator>(writer, valueHandle, prefixToIgnore);
 				break;
 			}
-			case Meta::Type::TUPLE : {
+			case SPL::Meta::Type::TUPLE : {
 				writeTuple(writer, valueHandle, prefixToIgnore);
 				break;
 			}
-			case Meta::Type::OPTIONAL : {
+			case SPL::Meta::Type::OPTIONAL : {
 				/*
 				 * optional meta type needs to be checked first if a value is present
 				 * if it is present the value meta type has to be detected and the value itself
@@ -99,56 +101,56 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 				if (((const SPL::Optional&)valueHandle).isPresent())
 				{
 					switch (((const SPL::Optional&)valueHandle).getValueMetaType()) {
-						case Meta::Type::BOOLEAN :
-						case Meta::Type::ENUM :
-						case Meta::Type::INT8 :
-						case Meta::Type::INT16 :
-						case Meta::Type::INT32 :
-						case Meta::Type::INT64 :
-						case Meta::Type::UINT8 :
-						case Meta::Type::UINT16 :
-						case Meta::Type::UINT32 :
-						case Meta::Type::UINT64 :
-						case Meta::Type::FLOAT32 :
-						case Meta::Type::FLOAT64 :
-						case Meta::Type::DECIMAL32 :
-						case Meta::Type::DECIMAL64 :
-						case Meta::Type::DECIMAL128 :
-						case Meta::Type::COMPLEX32 :
-						case Meta::Type::COMPLEX64 :
-						case Meta::Type::TIMESTAMP :
-						case Meta::Type::BSTRING :
-						case Meta::Type::RSTRING :
-						case Meta::Type::USTRING :
-						case Meta::Type::BLOB :
-						case Meta::Type::XML : {
+						case SPL::Meta::Type::BOOLEAN :
+						case SPL::Meta::Type::ENUM :
+						case SPL::Meta::Type::INT8 :
+						case SPL::Meta::Type::INT16 :
+						case SPL::Meta::Type::INT32 :
+						case SPL::Meta::Type::INT64 :
+						case SPL::Meta::Type::UINT8 :
+						case SPL::Meta::Type::UINT16 :
+						case SPL::Meta::Type::UINT32 :
+						case SPL::Meta::Type::UINT64 :
+						case SPL::Meta::Type::FLOAT32 :
+						case SPL::Meta::Type::FLOAT64 :
+						case SPL::Meta::Type::DECIMAL32 :
+						case SPL::Meta::Type::DECIMAL64 :
+						case SPL::Meta::Type::DECIMAL128 :
+						case SPL::Meta::Type::COMPLEX32 :
+						case SPL::Meta::Type::COMPLEX64 :
+						case SPL::Meta::Type::TIMESTAMP :
+						case SPL::Meta::Type::BSTRING :
+						case SPL::Meta::Type::RSTRING :
+						case SPL::Meta::Type::USTRING :
+						case SPL::Meta::Type::BLOB :
+						case SPL::Meta::Type::XML : {
 							writePrimitive(writer, ((const SPL::Optional&)valueHandle).getValue());
 							break;
 						}
-						case Meta::Type::LIST : {
-							writeArray<List,ConstListIterator>(writer, ((const SPL::Optional&)valueHandle).getValue(), prefixToIgnore);
+						case SPL::Meta::Type::LIST : {
+							writeArray<SPL::List,SPL::ConstListIterator>(writer, ((const SPL::Optional&)valueHandle).getValue(), prefixToIgnore);
 							break;
 						}
-						case Meta::Type::BLIST : {
-							writeArray<BList,ConstListIterator>(writer, ((const SPL::Optional&)valueHandle).getValue(), prefixToIgnore);
+						case SPL::Meta::Type::BLIST : {
+							writeArray<SPL::BList,SPL::ConstListIterator>(writer, ((const SPL::Optional&)valueHandle).getValue(), prefixToIgnore);
 							break;
 						}
-						case Meta::Type::SET : {
-							writeArray<Set,ConstSetIterator>(writer, ((const SPL::Optional&)valueHandle).getValue(), prefixToIgnore);
+						case SPL::Meta::Type::SET : {
+							writeArray<SPL::Set,SPL::ConstSetIterator>(writer, ((const SPL::Optional&)valueHandle).getValue(), prefixToIgnore);
 							break;
 						}
-						case Meta::Type::BSET : {
-							writeArray<BSet,ConstSetIterator>(writer, ((const SPL::Optional&)valueHandle).getValue(), prefixToIgnore);
+						case SPL::Meta::Type::BSET : {
+							writeArray<SPL::BSet,SPL::ConstSetIterator>(writer, ((const SPL::Optional&)valueHandle).getValue(), prefixToIgnore);
 							break;
 						}
-						case Meta::Type::MAP :
-							writeMap<Map,ConstMapIterator>(writer, ((const SPL::Optional&)valueHandle).getValue(), prefixToIgnore);
+						case SPL::Meta::Type::MAP :
+							writeMap<SPL::Map,SPL::ConstMapIterator>(writer, ((const SPL::Optional&)valueHandle).getValue(), prefixToIgnore);
 							break;
-						case Meta::Type::BMAP : {
-							writeMap<BMap,ConstMapIterator>(writer, ((const SPL::Optional&)valueHandle).getValue(), prefixToIgnore);
+						case SPL::Meta::Type::BMAP : {
+							writeMap<SPL::BMap,SPL::ConstMapIterator>(writer, ((const SPL::Optional&)valueHandle).getValue(), prefixToIgnore);
 							break;
 						}
-						case Meta::Type::TUPLE : {
+						case SPL::Meta::Type::TUPLE : {
 							writeTuple(writer, ((const SPL::Optional&)valueHandle).getValue(), prefixToIgnore);
 							break;
 						}
@@ -168,14 +170,14 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 	}
 
 	template<typename Container, typename Iterator>
-	inline void writeArray(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle, SPL::rstring const& prefixToIgnore) {
+	inline void writeArray(rapidjson::Writer<rapidjson::StringBuffer> & writer, SPL::ConstValueHandle const & valueHandle, SPL::rstring const& prefixToIgnore) {
 
 		writer.StartArray();
 
 		const Container & array = valueHandle;
 		for(Iterator arrayIter = array.getBeginIterator(); arrayIter != array.getEndIterator(); arrayIter++) {
 
-			const ConstValueHandle & arrayValueHandle = *arrayIter;
+			const SPL::ConstValueHandle & arrayValueHandle = *arrayIter;
 			writeAny(writer, arrayValueHandle, prefixToIgnore);
 		}
 
@@ -183,15 +185,15 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 	}
 
 	template<typename Container, typename Iterator>
-	inline void writeMap(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle, SPL::rstring const& prefixToIgnore) {
+	inline void writeMap(rapidjson::Writer<rapidjson::StringBuffer> & writer, SPL::ConstValueHandle const & valueHandle, SPL::rstring const& prefixToIgnore) {
 
 		writer.StartObject();
 
 		const Container & map = valueHandle;
 		for(Iterator mapIter = map.getBeginIterator(); mapIter != map.getEndIterator(); mapIter++) {
 
-			const std::pair<ConstValueHandle,ConstValueHandle> & mapHandle = *mapIter;
-			const ConstValueHandle & mapValueHandle = mapHandle.second;
+			const std::pair<SPL::ConstValueHandle,SPL::ConstValueHandle> & mapHandle = *mapIter;
+			const SPL::ConstValueHandle & mapValueHandle = mapHandle.second;
 
 			writer.String(convToChars(mapHandle.first));
 			writeAny(writer, mapValueHandle, prefixToIgnore);
@@ -200,16 +202,16 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 		writer.EndObject();
 	}
 
-	inline void writeTuple(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle, SPL::rstring const& prefixToIgnore) {
+	inline void writeTuple(rapidjson::Writer<rapidjson::StringBuffer> & writer, SPL::ConstValueHandle const & valueHandle, SPL::rstring const& prefixToIgnore) {
 		using namespace streams_boost::algorithm;
 
 		writer.StartObject();
 
-		const Tuple & tuple = valueHandle;
-		for(ConstTupleIterator tupleIter = tuple.getBeginIterator(); tupleIter != tuple.getEndIterator(); tupleIter++) {
+		const SPL::Tuple & tuple = valueHandle;
+		for(SPL::ConstTupleIterator tupleIter = tuple.getBeginIterator(); tupleIter != tuple.getEndIterator(); tupleIter++) {
 
 			const std::string & attrName = (*tupleIter).getName();
-			const ConstValueHandle & attrValueHandle = static_cast<ConstTupleAttribute>(*tupleIter).getValue();
+			const SPL::ConstValueHandle & attrValueHandle = static_cast<SPL::ConstTupleAttribute>(*tupleIter).getValue();
 
 			if(!prefixToIgnore.empty() && starts_with(attrName, prefixToIgnore)) {
 				writer.String(convToChars(replace_first_copy(attrName, prefixToIgnore, "")));
@@ -224,108 +226,108 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 		writer.EndObject();
 	}
 
-	inline void writePrimitive(Writer<StringBuffer> & writer, ConstValueHandle const & valueHandle) {
+	inline void writePrimitive(rapidjson::Writer<rapidjson::StringBuffer> & writer, SPL::ConstValueHandle const & valueHandle) {
 
 		switch (valueHandle.getMetaType()) {
-			case Meta::Type::BOOLEAN : {
-				const boolean & value = valueHandle;
+			case SPL::Meta::Type::BOOLEAN : {
+				const SPL::boolean & value = valueHandle;
 				writer.Bool(value);
 				break;
 			}
-			case Meta::Type::ENUM : {
-				const Enum & value = valueHandle;
+			case SPL::Meta::Type::ENUM : {
+				const SPL::Enum & value = valueHandle;
 				writer.String(convToChars(value.getValue()));
 				break;
 			}
-			case Meta::Type::INT8 : {
-				const int8 & value = valueHandle;
+			case SPL::Meta::Type::INT8 : {
+				const SPL::int8 & value = valueHandle;
 				writer.Int(value);
 				break;
 			}
-			case Meta::Type::INT16 : {
-				const int16 & value = valueHandle;
+			case SPL::Meta::Type::INT16 : {
+				const SPL::int16 & value = valueHandle;
 				writer.Int(value);
 				break;
 			}
-			case Meta::Type::INT32 : {
-				const int32 & value = valueHandle;
+			case SPL::Meta::Type::INT32 : {
+				const SPL::int32 & value = valueHandle;
 				writer.Int(value);
 				break;
 			}
-			case Meta::Type::INT64 : {
-				const int64 & value = valueHandle;
+			case SPL::Meta::Type::INT64 : {
+				const SPL::int64 & value = valueHandle;
 				writer.Int64(value);
 				break;
 			}
-			case Meta::Type::UINT8 : {
-				const uint8 & value = valueHandle;
+			case SPL::Meta::Type::UINT8 : {
+				const SPL::uint8 & value = valueHandle;
 				writer.Uint(value);
 				break;
 			}
-			case Meta::Type::UINT16 : {
-				const uint16 & value = valueHandle;
+			case SPL::Meta::Type::UINT16 : {
+				const SPL::uint16 & value = valueHandle;
 				writer.Uint(value);
 				break;
 			}
-			case Meta::Type::UINT32 : {
-				const uint32 & value = valueHandle;
+			case SPL::Meta::Type::UINT32 : {
+				const SPL::uint32 & value = valueHandle;
 				writer.Uint(value);
 				break;
 			}
-			case Meta::Type::UINT64 : {
-				const uint64 & value = valueHandle;
+			case SPL::Meta::Type::UINT64 : {
+				const SPL::uint64 & value = valueHandle;
 				writer.Uint64(value);
 				break;
 			}
-			case Meta::Type::FLOAT32 : {
-				const float32 & value = valueHandle;
+			case SPL::Meta::Type::FLOAT32 : {
+				const SPL::float32 & value = valueHandle;
 				writer.Double(value);
 				break;
 			}
-			case Meta::Type::FLOAT64 : {
-				const float64 & value = valueHandle;
+			case SPL::Meta::Type::FLOAT64 : {
+				const SPL::float64 & value = valueHandle;
 				writer.Double(value);
 				break;
 			}
-			case Meta::Type::DECIMAL32 : {
-				const float64 & value = spl_cast<float64,decimal32>::cast(valueHandle);
+			case SPL::Meta::Type::DECIMAL32 : {
+				const SPL::float64 & value = SPL::spl_cast<SPL::float64,SPL::decimal32>::cast(valueHandle);
 				writer.Double(value);
 				break;
 			}
-			case Meta::Type::DECIMAL64 : {
-				const float64 & value = spl_cast<float64,decimal64>::cast(valueHandle);
+			case SPL::Meta::Type::DECIMAL64 : {
+				const SPL::float64 & value = SPL::spl_cast<SPL::float64,SPL::decimal64>::cast(valueHandle);
 				writer.Double(value);
 				break;
 			}
-			case Meta::Type::DECIMAL128 : {
-				const float64 & value = spl_cast<float64,decimal128>::cast(valueHandle);
+			case SPL::Meta::Type::DECIMAL128 : {
+				const SPL::float64 & value = SPL::spl_cast<SPL::float64,SPL::decimal128>::cast(valueHandle);
 				writer.Double(value);
 				break;
 			}
-			case Meta::Type::COMPLEX32 : {
+			case SPL::Meta::Type::COMPLEX32 : {
 				writer.Null();
 				break;
 			}
-			case Meta::Type::COMPLEX64 : {
+			case SPL::Meta::Type::COMPLEX64 : {
 				writer.Null();
 				break;
 			}
-			case Meta::Type::TIMESTAMP : {
-				const timestamp & value = valueHandle;
-				writer.String(convToChars(Functions::Time::ctime(value)));
+			case SPL::Meta::Type::TIMESTAMP : {
+				const SPL::timestamp & value = valueHandle;
+				writer.String(convToChars(SPL::Functions::Time::ctime(value)));
 				break;
 			}
-			case Meta::Type::BSTRING :
-			case Meta::Type::RSTRING :
-			case Meta::Type::USTRING : {
+			case SPL::Meta::Type::BSTRING :
+			case SPL::Meta::Type::RSTRING :
+			case SPL::Meta::Type::USTRING : {
 				writer.String(convToChars(valueHandle));
 				break;
 			}
-			case Meta::Type::BLOB : {
+			case SPL::Meta::Type::BLOB : {
 				writer.Null();
 				break;
 			}
-			case Meta::Type::XML : {
+			case SPL::Meta::Type::XML : {
 				writer.Null();
 				break;
 			}
@@ -335,12 +337,12 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 	}
 
 
-	inline SPL::rstring tupleToJSON(Tuple const& tuple, SPL::rstring prefixToIgnore = "") {
+	inline SPL::rstring tupleToJSON(SPL::Tuple const& tuple, SPL::rstring prefixToIgnore = "") {
 
-	    StringBuffer s;
-	    Writer<StringBuffer> writer(s);
+	    rapidjson::StringBuffer s;
+	    rapidjson::Writer<rapidjson::StringBuffer> writer(s);
 
-		writeAny(writer, ConstValueHandle(tuple), prefixToIgnore);
+		writeAny(writer, SPL::ConstValueHandle(tuple), prefixToIgnore);
 
 		return s.GetString();
 	}
@@ -348,10 +350,10 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 	template<class MAP>
 	inline SPL::rstring mapToJSON(MAP const& map, SPL::rstring prefixToIgnore = "") {
 
-	    StringBuffer s;
-	    Writer<StringBuffer> writer(s);
+	    rapidjson::StringBuffer s;
+	    rapidjson::Writer<rapidjson::StringBuffer> writer(s);
 
-		writeAny(writer, ConstValueHandle(map), prefixToIgnore);
+		writeAny(writer, SPL::ConstValueHandle(map), prefixToIgnore);
 
 		return s.GetString();
 	}
@@ -368,11 +370,11 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 	template<class MAP>
 	inline SPL::rstring mapToJSON(SPL::optional<MAP> const& map, SPL::rstring prefixToIgnore = "") {
 
-	    StringBuffer s;
-	    Writer<StringBuffer> writer(s);
+	    rapidjson::StringBuffer s;
+	    rapidjson::Writer<rapidjson::StringBuffer> writer(s);
 
-		if (((const SPL::Optional&)ConstValueHandle(map)).isPresent()) {
-			writeAny(writer, ConstValueHandle(map), prefixToIgnore);
+		if (((const SPL::Optional&)SPL::ConstValueHandle(map)).isPresent()) {
+			writeAny(writer, SPL::ConstValueHandle(map), prefixToIgnore);
 		}
 		else {
 			writer.StartObject();
@@ -387,14 +389,14 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 	inline SPL::rstring toJSON(String const& key, SPLAny const& splAny, SPL::rstring prefixToIgnore = "") {
 
 
-	    StringBuffer s;
-	    Writer<StringBuffer> writer(s);
+	    rapidjson::StringBuffer s;
+	    rapidjson::Writer<rapidjson::StringBuffer> writer(s);
 
 		writer.StartObject();
 
 		writer.String(convToChars(key));
 
-		writeAny(writer, ConstValueHandle(splAny), prefixToIgnore);
+		writeAny(writer, SPL::ConstValueHandle(splAny), prefixToIgnore);
 
 		writer.EndObject();
 
