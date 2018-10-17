@@ -26,9 +26,7 @@
 
 #include <SPL/Runtime/Type/Tuple.h>
 
-using namespace rapidjson;
-using namespace streams_boost;
-using namespace SPL;
+
 
 namespace com { namespace ibm { namespace streamsx { namespace json {
 
@@ -36,26 +34,26 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 
 	struct TupleState {
 
-		TupleState(Tuple & _tuple) : tuple(_tuple), attrIter(_tuple.getEndIterator()), inCollection(NO), objectCount(0) {}
+		TupleState(SPL::Tuple & _tuple) : tuple(_tuple), attrIter(_tuple.getEndIterator()), inCollection(NO), objectCount(0) {}
 
-		Tuple & tuple;
-		TupleIterator attrIter;
+		SPL::Tuple & tuple;
+		SPL::TupleIterator attrIter;
 		InCollection inCollection;
 		int objectCount;
-		set<rstring> foundKeys;
+		SPL::set<SPL::rstring> foundKeys;
 	};
 
-	struct EventHandler : public BaseReaderHandler<UTF8<>, EventHandler> {
+	struct EventHandler : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, EventHandler> {
 
-		EventHandler(Tuple & _tuple) {
+		EventHandler(SPL::Tuple & _tuple) {
 			objectStack.push(TupleState(_tuple));
 		}
 
-		bool Key(const char* jsonKey, SizeType length, bool copy) {
+		bool Key(const char* jsonKey, rapidjson::SizeType length, bool copy) {
 			SPLAPPTRC(L_DEBUG, "extracted key: " << jsonKey, "EXTRACT_FROM_JSON");
 
 			TupleState & state = objectStack.top();
-			TupleIterator const& endIter = state.tuple.getEndIterator();
+			SPL::TupleIterator const& endIter = state.tuple.getEndIterator();
 
 			if(state.inCollection == MAP) {
 				lastKey = jsonKey;
@@ -98,12 +96,12 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 			else {
 				SPLAPPTRC(L_DEBUG, "extracted value: " << std::boolalpha << b, "EXTRACT_FROM_JSON");
 
-				ValueHandle valueHandle = (*state.attrIter).getValue();
+				SPL::ValueHandle valueHandle = (*state.attrIter).getValue();
 
-				if(state.inCollection == NO && valueHandle.getMetaType() == Meta::Type::BOOLEAN)
-					static_cast<boolean&>(valueHandle) = b;
-				else if(state.inCollection != NO && valueType == Meta::Type::BOOLEAN)
-					InsertValue(valueHandle, ConstValueHandle(boolean(b)));
+				if(state.inCollection == NO && valueHandle.getMetaType() == SPL::Meta::Type::BOOLEAN)
+					static_cast<SPL::boolean&>(valueHandle) = b;
+				else if(state.inCollection != NO && valueType == SPL::Meta::Type::BOOLEAN)
+					InsertValue(valueHandle, SPL::ConstValueHandle(SPL::boolean(b)));
 				else
 					SPLAPPTRC(L_DEBUG, "not matched", "EXTRACT_FROM_JSON");
 			}
@@ -120,35 +118,35 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 			else {
 				SPLAPPTRC(L_DEBUG, "extracted value: " << num, "EXTRACT_FROM_JSON");
 
-				ValueHandle valueHandle = (*state.attrIter).getValue();
+				SPL::ValueHandle valueHandle = (*state.attrIter).getValue();
 
 				if(state.inCollection == NO) {
 					switch(valueHandle.getMetaType()) {
-						case Meta::Type::INT8 : { static_cast<int8&>(valueHandle) = num; break; }
-						case Meta::Type::INT16 : { static_cast<int16&>(valueHandle) = num; break; }
-						case Meta::Type::INT32 : { static_cast<int32&>(valueHandle) = num; break; }
-						case Meta::Type::INT64 : { static_cast<int64&>(valueHandle) = num; break; }
-						case Meta::Type::UINT8 : { static_cast<uint8&>(valueHandle) = num; break; }
-						case Meta::Type::UINT16 : { static_cast<uint16&>(valueHandle) = num; break; }
-						case Meta::Type::UINT32 : { static_cast<uint32&>(valueHandle) = num; break; }
-						case Meta::Type::UINT64 : { static_cast<uint64&>(valueHandle) = num; break; }
-						case Meta::Type::FLOAT32 : { static_cast<float32&>(valueHandle) = num; break; }
-						case Meta::Type::FLOAT64 : { static_cast<float64&>(valueHandle) = num; break; }
+						case SPL::Meta::Type::INT8 : { static_cast<SPL::int8&>(valueHandle) = num; break; }
+						case SPL::Meta::Type::INT16 : { static_cast<SPL::int16&>(valueHandle) = num; break; }
+						case SPL::Meta::Type::INT32 : { static_cast<SPL::int32&>(valueHandle) = num; break; }
+						case SPL::Meta::Type::INT64 : { static_cast<SPL::int64&>(valueHandle) = num; break; }
+						case SPL::Meta::Type::UINT8 : { static_cast<SPL::uint8&>(valueHandle) = num; break; }
+						case SPL::Meta::Type::UINT16 : { static_cast<SPL::uint16&>(valueHandle) = num; break; }
+						case SPL::Meta::Type::UINT32 : { static_cast<SPL::uint32&>(valueHandle) = num; break; }
+						case SPL::Meta::Type::UINT64 : { static_cast<SPL::uint64&>(valueHandle) = num; break; }
+						case SPL::Meta::Type::FLOAT32 : { static_cast<SPL::float32&>(valueHandle) = num; break; }
+						case SPL::Meta::Type::FLOAT64 : { static_cast<SPL::float64&>(valueHandle) = num; break; }
 						default : SPLAPPTRC(L_DEBUG, "not matched", "EXTRACT_FROM_JSON");
 					}
 				}
 				else {
 					switch(valueType) {
-						case Meta::Type::INT8 : { InsertValue(valueHandle, ConstValueHandle(static_cast<int8>(num))); break; }
-						case Meta::Type::INT16 : { InsertValue(valueHandle, ConstValueHandle(static_cast<int16>(num))); break; }
-						case Meta::Type::INT32 : { InsertValue(valueHandle, ConstValueHandle(static_cast<int32>(num))); break; }
-						case Meta::Type::INT64 : { InsertValue(valueHandle, ConstValueHandle(static_cast<int64>(num))); break; }
-						case Meta::Type::UINT8 : { InsertValue(valueHandle, ConstValueHandle(static_cast<uint8>(num))); break; }
-						case Meta::Type::UINT16 : { InsertValue(valueHandle, ConstValueHandle(static_cast<uint16>(num))); break; }
-						case Meta::Type::UINT32 : { InsertValue(valueHandle, ConstValueHandle(static_cast<uint32>(num))); break; }
-						case Meta::Type::UINT64 : { InsertValue(valueHandle, ConstValueHandle(static_cast<uint64>(num))); break; }
-						case Meta::Type::FLOAT32 : { InsertValue(valueHandle, ConstValueHandle(static_cast<float32>(num))); break; }
-						case Meta::Type::FLOAT64 : { InsertValue(valueHandle, ConstValueHandle(static_cast<float64>(num))); break; }
+						case SPL::Meta::Type::INT8 : { InsertValue(valueHandle, SPL::ConstValueHandle(static_cast<SPL::int8>(num))); break; }
+						case SPL::Meta::Type::INT16 : { InsertValue(valueHandle, SPL::ConstValueHandle(static_cast<SPL::int16>(num))); break; }
+						case SPL::Meta::Type::INT32 : { InsertValue(valueHandle, SPL::ConstValueHandle(static_cast<SPL::int32>(num))); break; }
+						case SPL::Meta::Type::INT64 : { InsertValue(valueHandle, SPL::ConstValueHandle(static_cast<SPL::int64>(num))); break; }
+						case SPL::Meta::Type::UINT8 : { InsertValue(valueHandle, SPL::ConstValueHandle(static_cast<SPL::uint8>(num))); break; }
+						case SPL::Meta::Type::UINT16 : { InsertValue(valueHandle, SPL::ConstValueHandle(static_cast<SPL::uint16>(num))); break; }
+						case SPL::Meta::Type::UINT32 : { InsertValue(valueHandle, SPL::ConstValueHandle(static_cast<SPL::uint32>(num))); break; }
+						case SPL::Meta::Type::UINT64 : { InsertValue(valueHandle, SPL::ConstValueHandle(static_cast<SPL::uint64>(num))); break; }
+						case SPL::Meta::Type::FLOAT32 : { InsertValue(valueHandle, SPL::ConstValueHandle(static_cast<SPL::float32>(num))); break; }
+						case SPL::Meta::Type::FLOAT64 : { InsertValue(valueHandle, SPL::ConstValueHandle(static_cast<SPL::float64>(num))); break; }
 						default : SPLAPPTRC(L_DEBUG, "not matched", "EXTRACT_FROM_JSON");
 					}
 				}
@@ -162,7 +160,7 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 		bool Uint64(uint64_t uu) { return Num(uu); }
 		bool Double(double d) { return Num(d); }
 
-		bool String(const char* s, SizeType length, bool copy) {
+		bool String(const char* s, rapidjson::SizeType length, bool copy) {
 			TupleState & state = objectStack.top();
 
 			if(state.attrIter == state.tuple.getEndIterator()) {
@@ -171,21 +169,21 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 			else {
 				SPLAPPTRC(L_DEBUG, "extracted value: " << s, "EXTRACT_FROM_JSON");
 
-				ValueHandle valueHandle = (*state.attrIter).getValue();
+				SPL::ValueHandle valueHandle = (*state.attrIter).getValue();
 
 				if(state.inCollection == NO) {
 					switch(valueHandle.getMetaType()) {
-						case Meta::Type::BSTRING : { static_cast<BString&>(valueHandle) = rstring(s, length); break; }
-						case Meta::Type::RSTRING : { static_cast<rstring&>(valueHandle) = s; break; }
-						case Meta::Type::USTRING : { static_cast<ustring&>(valueHandle) = s; break; }
+						case SPL::Meta::Type::BSTRING : { static_cast<SPL::BString&>(valueHandle) = SPL::rstring(s, length); break; }
+						case SPL::Meta::Type::RSTRING : { static_cast<SPL::rstring&>(valueHandle) = s; break; }
+						case SPL::Meta::Type::USTRING : { static_cast<SPL::ustring&>(valueHandle) = s; break; }
 						default : SPLAPPTRC(L_DEBUG, "not matched", "EXTRACT_FROM_JSON");
 					}
 				}
 				else {
 					switch(valueType) {
-						case Meta::Type::BSTRING : { InsertValue(valueHandle, ConstValueHandle(bstring<1024>(s, length))); break; }
-						case Meta::Type::RSTRING : { InsertValue(valueHandle, ConstValueHandle(rstring(s, length))); break; }
-						case Meta::Type::USTRING : { InsertValue(valueHandle, ConstValueHandle(ustring(s, length))); break; }
+						case SPL::Meta::Type::BSTRING : { InsertValue(valueHandle, SPL::ConstValueHandle(SPL::bstring<1024>(s, length))); break; }
+						case SPL::Meta::Type::RSTRING : { InsertValue(valueHandle, SPL::ConstValueHandle(SPL::rstring(s, length))); break; }
+						case SPL::Meta::Type::USTRING : { InsertValue(valueHandle, SPL::ConstValueHandle(SPL::ustring(s, length))); break; }
 						default : SPLAPPTRC(L_DEBUG, "not matched", "EXTRACT_FROM_JSON");
 					}
 				}
@@ -198,24 +196,24 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 			SPLAPPTRC(L_DEBUG, "object started", "EXTRACT_FROM_JSON");
 
 			TupleState & state = objectStack.top();
-			TupleIterator const& endIter = state.tuple.getEndIterator();
+			SPL::TupleIterator const& endIter = state.tuple.getEndIterator();
 
 			if(state.attrIter == endIter) {
 				state.objectCount++;
 			}
 			else {
-				ValueHandle valueHandle = (*state.attrIter).getValue();
+				SPL::ValueHandle valueHandle = (*state.attrIter).getValue();
 
 				if(state.inCollection == NO) {
 					switch(valueHandle.getMetaType()) {
-						case Meta::Type::MAP : {
+						case SPL::Meta::Type::MAP : {
 							SPLAPPTRC(L_DEBUG, "matched to map", "EXTRACT_FROM_JSON");
 							state.inCollection = MAP;
 
-							switch (static_cast<Map&>(valueHandle).getKeyMetaType()) {
-								case Meta::Type::RSTRING :;
-								case Meta::Type::USTRING : {
-									valueType = static_cast<Map&>(valueHandle).getValueMetaType();
+							switch (static_cast<SPL::Map&>(valueHandle).getKeyMetaType()) {
+								case SPL::Meta::Type::RSTRING :;
+								case SPL::Meta::Type::USTRING : {
+									valueType = static_cast<SPL::Map&>(valueHandle).getValueMetaType();
 									break;
 								}
 								default : {
@@ -226,14 +224,14 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 
 							break;
 						}
-						case Meta::Type::BMAP : {
+						case SPL::Meta::Type::BMAP : {
 							SPLAPPTRC(L_DEBUG, "matched to bounded map", "EXTRACT_FROM_JSON");
 							state.inCollection = MAP;
 
-							switch (static_cast<BMap&>(valueHandle).getKeyMetaType()) {
-								case Meta::Type::RSTRING :;
-								case Meta::Type::USTRING : {
-									valueType = static_cast<BMap&>(valueHandle).getValueMetaType();
+							switch (static_cast<SPL::BMap&>(valueHandle).getKeyMetaType()) {
+								case SPL::Meta::Type::RSTRING :;
+								case SPL::Meta::Type::USTRING : {
+									valueType = static_cast<SPL::BMap&>(valueHandle).getValueMetaType();
 									break;
 								}
 								default : {
@@ -244,10 +242,10 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 
 							break;
 						}
-						case Meta::Type::TUPLE : {
+						case SPL::Meta::Type::TUPLE : {
 							SPLAPPTRC(L_DEBUG, "matched to tuple", "EXTRACT_FROM_JSON");
 
-							Tuple & tuple = valueHandle;
+							SPL::Tuple & tuple = valueHandle;
 							objectStack.push(TupleState(tuple));
 
 							break;
@@ -259,34 +257,34 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 					}
 				}
 				else {
-					if(valueType != Meta::Type::TUPLE) {
+					if(valueType != SPL::Meta::Type::TUPLE) {
 						state.objectCount++;
 					}
 					else {
 						switch(valueHandle.getMetaType()) {
-							case Meta::Type::LIST : {
-								List & listAttr = valueHandle;
-								ValueHandle valueElemHandle = listAttr.createElement();
+							case SPL::Meta::Type::LIST : {
+								SPL::List & listAttr = valueHandle;
+								SPL::ValueHandle valueElemHandle = listAttr.createElement();
 								listAttr.pushBack(valueElemHandle);
 								valueElemHandle.deleteValue();
 
-								Tuple & tuple = listAttr.getElement(listAttr.getSize()-1);
+								SPL::Tuple & tuple = listAttr.getElement(listAttr.getSize()-1);
 								objectStack.push(TupleState(tuple));
 
 								break;
 							}
-							case Meta::Type::MAP : {
-								Map & mapAttr = valueHandle;
-								ValueHandle valueElemHandle = mapAttr.createValue();
+							case SPL::Meta::Type::MAP : {
+								SPL::Map & mapAttr = valueHandle;
+								SPL::ValueHandle valueElemHandle = mapAttr.createValue();
 
-								ConstValueHandle key(lastKey);
-								if(mapAttr.getKeyMetaType() == Meta::Type::USTRING)
-									key = ustring(lastKey.data(), lastKey.length());
+								SPL::ConstValueHandle key(lastKey);
+								if(mapAttr.getKeyMetaType() == SPL::Meta::Type::USTRING)
+									key = SPL::ustring(lastKey.data(), lastKey.length());
 
 								mapAttr.insertElement(key, valueElemHandle);
 								valueElemHandle.deleteValue();
 
-								Tuple & tuple = (*(mapAttr.findElement(key))).second;
+								SPL::Tuple & tuple = (*(mapAttr.findElement(key))).second;
 								objectStack.push(TupleState(tuple));
 
 								break;
@@ -303,7 +301,7 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 			return true;
 		}
 
-		bool EndObject(SizeType memberCount) {
+		bool EndObject(rapidjson::SizeType memberCount) {
 			SPLAPPTRC(L_DEBUG, "object ended", "EXTRACT_FROM_JSON");
 
 			TupleState & state = objectStack.top();
@@ -325,37 +323,37 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 			SPLAPPTRC(L_DEBUG, "array started", "EXTRACT_FROM_JSON");
 
 			TupleState & state = objectStack.top();
-			TupleIterator const& endIter = state.tuple.getEndIterator();
+			SPL::TupleIterator const& endIter = state.tuple.getEndIterator();
 
 			if(state.attrIter != endIter) {
-				ValueHandle valueHandle = (*state.attrIter).getValue();
+				SPL::ValueHandle valueHandle = (*state.attrIter).getValue();
 
 				switch (valueHandle.getMetaType()) {
-					case Meta::Type::LIST : {
+					case SPL::Meta::Type::LIST : {
 						SPLAPPTRC(L_DEBUG, "matched to list", "EXTRACT_FROM_JSON");
 
-						valueType = static_cast<List&>(valueHandle).getElementMetaType();
+						valueType = static_cast<SPL::List&>(valueHandle).getElementMetaType();
 						state.inCollection = LIST;
 						break;
 					}
-					case Meta::Type::BLIST : {
+					case SPL::Meta::Type::BLIST : {
 						SPLAPPTRC(L_DEBUG, "matched to bounded list", "EXTRACT_FROM_JSON");
 
-						valueType = static_cast<BList&>(valueHandle).getElementMetaType();
+						valueType = static_cast<SPL::BList&>(valueHandle).getElementMetaType();
 						state.inCollection = LIST;
 						break;
 					}
-					case Meta::Type::SET : {
+					case SPL::Meta::Type::SET : {
 						SPLAPPTRC(L_DEBUG, "matched to set", "EXTRACT_FROM_JSON");
 
-						valueType = static_cast<Set&>(valueHandle).getElementMetaType();
+						valueType = static_cast<SPL::Set&>(valueHandle).getElementMetaType();
 						state.inCollection = LIST;
 						break;
 					}
-					case Meta::Type::BSET : {
+					case SPL::Meta::Type::BSET : {
 						SPLAPPTRC(L_DEBUG, "matched to bounded set", "EXTRACT_FROM_JSON");
 
-						valueType = static_cast<BSet&>(valueHandle).getElementMetaType();
+						valueType = static_cast<SPL::BSet&>(valueHandle).getElementMetaType();
 						state.inCollection = LIST;
 						break;
 					}
@@ -369,47 +367,47 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 			return true;
 		}
 
-		bool EndArray(SizeType elementCount) {
+		bool EndArray(rapidjson::SizeType elementCount) {
 			SPLAPPTRC(L_DEBUG, "array ended", "EXTRACT_FROM_JSON");
 
 			objectStack.top().inCollection = NO;
 			return true;
 		}
 
-		inline void InsertValue(ValueHandle & valueHandle, ConstValueHandle const& valueElemHandle) {
+		inline void InsertValue(SPL::ValueHandle & valueHandle, SPL::ConstValueHandle const& valueElemHandle) {
 
 			switch (valueHandle.getMetaType()) {
-				case Meta::Type::LIST : {
-					static_cast<List&>(valueHandle).pushBack(valueElemHandle);
+				case SPL::Meta::Type::LIST : {
+					static_cast<SPL::List&>(valueHandle).pushBack(valueElemHandle);
 					break;
 				}
-				case Meta::Type::BLIST : {
-					static_cast<BList&>(valueHandle).pushBack(valueElemHandle);
+				case SPL::Meta::Type::BLIST : {
+					static_cast<SPL::BList&>(valueHandle).pushBack(valueElemHandle);
 					break;
 				}
-				case Meta::Type::SET : {
-					static_cast<Set&>(valueHandle).insertElement(valueElemHandle);
+				case SPL::Meta::Type::SET : {
+					static_cast<SPL::Set&>(valueHandle).insertElement(valueElemHandle);
 					break;
 				}
-				case Meta::Type::BSET : {
-					static_cast<BSet&>(valueHandle).insertElement(valueElemHandle);
+				case SPL::Meta::Type::BSET : {
+					static_cast<SPL::BSet&>(valueHandle).insertElement(valueElemHandle);
 					break;
 				}
-				case Meta::Type::MAP : {
-					Map & mapAttr = valueHandle;
-					if(mapAttr.getKeyMetaType() == Meta::Type::RSTRING)
-						mapAttr.insertElement(ConstValueHandle(lastKey), valueElemHandle);
+				case SPL::Meta::Type::MAP : {
+					SPL::Map & mapAttr = valueHandle;
+					if(mapAttr.getKeyMetaType() == SPL::Meta::Type::RSTRING)
+						mapAttr.insertElement(SPL::ConstValueHandle(lastKey), valueElemHandle);
 					else
-						mapAttr.insertElement(ConstValueHandle(ustring(lastKey.data(), lastKey.length())), valueElemHandle);
+						mapAttr.insertElement(SPL::ConstValueHandle(SPL::ustring(lastKey.data(), lastKey.length())), valueElemHandle);
 
 					break;
 				}
-				case Meta::Type::BMAP : {
-					BMap & mapAttr = valueHandle;
-					if(mapAttr.getKeyMetaType() == Meta::Type::RSTRING)
-						mapAttr.insertElement(ConstValueHandle(lastKey), valueElemHandle);
+				case SPL::Meta::Type::BMAP : {
+					SPL::BMap & mapAttr = valueHandle;
+					if(mapAttr.getKeyMetaType() == SPL::Meta::Type::RSTRING)
+						mapAttr.insertElement(SPL::ConstValueHandle(lastKey), valueElemHandle);
 					else
-						mapAttr.insertElement(ConstValueHandle(ustring(lastKey.data(), lastKey.length())), valueElemHandle);
+						mapAttr.insertElement(SPL::ConstValueHandle(SPL::ustring(lastKey.data(), lastKey.length())), valueElemHandle);
 
 					break;
 				}
@@ -418,16 +416,16 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 		}
 
 	private:
-		rstring lastKey;
-		Meta::Type valueType;
+		SPL::rstring lastKey;
+		SPL::Meta::Type valueType;
 		std::stack<TupleState> objectStack;
 	};
 
-	inline Tuple& extractFromJSON(rstring const& jsonString, Tuple & tuple) {
+	inline SPL::Tuple& extractFromJSON(SPL::rstring const& jsonString, SPL::Tuple & tuple) {
 
 	    EventHandler handler(tuple);
-	    Reader reader;
-	    StringStream jsonStringStream(jsonString.c_str());
+	    rapidjson::Reader reader;
+	    rapidjson::StringStream jsonStringStream(jsonString.c_str());
 	    reader.Parse(jsonStringStream, handler);
 
 		return tuple;
@@ -435,29 +433,29 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 
 
 	template<typename T>
-	inline T parseNumber(Value * value) {
-		StringBuffer str;
-		Writer<StringBuffer> writer(str);
+	inline T parseNumber(rapidjson::Value * value) {
+		rapidjson::StringBuffer str;
+		rapidjson::Writer<rapidjson::StringBuffer> writer(str);
 		value->Accept(writer);
-		return spl_cast<T,SPL::rstring>::cast( SPL::rstring(str.GetString()));
+		return SPL::spl_cast<T,SPL::rstring>::cast( SPL::rstring(str.GetString()));
 	}
 
 	template<typename Status>
-	inline rstring getParseError(Status const& status) {
-		return GetParseError_En((ParseErrorCode)status.getIndex());
+	inline SPL::rstring getParseError(Status const& status) {
+		return GetParseError_En((rapidjson::ParseErrorCode)status.getIndex());
 	}
 
 	template<typename Status, typename Index>
-	inline boolean getJSONValue(Value * value, boolean defaultVal, Status & status, Index const& jsonIndex) {
+	inline SPL::boolean getJSONValue(rapidjson::Value * value, SPL::boolean defaultVal, Status & status, Index const& jsonIndex) {
 
 		if(!value)					status = 4;
 		else if(value->IsNull())	status = 3;
 		else {
 			try {
-				if(value->IsBool())		{ status = 0; return static_cast<boolean>(value->GetBool()); }
-				if(value->IsString())	{ status = 1; return lexical_cast<boolean>(value->GetString()); }
+				if(value->IsBool())		{ status = 0; return static_cast<SPL::boolean>(value->GetBool()); }
+				if(value->IsString())	{ status = 1; return streams_boost::lexical_cast<SPL::boolean>(value->GetString()); }
 			}
-			catch(bad_lexical_cast const&) {}
+			catch(streams_boost::bad_lexical_cast const&) {}
 
 			status = 2;
 		}
@@ -466,12 +464,12 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 	}
 
 	template<typename T, typename Status, typename Index>
-	inline T getJSONValue(Value * value, T defaultVal, Status & status, Index const& jsonIndex,
-					   typename enable_if< typename mpl::or_<
-					   	   mpl::bool_< is_arithmetic<T>::value>,
-					   	   mpl::bool_< is_same<decimal32, T>::value>,
-					   	   mpl::bool_< is_same<decimal64, T>::value>,
-						   mpl::bool_< is_same<decimal128, T>::value>
+	inline T getJSONValue(rapidjson::Value * value, T defaultVal, Status & status, Index const& jsonIndex,
+					   typename streams_boost::enable_if< typename streams_boost::mpl::or_<
+					   	   streams_boost::mpl::bool_< streams_boost::is_arithmetic<T>::value>,
+						   streams_boost::mpl::bool_< streams_boost::is_same<SPL::decimal32, T>::value>,
+						   streams_boost::mpl::bool_< streams_boost::is_same<SPL::decimal64, T>::value>,
+						   streams_boost::mpl::bool_< streams_boost::is_same<SPL::decimal128, T>::value>
 					   >::type, void*>::type t = NULL) {
 
 		if(!value)
@@ -481,27 +479,27 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 		else if(value->IsNumber())	{
 			status = 0;
 
-			if( is_same<SPL::int8, T>::value)		return static_cast<T>(value->GetInt());
-			if( is_same<SPL::int16, T>::value)		return static_cast<T>(value->GetInt());
-			if( is_same<SPL::int32, T>::value)		return static_cast<T>(value->GetInt());
-			if( is_same<SPL::int64, T>::value)		return static_cast<T>(value->GetInt64());
-			if( is_same<SPL::uint8, T>::value)		return static_cast<T>(value->GetUint());
-			if( is_same<SPL::uint16, T>::value)		return static_cast<T>(value->GetUint());
-			if( is_same<SPL::uint32, T>::value)		return static_cast<T>(value->GetUint());
-			if( is_same<SPL::uint64, T>::value)		return static_cast<T>(value->GetUint64());
-			if( is_same<SPL::float32, T>::value)	return static_cast<T>(value->GetFloat());
-			if( is_same<SPL::float64, T>::value)	return static_cast<T>(value->GetDouble());
-			if( is_same<SPL::decimal32, T>::value)	return parseNumber<T>(value);
-			if( is_same<SPL::decimal64, T>::value)	return parseNumber<T>(value);
-			if( is_same<SPL::decimal128, T>::value)	return parseNumber<T>(value);
+			if( streams_boost::is_same<SPL::int8, T>::value)		return static_cast<T>(value->GetInt());
+			if( streams_boost::is_same<SPL::int16, T>::value)		return static_cast<T>(value->GetInt());
+			if( streams_boost::is_same<SPL::int32, T>::value)		return static_cast<T>(value->GetInt());
+			if( streams_boost::is_same<SPL::int64, T>::value)		return static_cast<T>(value->GetInt64());
+			if( streams_boost::is_same<SPL::uint8, T>::value)		return static_cast<T>(value->GetUint());
+			if( streams_boost::is_same<SPL::uint16, T>::value)		return static_cast<T>(value->GetUint());
+			if( streams_boost::is_same<SPL::uint32, T>::value)		return static_cast<T>(value->GetUint());
+			if( streams_boost::is_same<SPL::uint64, T>::value)		return static_cast<T>(value->GetUint64());
+			if( streams_boost::is_same<SPL::float32, T>::value)		return static_cast<T>(value->GetFloat());
+			if( streams_boost::is_same<SPL::float64, T>::value)		return static_cast<T>(value->GetDouble());
+			if( streams_boost::is_same<SPL::decimal32, T>::value)	return parseNumber<T>(value);
+			if( streams_boost::is_same<SPL::decimal64, T>::value)	return parseNumber<T>(value);
+			if( streams_boost::is_same<SPL::decimal128, T>::value)	return parseNumber<T>(value);
 		}
 		else if(value->IsString())	{
 			status = 1;
 
 			try {
-				return lexical_cast<T>(value->GetString());
+				return streams_boost::lexical_cast<T>(value->GetString());
 			}
-			catch(bad_lexical_cast const&) {
+			catch(streams_boost::bad_lexical_cast const&) {
 				status = 2;
 			}
 		}
@@ -512,10 +510,10 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 	}
 
 	template<typename T, typename Status, typename Index>
-	inline T getJSONValue(Value * value, T const& defaultVal, Status & status, Index const& jsonIndex,
-					   typename enable_if< typename mpl::or_<
-					   	   mpl::bool_< is_base_of<RString, T>::value>,
-						   mpl::bool_< is_same<ustring, T>::value>
+	inline T getJSONValue(rapidjson::Value * value, T const& defaultVal, Status & status, Index const& jsonIndex,
+					   typename streams_boost::enable_if< typename streams_boost::mpl::or_<
+					   	   streams_boost::mpl::bool_< streams_boost::is_base_of<SPL::RString, T>::value>,
+						   streams_boost::mpl::bool_< streams_boost::is_same<SPL::ustring, T>::value>
 					   >::type, void*>::type t = NULL) {
 
 		status = 0;
@@ -525,26 +523,26 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 		else {
 			try {
 				switch (value->GetType()) {
-					case kStringType: {
+					case rapidjson::kStringType: {
 						status = 0;
 						return value->GetString();
 					}
-					case kFalseType: {
+					case rapidjson::kFalseType: {
 						status = 1;
 						return "false";
 					}
-					case kTrueType: {
+					case rapidjson::kTrueType: {
 						status = 1;
 						return "true";
 					}
-					case kNumberType: {
+					case rapidjson::kNumberType: {
 						status = 1;
 						return parseNumber<T>(value);
 					}
 					default:;
 				}
 			}
-			catch(bad_lexical_cast const&) {}
+			catch(streams_boost::bad_lexical_cast const&) {}
 
 			status = 2;
 		}
@@ -553,7 +551,7 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 	}
 
 	template<typename T, typename Status, typename Index>
-	inline list<T> getJSONValue(Value * value, list<T> const& defaultVal, Status & status, Index const& jsonIndex) {
+	inline SPL::list<T> getJSONValue(rapidjson::Value * value, SPL::list<T> const& defaultVal, Status & status, Index const& jsonIndex) {
 
 		if(!value)					status = 4;
 		else if(value->IsNull())	status = 3;
@@ -561,12 +559,12 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 		else						status = 0;
 
 		if(status == 0) {
-			Value::Array arr = value->GetArray();
-			list<T> result;
+			rapidjson::Value::Array arr = value->GetArray();
+			SPL::list<T> result;
 			result.reserve(arr.Size());
 			Status valueStatus = 0;
 
-			for (Value::Array::ValueIterator it = arr.Begin(); it != arr.End(); ++it) {
+			for (rapidjson::Value::Array::ValueIterator it = arr.Begin(); it != arr.End(); ++it) {
 				T val = getJSONValue(it, T(), valueStatus, jsonIndex);
 
 				if(valueStatus == 0)
@@ -589,12 +587,12 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 	namespace { // this anonymous namespace will be defined for each operator separately
 
 		template<typename Index>
-		inline Document& getDocument() {
-			static thread_specific_ptr<Document> jsonPtr_;
+		inline rapidjson::Document& getDocument() {
+			static streams_boost::thread_specific_ptr<rapidjson::Document> jsonPtr_;
 
-			Document * jsonPtr = jsonPtr_.get();
+			rapidjson::Document * jsonPtr = jsonPtr_.get();
 			if(!jsonPtr) {
-				jsonPtr_.reset(new Document());
+				jsonPtr_.reset(new rapidjson::Document());
 				jsonPtr = jsonPtr_.get();
 			}
 
@@ -602,11 +600,11 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 		}
 
 		template<typename Status, typename Index>
-		inline bool parseJSON(rstring const& jsonString, Status & status, uint32_t & offset, const Index & jsonIndex) {
-			Document & json = getDocument<Index>();
-			Document(kObjectType).Swap(json);
+		inline bool parseJSON(SPL::rstring const& jsonString, Status & status, uint32_t & offset, const Index & jsonIndex) {
+			rapidjson::Document & json = getDocument<Index>();
+			rapidjson::Document(rapidjson::kObjectType).Swap(json);
 
-			if(json.Parse<kParseStopWhenDoneFlag>(jsonString.c_str()).HasParseError()) {
+			if(json.Parse<rapidjson::kParseStopWhenDoneFlag>(jsonString.c_str()).HasParseError()) {
 				json.SetObject();
 				status = json.GetParseError();
 				offset = json.GetErrorOffset();
@@ -617,9 +615,9 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 		}
 
 		template<typename Index>
-		inline uint32_t  parseJSON(rstring const& jsonString, const Index & jsonIndex) {
+		inline uint32_t  parseJSON(SPL::rstring const& jsonString, const Index & jsonIndex) {
 
-			ParseErrorCode status = kParseErrorNone;
+			rapidjson::ParseErrorCode status = rapidjson::kParseErrorNone;
 			uint32_t offset = 0;
 
 			if(!parseJSON(jsonString, status, offset, jsonIndex))
@@ -629,17 +627,17 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 		}
 
 		template<typename T, typename Status, typename Index>
-		inline T queryJSON(rstring const& jsonPath, T const& defaultVal, Status & status, Index const& jsonIndex) {
+		inline T queryJSON(SPL::rstring const& jsonPath, T const& defaultVal, Status & status, Index const& jsonIndex) {
 
-			Document & json = getDocument<Index>();
+			rapidjson::Document & json = getDocument<Index>();
 			if(json.IsNull())
 				THROW(SPL::SPLRuntimeOperator, "Invalid usage of 'queryJSON' function, 'parseJSON' function must be used before.");
 
-			const Pointer & pointer = Pointer(jsonPath.c_str());
-			PointerParseErrorCode ec = pointer.GetParseErrorCode();
+			const rapidjson::Pointer & pointer = rapidjson::Pointer(jsonPath.c_str());
+			rapidjson::PointerParseErrorCode ec = pointer.GetParseErrorCode();
 
 			if(pointer.IsValid()) {
-				Value * value = pointer.Get(json);
+				rapidjson::Value * value = pointer.Get(json);
 				return getJSONValue(value, defaultVal, status, jsonIndex);
 			}
 			else {
@@ -649,7 +647,7 @@ namespace com { namespace ibm { namespace streamsx { namespace json {
 		}
 
 		template<typename T, typename Index>
-		inline T queryJSON(rstring const& jsonPath, T const& defaultVal, Index const& jsonIndex) {
+		inline T queryJSON(SPL::rstring const& jsonPath, T const& defaultVal, Index const& jsonIndex) {
 
 			 int status = 0;
 			 return queryJSON(jsonPath, defaultVal, status, jsonIndex);
