@@ -22,7 +22,7 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBM Streams com.ibm.streamsx.json Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.json.html">com.ibm.streamsx.json 1.4.3.commit_b028245</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.json.html">com.ibm.streamsx.json</a> &gt; C++ Native Functions</p>
+<a class="xref" href="../toolkits/toolkits.html">IBM Streams com.ibm.streamsx.json Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.json.html">com.ibm.streamsx.json 1.5.1</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.json.html">com.ibm.streamsx.json</a> &gt; C++ Native Functions</p>
 
 </div>
 
@@ -34,10 +34,10 @@ This page documents native functions that can be invoked from SPL, including the
 <p class="p splhead-1"><strong class="ph b"><a class="xref" href="../references/FunctionModel.html#spldoc_reference_function_model__functionset__functions">Functions</a></strong></p>
 <dl class="dl" compact="compact">
  
-   <dt class="dt dlterm splpart" id="spldoc_functions__extractFromJSON.rstring.T"><tt class="ph tt">      &lt;tuple T&gt; public T extractFromJSON(rstring jsonString, T value)      </tt>   </dt>
+   <dt class="dt dlterm splpart" id="spldoc_functions__extractFromJSON.rstring.T"><tt class="ph tt">      &lt;tuple T&gt; public T extractFromJSON(rstring jsonString, mutable T value)      </tt>   </dt>
 
    <dd class="dd">
-<p class="p">Extract values from JSON string accordingly to a given tuple.
+<p class="p">Extract values from JSON string accordingly to a given tuple.  Blob, complex, xml, timestamp and decimal type attributes are not supported. Collections don't support nesting.  Optional types are supported for primitive types and list and set of primitive types only. Optional bounded types are not supported. 
 </p>
 
    <dl class="dl">
@@ -64,6 +64,10 @@ This page documents native functions that can be invoked from SPL, including the
              <dt class="dt dlterm"><tt class="ph tt">value</tt></dt>
 
              <dd class="dd">
+
+<p class="p">A mutable tuple to save extracted values. 
+</p>
+
              </dd>
 
            
@@ -138,6 +142,53 @@ This page documents native functions that can be invoked from SPL, including the
    <dt class="dt dlterm splpart" id="spldoc_functions__mapToJSON.map:.:S.T:.:"><tt class="ph tt">      &lt;string S, any T&gt; public rstring mapToJSON(map&lt;S, T&gt; m)      </tt>   </dt>
 
    <dd class="dd">
+<p class="p">Convert a map to JSON object encoded as a serialized JSON string. Blob, complex and xml values are converted to nulls. Timestamp is converted to a date string representation.
+</p>
+
+   <dl class="dl">
+     <dt class="dt dlterm"/>
+<dd class="dd"/>
+
+     
+       <dt class="dt dlterm">Parameters</dt>
+
+       <dd class="dd">
+         <dl class="dl" compact="compact">
+           
+             <dt class="dt dlterm"><tt class="ph tt">m</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">Map containing key-value pairs to be converted to JSON. 
+</p>
+
+             </dd>
+
+           
+         </dl>
+
+       </dd>
+
+     
+     
+       <dt class="dt dlterm">Returns</dt>
+
+       <dd class="dd">
+
+<p class="p">Serialized JSON object containing all name-value pairs in <tt class="ph tt">m</tt>. 
+</p>
+       </dd>
+
+     
+</dl>
+
+   </dd>
+
+ 
+ 
+   <dt class="dt dlterm splpart" id="spldoc_functions__mapToJSON.map:.:S.T:.:.rstring"><tt class="ph tt">      &lt;string S, any T&gt; public rstring mapToJSON(map&lt;S, T&gt; m, rstring prefixToIgnore)      </tt>   </dt>
+
+   <dd class="dd">
 <p class="p">Convert a map to JSON object encoded as a serialized JSON string. Blob, complex and xml values are converted to nulls.
 </p>
 
@@ -156,6 +207,17 @@ This page documents native functions that can be invoked from SPL, including the
              <dd class="dd">
 
 <p class="p">Map containing key-value pairs to be converted to JSON. 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">prefixToIgnore</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">rstring prefix to ignore in attribute name . 
 </p>
 
              </dd>
@@ -281,6 +343,10 @@ This page documents native functions that can be invoked from SPL, including the
              <dt class="dt dlterm"><tt class="ph tt">offset</tt></dt>
 
              <dd class="dd">
+
+<p class="p">returns the offset in JSON string where parse error occured (use when status returns error). 
+</p>
+
              </dd>
 
            
@@ -1511,7 +1577,7 @@ This page documents native functions that can be invoked from SPL, including the
    <dt class="dt dlterm splpart" id="spldoc_functions__toJSON.S.T"><tt class="ph tt">      &lt;string S, any T&gt; public rstring toJSON(S key, T value)      </tt>   </dt>
 
    <dd class="dd">
-<p class="p">Convert a value to JSON object with a single key encoded as a serialized JSON string. Blob, complex and xml values are converted to nulls.
+<p class="p">Convert a value to JSON object with a single key encoded as a serialized JSON string. Blob, complex and xml values are converted to nulls. An input value of type optional being null will generate also null in JSON.
 </p>
 
    <dl class="dl">
@@ -1566,7 +1632,123 @@ This page documents native functions that can be invoked from SPL, including the
 
  
  
+   <dt class="dt dlterm splpart" id="spldoc_functions__toJSON.S.T.rstring"><tt class="ph tt">      &lt;string S, any T&gt; public rstring toJSON(S key, T value, rstring prefixToIgnore)      </tt>   </dt>
+
+   <dd class="dd">
+<p class="p">Convert a value to JSON object with a single key encoded as a serialized JSON string. Blob, complex and xml values are converted to nulls.
+</p>
+
+   <dl class="dl">
+     <dt class="dt dlterm"/>
+<dd class="dd"/>
+
+     
+       <dt class="dt dlterm">Parameters</dt>
+
+       <dd class="dd">
+         <dl class="dl" compact="compact">
+           
+             <dt class="dt dlterm"><tt class="ph tt">key</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">Key for name-value pair to be converted to JSON. 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">value</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">Value for <tt class="ph tt">key</tt>. 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">prefixToIgnore</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">rstring prefix to ignore in attribute name . 
+</p>
+
+             </dd>
+
+           
+         </dl>
+
+       </dd>
+
+     
+     
+       <dt class="dt dlterm">Returns</dt>
+
+       <dd class="dd">
+
+<p class="p">Serialized JSON object containing single name-value pair. 
+</p>
+       </dd>
+
+     
+</dl>
+
+   </dd>
+
+ 
+ 
    <dt class="dt dlterm splpart" id="spldoc_functions__tupleToJSON.T"><tt class="ph tt">      &lt;tuple T&gt; public rstring tupleToJSON(T t)      </tt>   </dt>
+
+   <dd class="dd">
+<p class="p">Convert a tuple to JSON object encoded as a serialized JSON String.  Blob, complex and xml values are converted to nulls. Timestamp is converted to a date string representation. Optional attributes having null value are converted to null in JSON. 
+</p>
+
+   <dl class="dl">
+     <dt class="dt dlterm"/>
+<dd class="dd"/>
+
+     
+       <dt class="dt dlterm">Parameters</dt>
+
+       <dd class="dd">
+         <dl class="dl" compact="compact">
+           
+             <dt class="dt dlterm"><tt class="ph tt">t</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">Tuple to be converted to JSON. 
+</p>
+
+             </dd>
+
+           
+         </dl>
+
+       </dd>
+
+     
+     
+       <dt class="dt dlterm">Returns</dt>
+
+       <dd class="dd">
+
+<p class="p">Tuple encoded as a serialized JSON object.
+</p>
+       </dd>
+
+     
+</dl>
+
+   </dd>
+
+ 
+ 
+   <dt class="dt dlterm splpart" id="spldoc_functions__tupleToJSON.T.rstring"><tt class="ph tt">      &lt;tuple T&gt; public rstring tupleToJSON(T t, rstring prefixToIgnore)      </tt>   </dt>
 
    <dd class="dd">
 <p class="p">Convert a tuple to JSON object encoded as a serialized JSON String. Blob, complex and xml values are converted to nulls.
@@ -1587,6 +1769,17 @@ This page documents native functions that can be invoked from SPL, including the
              <dd class="dd">
 
 <p class="p">Tuple to be converted to JSON. 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">prefixToIgnore</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">rstring prefix to ignore in attribute name . 
 </p>
 
              </dd>

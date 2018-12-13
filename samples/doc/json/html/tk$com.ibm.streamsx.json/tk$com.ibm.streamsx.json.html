@@ -7,22 +7,22 @@
 <meta name="copyright" content="(C) Copyright 2005"/>
 <meta name="DC.rights.owner" content="(C) Copyright 2005"/>
 <meta name="DC.Type" content="reference"/>
-<meta name="DC.Title" content="Toolkit com.ibm.streamsx.json 1.4.3.commit_8c13ca1"/>
+<meta name="DC.Title" content="Toolkit com.ibm.streamsx.json 1.5.1"/>
 <meta name="DC.Format" content="XHTML"/>
 <meta name="DC.Identifier" content="spldoc_toolkit"/>
 <link rel="stylesheet" type="text/css" href="../../html/commonltr.css"/>
 <link rel="stylesheet" type="text/css" href="../../html/spldoc.css"/>
-<title>Toolkit com.ibm.streamsx.json 1.4.3.commit_8c13ca1</title>
+<title>Toolkit com.ibm.streamsx.json 1.5.1</title>
 </head>
 <body id="spldoc_toolkit">
 
 
-<h1 class="title topictitle1 spltoolkitname">Toolkit <tt class="ph tt">com.ibm.streamsx.json 1.4.3.commit_8c13ca1</tt></h1>
+<h1 class="title topictitle1 spltoolkitname">Toolkit <tt class="ph tt">com.ibm.streamsx.json 1.5.1</tt></h1>
 
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBM Streams com.ibm.streamsx.json Toolkit and samples</a> &gt; com.ibm.streamsx.json 1.4.3.commit_8c13ca1</p>
+<a class="xref" href="../toolkits/toolkits.html">IBM Streams com.ibm.streamsx.json Toolkit and samples</a> &gt; com.ibm.streamsx.json 1.5.1</p>
 
 </div>
 
@@ -32,20 +32,23 @@
 <p class="p">JSON support for SPL. This toolkit provides standard transforms between SPL values and JSON objects. Other toolkits can utilize the standard representation to allow processing of tuples as JSON objects, typically when interfacing with external systems. For example the <tt class="ph tt">com.ibm.streamsx.inet</tt> toolkit uses the standard representation to support interfacing with HTTP endpoints that use mime-type <tt class="ph tt">application/json</tt>.
 </p>
 
-<p class="p">This standard representation is also used by the <tt class="ph tt">com.ibm.streamsx.topology</tt> toolkit to support interchange of streams between IBM Streams applications regardless of implementation language. For example an SPL application converts a SPL schema stream to a stream of type <a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__type__Json">Json</a> using <a class="xref" href="op$com.ibm.streamsx.json$TupleToJSON.html">com.ibm.streamsx.json::TupleToJSON</a> and then publishes the resulting stream using <tt class="ph tt">com.ibm.streamsx.topology.topic::Publish</tt>. An application implemented in Python (or any other language) may them subscribe to the stream of JSON objects. 
+<p class="p">This standard representation is also used by the <tt class="ph tt">com.ibm.streamsx.topology</tt> toolkit to support interchange of streams between IBM Streams applications regardless of implementation language. For example an SPL application converts a SPL schema stream to a stream of type <a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__type__Json">Json</a> using <a class="xref" href="op$com.ibm.streamsx.json$TupleToJSON.html">com.ibm.streamsx.json::TupleToJSON</a> and then publishes the resulting stream using <tt class="ph tt">com.ibm.streamsx.topology.topic::Publish</tt>. An application implemented in Python (or any other language) may them subscribe to the stream of JSON objects.
+</p>
+
+<p class="p">The toolkit supports optional types. For detailed information have a look at the separate items of this toolkit. 
 </p>
 
 <dl class="dl">
   
   <dt class="dt dlterm">Version</dt>
 
-  <dd class="dd">1.4.3.commit_8c13ca1</dd>
+  <dd class="dd">1.5.1</dd>
 
   
   
   <dt class="dt dlterm">Required Product Version</dt>
 
-  <dd class="dd">4.0.1</dd>
+  <dd class="dd">4.3.0</dd>
 
   
   
@@ -119,6 +122,8 @@ JSON support for SPL.
 
 <li class="sli"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__mapToJSON.map:.:S.T:.:">mapToJSON(map&lt;S, T&gt;)</a></li>
 
+<li class="sli"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__mapToJSON.map:.:S.T:.:.rstring">mapToJSON(map&lt;S, T&gt;, rstring)</a></li>
+
 <li class="sli"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__parseJSON.rstring.E">parseJSON(rstring, E)</a></li>
 
 <li class="sli"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__parseJSON.rstring.JsonParseStatus.status.uint32.E">parseJSON(rstring, JsonParseStatus.status, uint32, E)</a></li>
@@ -157,7 +162,11 @@ JSON support for SPL.
 
 <li class="sli"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__toJSON.S.T">toJSON(S, T)</a></li>
 
+<li class="sli"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__toJSON.S.T.rstring">toJSON(S, T, rstring)</a></li>
+
 <li class="sli"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__tupleToJSON.T">tupleToJSON(T)</a></li>
+
+<li class="sli"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__tupleToJSON.T.rstring">tupleToJSON(T, rstring)</a></li>
 
 </ul>
 

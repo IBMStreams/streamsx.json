@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en-us" lang="en-us">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="copyright" content="(C) Copyright 2005"/>
+<meta name="DC.rights.owner" content="(C) Copyright 2005"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="SPL File JsonArrayConvert.spl"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="spldoc_compilationunit"/>
+<link rel="stylesheet" type="text/css" href="../../html/commonltr.css"/>
+<link rel="stylesheet" type="text/css" href="../../html/spldoc.css"/>
+<title>SPL File JsonArrayConvert.spl</title>
+</head>
+<body id="spldoc_compilationunit">
+
+
+<h1 class="title topictitle1">SPL File <tt class="ph tt">JsonArrayConvert.spl</tt></h1>
+
+<div class="body refbody">
+<div class="section">
+<p class="p">
+<a class="xref" href="../toolkits/toolkits.html">IBM Streams com.ibm.streamsx.json Toolkit and samples</a> &gt; <a class="xref" href="tk$TupleToJSONConvert.html">TupleToJSONConvert 1.0.0</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.json.sample.ttoj.html">com.ibm.streamsx.json.sample.ttoj</a> &gt; JsonArrayConvert.spl</p>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-1">Content</h2>
+  
+  <dl class="dl">
+    <dt class="dt dlterm"/>
+<dd class="dd"/>
+
+    
+      <dt class="dt dlterm splhead-2">Operators</dt>
+
+      <dd class="dd">
+<ul class="sl simple">
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json.sample.ttoj$JsonArrayConvert.html#spldoc_compilationunit__composite_operator__JsonArrayConvert">JsonArrayConvert</a></strong>: Example showing how to output a JSON array instead of a JSON record using <a class="xref" href="../tk$com.ibm.streamsx.json/op$com.ibm.streamsx.json$TupleToJSON.html">com.ibm.streamsx.json::TupleToJSON</a>. Expected output will have a single array of records 
+</li>
+
+</ul>
+
+      </dd>
+
+    
+  </dl>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-1">Composites</h2>
+  
+</div>
+
+<div class="section" id="spldoc_compilationunit__composite_operator__JsonArrayConvert"><h2 class="title sectiontitle splpart">composite JsonArrayConvert</h2>
+  
+</div>
+
+<div class="section splgraph">
+  <embed class="image" src="../../image/tk$TupleToJSONConvert/op$com.ibm.streamsx.json.sample.ttoj$JsonArrayConvert.svg" width="337" height="109"/>
+</div>
+
+<div class="section">
+
+<p class="p">Example showing how to output a JSON array instead of a JSON record using <a class="xref" href="../tk$com.ibm.streamsx.json/op$com.ibm.streamsx.json$TupleToJSON.html">com.ibm.streamsx.json::TupleToJSON</a>. Expected output will have a single array of records
+</p>
+
+<p class="p"><tt class="ph tt">[ { "name" : "John" }, {"name" : "Kate"} ]</tt>
+</p>
+
+</div>
+
+<div class="section">
+</div>
+
+<div class="section">
+</div>
+
+<div class="section">
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-2">SPL Source Code</h2>
+  
+</div>
+
+
+<div class="section">
+   <pre class="pre codeblock">
+
+ public composite JsonArrayConvert {
+ 
+ 
+ 	type
+ 		MyType = rstring name;
+ 	graph
+ 		stream&lt;list&lt;MyType&gt; mylist&gt; InputS = Beacon() {
+ 			param iterations : 1u;
+ 			output InputS : mylist = [
+ 			{ name = "John"},
+ 			{ name = "Kate"}
+ 			];
+ 		}
+ 
+ 		stream&lt;Json&gt; OutputS = TupleToJSON(InputS) {
+ 			param
+ 				//this attribute must be specified
+ 				inputAttribute :mylist;
+ 		}
+ 		() as SinkOp = Custom(OutputS) {
+ 			logic onTuple OutputS : {
+ 				println((rstring)OutputS);
+ 			}
+ 		}
+ 
+ }
+
+   </pre>
+
+</div>
+
+</div>
+
+
+</body>
+</html>

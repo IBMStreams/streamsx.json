@@ -22,7 +22,7 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBM Streams com.ibm.streamsx.json Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.json.html">com.ibm.streamsx.json 1.4.3.commit_b028245</a> &gt; com.ibm.streamsx.json</p>
+<a class="xref" href="../toolkits/toolkits.html">IBM Streams com.ibm.streamsx.json Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.json.html">com.ibm.streamsx.json 1.5.1</a> &gt; com.ibm.streamsx.json</p>
 
 </div>
 
@@ -59,6 +59,9 @@
 </li>
 
 <li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__mapToJSON.map:.:S.T:.:">mapToJSON(map&lt;S, T&gt;)</a></strong>: Convert a map to JSON object encoded as a serialized JSON string.
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__mapToJSON.map:.:S.T:.:.rstring">mapToJSON(map&lt;S, T&gt;, rstring)</a></strong>: Convert a map to JSON object encoded as a serialized JSON string.
 </li>
 
 <li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__parseJSON.rstring.E">parseJSON(rstring, E)</a></strong>: Parse JSON string (used in conjunction with queryJSON function).
@@ -118,7 +121,13 @@
 <li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__toJSON.S.T">toJSON(S, T)</a></strong>: Convert a value to JSON object with a single key encoded as a serialized JSON string.
 </li>
 
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__toJSON.S.T.rstring">toJSON(S, T, rstring)</a></strong>: Convert a value to JSON object with a single key encoded as a serialized JSON string.
+</li>
+
 <li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__tupleToJSON.T">tupleToJSON(T)</a></strong>: Convert a tuple to JSON object encoded as a serialized JSON String.
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.json.html#spldoc_functions__tupleToJSON.T.rstring">tupleToJSON(T, rstring)</a></strong>: Convert a tuple to JSON object encoded as a serialized JSON String.
 </li>
 
 </ul>
@@ -131,70 +140,70 @@
 <li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__type__Json">Json</a></strong>: Default tuple type for representing JSON object.
 </li>
 
-<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_1">JsonIndex.type_1</a></strong>
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_1">JsonIndex.type_1</a></strong>: Single-value enum type with value JsonIndex._1 to reference internal stored JSON object 
 </li>
 
-<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_10">JsonIndex.type_10</a></strong>
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_10">JsonIndex.type_10</a></strong>: Single-value enum type with value JsonIndex._10 to reference internal stored JSON object 
 </li>
 
-<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_11">JsonIndex.type_11</a></strong>
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_11">JsonIndex.type_11</a></strong>: Single-value enum type with value JsonIndex._11 to reference internal stored JSON object 
 </li>
 
-<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_12">JsonIndex.type_12</a></strong>
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_12">JsonIndex.type_12</a></strong>: Single-value enum type with value JsonIndex._12 to reference internal stored JSON object 
 </li>
 
-<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_13">JsonIndex.type_13</a></strong>
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_13">JsonIndex.type_13</a></strong>: Single-value enum type with value JsonIndex._13 to reference internal stored JSON object 
 </li>
 
-<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_14">JsonIndex.type_14</a></strong>
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_14">JsonIndex.type_14</a></strong>: Single-value enum type with value JsonIndex._14 to reference internal stored JSON object 
 </li>
 
-<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_15">JsonIndex.type_15</a></strong>
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_15">JsonIndex.type_15</a></strong>: Single-value enum type with value JsonIndex._15 to reference internal stored JSON object 
 </li>
 
-<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_16">JsonIndex.type_16</a></strong>
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_16">JsonIndex.type_16</a></strong>: Single-value enum type with value JsonIndex._16 to reference internal stored JSON object 
 </li>
 
-<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_17">JsonIndex.type_17</a></strong>
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_17">JsonIndex.type_17</a></strong>: Single-value enum type with value JsonIndex._17 to reference internal stored JSON object 
 </li>
 
-<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_18">JsonIndex.type_18</a></strong>
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_18">JsonIndex.type_18</a></strong>: Single-value enum type with value JsonIndex._18 to reference internal stored JSON object 
 </li>
 
-<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_19">JsonIndex.type_19</a></strong>
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_19">JsonIndex.type_19</a></strong>: Single-value enum type with value JsonIndex._19 to reference internal stored JSON object 
 </li>
 
-<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_2">JsonIndex.type_2</a></strong>
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_2">JsonIndex.type_2</a></strong>: Single-value enum type with value JsonIndex._2 to reference internal stored JSON object 
 </li>
 
-<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_20">JsonIndex.type_20</a></strong>
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_20">JsonIndex.type_20</a></strong>: Single-value enum type with value JsonIndex._20 to reference internal stored JSON object 
 </li>
 
-<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_3">JsonIndex.type_3</a></strong>
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_3">JsonIndex.type_3</a></strong>: Single-value enum type with value JsonIndex._3 to reference internal stored JSON object 
 </li>
 
-<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_4">JsonIndex.type_4</a></strong>
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_4">JsonIndex.type_4</a></strong>: Single-value enum type with value JsonIndex._4 to reference internal stored JSON object 
 </li>
 
-<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_5">JsonIndex.type_5</a></strong>
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_5">JsonIndex.type_5</a></strong>: Single-value enum type with value JsonIndex._5 to reference internal stored JSON object 
 </li>
 
-<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_6">JsonIndex.type_6</a></strong>
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_6">JsonIndex.type_6</a></strong>: Single-value enum type with value JsonIndex._6 to reference internal stored JSON object 
 </li>
 
-<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_7">JsonIndex.type_7</a></strong>
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_7">JsonIndex.type_7</a></strong>: Single-value enum type with value JsonIndex._7 to reference internal stored JSON object 
 </li>
 
-<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_8">JsonIndex.type_8</a></strong>
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_8">JsonIndex.type_8</a></strong>: Single-value enum type with value JsonIndex._8 to reference internal stored JSON object 
 </li>
 
-<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_9">JsonIndex.type_9</a></strong>
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonIndex.type_9">JsonIndex.type_9</a></strong>: Single-value enum type with value JsonIndex._9 to reference internal stored JSON object 
 </li>
 
-<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonParseStatus.status">JsonParseStatus.status</a></strong>
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonParseStatus.status">JsonParseStatus.status</a></strong>: Errors returned by parseJSON()  
 </li>
 
-<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonStatus.status">JsonStatus.status</a></strong>
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.json$types.html#spldoc_compilationunit__composite_type__JsonStatus.status">JsonStatus.status</a></strong>: Errors returned by queryJSON()  
 </li>
 
 </ul>
