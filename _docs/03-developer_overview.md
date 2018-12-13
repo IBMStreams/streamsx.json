@@ -11,9 +11,9 @@ sidebar:
 {% include toc %}
 {% include editme %}
 
-##Supported IBM Streams versions
+## Support for different IBM Streams versions
 
-With IBM Streams 4.3 the new type **optional&lt;&gt;** was introduced. Providing support for this feature makes the new JSON toolkit versions (&gt;1.5) incompatible with  IBM Streams releases &lt; 4.3.
+With IBM Streams 4.3 the new type **optional&lt;&gt;** was introduced. Providing support for this feature makes the new JSON toolkit versions (&gt;=1.5) incompatible with IBM Streams releases &lt;4.3.
 
 New toolkit releases are developed in **develop** branch and released on **master** branch.
 
