@@ -3,3 +3,4 @@ com.ibm.streamsx.json/TupleToJSON
 /output/
 /build.xml~
 /info.xml~
+/.build.info
