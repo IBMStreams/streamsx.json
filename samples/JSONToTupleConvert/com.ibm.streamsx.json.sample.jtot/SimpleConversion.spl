@@ -28,7 +28,7 @@ public composite SimpleJsonConvert {
 	//Read and parse the json into a SPL tuple
 	//Note that the [JSONTuTuple] operator will match the tuple attributes 
 	//to their respective JSON ones. Attribute names have to match exactly 
-	stream<Json> ParsedS = JSONToTuple(JsonS) {
+	stream<JsonType> ParsedS = JSONToTuple(JsonS) {
 	}
 	
 	() as SinkOp = Custom(ParsedS) {
