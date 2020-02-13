@@ -30,7 +30,7 @@ them subscribe to the stream of JSON objects.
 The toolkit supports optional types. For detailed information have a look
 at the separate items of this toolkit.
 </info:description>
-    <info:version>1.5.2</info:version>
+    <info:version>1.5.3</info:version>
     <info:requiredProductVersion>4.3.0</info:requiredProductVersion>
   </info:identity>
   <info:dependencies/>
