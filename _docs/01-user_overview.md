@@ -22,6 +22,4 @@ sidebar:
 
 [Package com.ibm.streamsx.json.converters](https://ibmstreams.github.io/streamsx.json/com.ibm.streamsx.json/doc/converters/index.html)
 
-## Articles
 
-[DeveloperWorks: Introducing the json toolkit](https://developer.ibm.com/streamsdev/docs/introducing-the-json-toolkit/)

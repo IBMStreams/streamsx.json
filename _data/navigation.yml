@@ -20,6 +20,8 @@ userdocs:
     children:
       - title: "Overview"
         url: /docs/user/overview
+      - title: "Introduction"
+        url: /docs/user/introduction/
 
 # developer documentation links
 developerdocs:
