@@ -100,20 +100,25 @@ $STREAMS_INSTALL$/toolkits/com.ibm.streamsx.json/scripts/createTypes.sh <json_fi
 
 <json_file> is a file that can contain one or more JSON strings to be converted. Each JSON string must appear on a single line in the file. The output of this utility will print SPL types that closely match the JSON structure. Here is an example of running this script against a file containing a single JSON string:
 
+
 **myfile.json:**
+
 ```
 {"src" : "helloworld.jpg", "width" : 500, "height" : 500, "alignment" : "center"}
 ```
 
 Running the command:
+
 ```
 $ ./createTypes.sh myfile.json
   type MainType = rstring src, int64 width, rstring alignment, int64 height;
 ```
 
+
 ### C++ Native functions
 
 The toolkit also contains functions that allow you to convert SPL types to JSON from within Custom operators. Some of the  available functions include:
+
 
 Function |	Description
 -------- | -------- 
@@ -121,6 +126,7 @@ public rstring mapToJSON(map<S, T> m)	| Convert a map to JSON object encoded as 
 public rstring toJSON(S key, T value)	 |Convert a value to JSON object with a single key encoded as a serialized JSON string
 public rstring tupleToJSON(T t)	 | Convert a tuple to JSON object encoded as a serialized JSON String
 public T extractFromJSON(rstring jsonString, T value)	 | Convert a JSON string to a given tuple.
+
 
 More information on these functions can be found on the (Toolkit documentation)[https://ibmstreams.github.io/streamsx.json/com.ibm.streamsx.json/doc/spldoc/html/index.html].
 
