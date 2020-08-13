@@ -2,7 +2,7 @@
 title: "Toolkit Introduction"
 permalink: /docs/user/introduction/
 excerpt: "Toolkit introduction"
-last_modified_at: 2018-01-09T11:00:00-00:00
+last_modified_at: 2020-08-13T11:00:00-00:00
 redirect_from:
    - /theme-setup/
 sidebar:
@@ -98,7 +98,7 @@ Packaged in the scripts/ directory of the toolkit is a script called `createType
 $STREAMS_INSTALL$/toolkits/com.ibm.streamsx.json/scripts/createTypes.sh <json_file>
 ```
 
-<json_file> is a file that can contain one or more JSON strings to be converted. Each JSON string must appear on a single line in the file. The output of this utility will print SPL types that closely match the JSON structure. Here is an example of running this script against a file containing a single JSON string:
+`json_file` is a file that can contain one or more JSON strings to be converted. Each JSON string must appear on a single line in the file. The output of this utility will print SPL types that closely match the JSON structure. Here is an example of running this script against a file containing a single JSON string:
 
 
 **myfile.json:**
@@ -117,8 +117,9 @@ $ ./createTypes.sh myfile.json
 
 ### C++ Native functions
 
-The toolkit also contains functions that allow you to convert SPL types to JSON from within Custom operators. Some of the  available functions include:
+The toolkit also contains functions that allow you to convert SPL types to JSON from within Custom operators.
 
+Some of the available functions include:
 
 Function |	Description
 -------- | -------- 
