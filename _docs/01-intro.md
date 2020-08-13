@@ -2,7 +2,7 @@
 title: "Toolkit Introduction"
 permalink: /docs/user/introduction/
 excerpt: "Toolkit introduction"
-last_modified_at: 2020-08-13T11:00:00-00:00
+last_modified_at: 2020-08-13T12:00:00-00:00
 redirect_from:
    - /theme-setup/
 sidebar:
@@ -129,7 +129,7 @@ public rstring tupleToJSON(T t)	 | Convert a tuple to JSON object encoded as a s
 public T extractFromJSON(rstring jsonString, T value)	 | Convert a JSON string to a given tuple.
 
 
-More information on these functions can be found on the (Toolkit documentation)[https://ibmstreams.github.io/streamsx.json/com.ibm.streamsx.json/doc/spldoc/html/index.html].
+More information on these functions can be found on the [Toolkit documentation](https://ibmstreams.github.io/streamsx.json/com.ibm.streamsx.json/doc/spldoc/html/index.html).
 
 
 
