@@ -15,7 +15,7 @@ sidebar:
 
 With IBM Streams 4.3 the new type **optional&lt;&gt;** was introduced. Providing support for this feature makes the new JSON toolkit versions (&gt;=1.5) incompatible with IBM Streams releases &lt;4.3.
 
-New toolkit releases are developed in **develop** branch and released on **master** branch.
+New toolkit releases are developed and released in **develop** branch.
 
 To support IBM Streams releases &lt;4.3 with fixes for the JSON toolkit there is the 1.4.x_m branch where the fixes are developed and released.
 
