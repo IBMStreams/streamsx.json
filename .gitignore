@@ -44,3 +44,6 @@ test/result.txt
 test/bin
 com.ibm.streamsx.json/scripts/emotion.json
 com.ibm.streamsx.json/scripts/report.json
+
+.DS_Store
+/**/.DS_Store
