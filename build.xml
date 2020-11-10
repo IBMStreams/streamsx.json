@@ -61,7 +61,7 @@
   	<ant dir="${toolkit}" target="all"/>
   </target>
 
-  <target name="spldoc" depends="setcommitversion, _spldoc-json, _spldoc-samples, revertversion"/>
+  <target name="spldoc" depends="setcommitversion, _spldoc-json, revertversion"/>
 
   <target name="samples" depends="toolkit">
     <subant target="indextoolkit" genericantfile="${basedir}/build.xml">
