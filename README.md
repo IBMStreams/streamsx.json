@@ -3,6 +3,9 @@ streamsx.json
 
 Toolkit for working with JSON in SPL applications.
 
+## Changes
+[CHANGELOG.md](com.ibm.streamsx.json/CHANGELOG.md)
+
 This toolkit implements the NLS feature. Use the guidelines for the message bundle that are described in [The messages and the NLS for toolkits](https://github.com/IBMStreams/administration/wiki/Messages-and-National-Language-Support-for-toolkits)
 
 For compilation instructions, operator details and samples see here: https://github.com/IBMStreams/streamsx.json/wiki
