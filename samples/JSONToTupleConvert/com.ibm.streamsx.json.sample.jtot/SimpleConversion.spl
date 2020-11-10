@@ -20,7 +20,7 @@ public composite SimpleJsonConvert {
 	//read the sample file containing one json string per line
 	stream<Json> JsonS = FileSource() {
 		param 
-			file : "sample.json";
+			file : getThisToolkitDir()+"/opt/sample.json";
 			format : line;
 			
 	}
