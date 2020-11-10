@@ -16,7 +16,7 @@ use com.ibm.streamsx.json::*;
  * { arrays1 : [[1], [2]] } - not supported 
  * { arrays2 : [ { a : [1] }, { a : [2] } ] } - supported 
  */
-composite ExtractFromJSON {
+public composite ExtractFromJSON {
 type
 	Flattened_t = rstring name, int32 age, list<rstring> relatives, rstring street, rstring city;
 	Nested_t = tuple<rstring name, int32 age, list<rstring> relatives> person, tuple<rstring street, rstring city> address;

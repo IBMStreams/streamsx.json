@@ -23,7 +23,7 @@ use com.ibm.streamsx.json::*;
  * Calls to parseJSON or queryJSON should not be placed in param section or state of the operator
  * (internally json object shared via thread local storage)
  */
-composite QueryJSONBasic {
+public composite QueryJSONBasic {
 type
 	Relatives_t =  list<rstring>;
 	Person_t = rstring name, int32 age, Relatives_t relatives, rstring street, rstring city;
